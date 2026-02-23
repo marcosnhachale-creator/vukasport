@@ -1,30 +1,341 @@
-// 1. Registro do Service Worker (Essencial para o PWA)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('VukaSport: Service Worker Ativo!', reg))
-            .catch(err => console.log('Erro ao registrar Service Worker:', err));
-    });
-}
+/**
+ * VukaSport - Aplicação Principal
+ * Gerencia a exibição de jogos e atualização dinâmica
+ */
 
-// 2. Lógica de Interatividade do App
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("VukaSport carregado com sucesso!");
+class GameManager {
+    constructor() {
+        this.games = [];
+        this.loadGames();
+        this.initializeApp();
+    }
 
-    // Exemplo: Função para o botão de boas-vindas
-    const mainBtn = document.querySelector('#main-button');
-    if (mainBtn) {
-        mainBtn.addEventListener('click', () => {
-            alert('Bem-vindo ao VukaSport! O seu app de desporto.');
+    /**
+     * Inicializa a aplicação
+     */
+    initializeApp() {
+        // Se não há jogos, criar alguns de exemplo
+        if (this.games.length === 0) {
+            this.createSampleGames();
+        }
+
+        // Renderizar jogos
+        this.renderGames();
+
+        // Atualizar o cronómetro a cada 60 segundos (1 minuto real)
+        // Para demonstração rápida, pode mudar para 10000 (10s) se preferir
+        setInterval(() => this.updateLiveGames(), 60000);
+
+        // Sincronização em tempo real entre abas (Admin -> Jogos)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'vukasport_games') {
+                this.loadGames();
+                this.renderGames();
+                // Se estivermos no admin, atualizar a lista lá também
+                if (typeof adminPanel !== 'undefined') {
+                    adminPanel.renderGamesList();
+                }
+            }
         });
     }
-});
 
-// 3. Captura de Instalação (Prompt para o usuário instalar o app)
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    console.log("O VukaSport já pode ser instalado na tela inicial!");
-});
+    /**
+     * Cria jogos de exemplo para demonstração
+     */
+    createSampleGames() {
+        const sampleGames = [
+            {
+                id: 1,
+                homeTeam: 'Sporting CP',
+                awayTeam: 'Benfica',
+                homeGoals: 2,
+                awayGoals: 1,
+                status: 'live',
+                minute: 67,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() + 3600000).toISOString()
+            },
+            {
+                id: 2,
+                homeTeam: 'Porto',
+                awayTeam: 'Braga',
+                homeGoals: 1,
+                awayGoals: 1,
+                status: 'halftime',
+                minute: 45,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() + 7200000).toISOString()
+            },
+            {
+                id: 3,
+                homeTeam: 'Vitória SC',
+                awayTeam: 'Santa Clara',
+                homeGoals: 0,
+                awayGoals: 0,
+                status: 'scheduled',
+                minute: 0,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() + 86400000).toISOString()
+            },
+            {
+                id: 4,
+                homeTeam: 'Arouca',
+                awayTeam: 'Moreirense',
+                homeGoals: 3,
+                awayGoals: 2,
+                status: 'finished',
+                minute: 90,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() - 3600000).toISOString()
+            }
+        ];
 
+        this.games = sampleGames;
+        this.saveGames();
+    }
+
+    /**
+     * Carrega os jogos do localStorage
+     */
+    loadGames() {
+        const gamesStr = localStorage.getItem('vukasport_games');
+        
+        if (gamesStr) {
+            try {
+                this.games = JSON.parse(gamesStr);
+                console.log('Jogos carregados do localStorage:', this.games.length);
+            } catch (error) {
+                console.error('Erro ao carregar jogos:', error);
+                this.games = [];
+            }
+        }
+    }
+
+    /**
+     * Guarda os jogos no localStorage
+     */
+    saveGames() {
+        localStorage.setItem('vukasport_games', JSON.stringify(this.games));
+        console.log('Jogos guardados no localStorage');
+    }
+
+    /**
+     * Obtém todos os jogos
+     * @returns {array} - Array de jogos
+     */
+    getGames() {
+        return this.games;
+    }
+
+    /**
+     * Obtém um jogo pelo ID
+     * @param {number} gameId - ID do jogo
+     * @returns {object|null} - Jogo ou null
+     */
+    getGameById(gameId) {
+        return this.games.find(game => game.id === parseInt(gameId));
+    }
+
+    /**
+     * Adiciona um novo jogo
+     * @param {object} gameData - Dados do jogo
+     * @returns {object} - Jogo criado
+     */
+    addGame(gameData) {
+        const newGame = {
+            id: Date.now(),
+            homeTeam: gameData.homeTeam,
+            awayTeam: gameData.awayTeam,
+            homeGoals: 0,
+            awayGoals: 0,
+            status: 'scheduled',
+            minute: 0,
+            competition: gameData.competition,
+            date: gameData.gameDate
+        };
+
+        this.games.push(newGame);
+        this.saveGames();
+        console.log('Novo jogo adicionado:', newGame);
+        return newGame;
+    }
+
+    /**
+     * Atualiza um jogo existente
+     * @param {number} gameId - ID do jogo
+     * @param {object} updates - Dados a atualizar
+     * @returns {boolean} - True se atualizado com sucesso
+     */
+    updateGame(gameId, updates) {
+        const game = this.getGameById(gameId);
+        
+        if (!game) {
+            console.error('Jogo não encontrado:', gameId);
+            return false;
+        }
+
+        // Atualizar apenas os campos fornecidos
+        Object.assign(game, updates);
+        this.saveGames();
+        console.log('Jogo atualizado:', game);
+        return true;
+    }
+
+    /**
+     * Elimina um jogo
+     * @param {number} gameId - ID do jogo
+     * @returns {boolean} - True se eliminado com sucesso
+     */
+    deleteGame(gameId) {
+        const index = this.games.findIndex(game => game.id === parseInt(gameId));
+        
+        if (index === -1) {
+            console.error('Jogo não encontrado:', gameId);
+            return false;
+        }
+
+        this.games.splice(index, 1);
+        this.saveGames();
+        console.log('Jogo eliminado:', gameId);
+        return true;
+    }
+
+    /**
+     * Obtém o texto do status do jogo
+     * @param {string} status - Status do jogo
+     * @returns {string} - Texto do status
+     */
+    getStatusText(status) {
+        const statusMap = {
+            'scheduled': 'Agendado',
+            'live': 'Em Direto',
+            'halftime': 'Intervalo',
+            'extra': 'Prolongamento',
+            'finished': 'Terminado'
+        };
+        return statusMap[status] || status;
+    }
+
+    /**
+     * Atualiza os jogos em direto (cronómetro automático)
+     */
+    updateLiveGames() {
+        let hasChanges = false;
+
+        this.games.forEach(game => {
+            // Apenas avança o tempo se o jogo estiver "Em Direto" ou "Prolongamento"
+            if (game.status === 'live' || game.status === 'extra') {
+                // Limite máximo de 120 minutos para prolongamentos
+                const maxMinute = (game.status === 'extra') ? 120 : 90;
+                
+                if (game.minute < maxMinute) {
+                    game.minute += 1;
+                    hasChanges = true;
+                }
+            }
+        });
+
+        if (hasChanges) {
+            this.saveGames();
+            this.renderGames();
+            
+            // Se estivermos no admin, atualizar a lista lá também
+            if (typeof adminPanel !== 'undefined') {
+                adminPanel.renderGamesList();
+            }
+        }
+    }
+
+    /**
+     * Renderiza os jogos na página
+     */
+    renderGames() {
+        const gamesList = document.getElementById('gamesList');
+        const emptyState = document.getElementById('emptyState');
+
+        if (!gamesList) return;
+
+        if (this.games.length === 0) {
+            gamesList.innerHTML = '';
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+
+        if (emptyState) emptyState.style.display = 'none';
+
+        // Ordenar jogos por data
+        const sortedGames = [...this.games].sort((a, b) => 
+            new Date(a.date) - new Date(b.date)
+        );
+
+        gamesList.innerHTML = sortedGames.map(game => this.createGameCard(game)).join('');
+    }
+
+    /**
+     * Cria o HTML de um cartão de jogo
+     * @param {object} game - Dados do jogo
+     * @returns {string} - HTML do cartão
+     */
+    createGameCard(game) {
+        const statusClass = `status-${game.status}`;
+        const statusText = this.getStatusText(game.status);
+        const gameDate = new Date(game.date);
+        const dateStr = gameDate.toLocaleDateString('pt-PT', {
+            weekday: 'short',
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        let minuteDisplay = '';
+        if (game.status === 'live') {
+            minuteDisplay = `<div class="minute-indicator">${game.minute}'</div>`;
+        } else if (game.status === 'halftime') {
+            minuteDisplay = `<div class="minute-indicator">45' (Intervalo)</div>`;
+        } else if (game.status === 'extra') {
+            minuteDisplay = `<div class="minute-indicator">${game.minute}' (Prolongamento)</div>`;
+        }
+
+        return `
+            <div class="game-card">
+                <div class="game-header">
+                    <span class="game-competition">${game.competition}</span>
+                    <span class="game-status ${statusClass}">${statusText}</span>
+                </div>
+
+                <div class="game-teams">
+                    <div class="teams-row">
+                        <div class="team">
+                            <div class="team-name">${game.homeTeam}</div>
+                            <div class="score">${game.homeGoals}</div>
+                        </div>
+                        <div class="vs">vs</div>
+                        <div class="team">
+                            <div class="team-name">${game.awayTeam}</div>
+                            <div class="score">${game.awayGoals}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="game-info">
+                    <div class="info-row">
+                        <span class="info-label">Data:</span>
+                        <span class="info-value">${dateStr}</span>
+                    </div>
+                    ${minuteDisplay ? `<div class="info-row">${minuteDisplay}</div>` : ''}
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Instância global do gestor de jogos
+const gameManager = new GameManager();
+
+// Atualizar jogos quando a página fica visível (após voltar do separador)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        gameManager.renderGames();
+    }
+});

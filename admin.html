@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VukaSport - Painel de Administração">
+    <meta name="theme-color" content="#1e7e34">
+    <title>VukaSport - Painel de Administração</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">⚽ VukaSport</h1>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link">Jogos</a>
+                    <a href="admin.html" class="nav-link active">Admin</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Login Section (shown when not authenticated) -->
+            <section id="loginSection" class="auth-section">
+                <div class="auth-card">
+                    <h2>Painel de Administração</h2>
+                    <p class="auth-subtitle">Faça login para gerir os jogos</p>
+                    
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="username">Utilizador:</label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                placeholder="admin" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Palavra-passe:</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                placeholder="••••••••" 
+                                required
+                            >
+                        </div>
+
+                        <div class="form-info">
+                            <p><strong>Credenciais de teste:</strong></p>
+                            <p>Utilizador: <code>admin</code></p>
+                            <p>Palavra-passe: <code>123456</code></p>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-large">Entrar</button>
+                    </form>
+
+                    <div id="loginError" class="error-message" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- Admin Dashboard (shown when authenticated) -->
+            <section id="adminSection" class="admin-section" style="display: none;">
+                <div class="admin-header">
+                    <h2>Painel de Administração</h2>
+                    <button id="logoutBtn" class="btn btn-secondary">Sair</button>
+                </div>
+
+                <!-- Games Management -->
+                <div class="admin-content">
+                    <h3>Gerir Jogos</h3>
+                    
+                    <!-- Add New Game Form -->
+                    <div class="add-game-section">
+                        <h4>Adicionar Novo Jogo</h4>
+                        <form id="addGameForm" class="game-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="homeTeam">Equipa Casa:</label>
+                                    <input 
+                                        type="text" 
+                                        id="homeTeam" 
+                                        name="homeTeam" 
+                                        placeholder="Ex: Sporting CP" 
+                                        required
+                                    >
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="awayTeam">Equipa Visitante:</label>
+                                    <input 
+                                        type="text" 
+                                        id="awayTeam" 
+                                        name="awayTeam" 
+                                        placeholder="Ex: Benfica" 
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="gameDate">Data do Jogo:</label>
+                                    <input 
+                                        type="datetime-local" 
+                                        id="gameDate" 
+                                        name="gameDate" 
+                                        required
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="competition">Competição:</label>
+                                    <input 
+                                        type="text" 
+                                        id="competition" 
+                                        name="competition" 
+                                        placeholder="Ex: Primeira Liga" 
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Adicionar Jogo</button>
+                        </form>
+                    </div>
+
+                    <!-- Games List for Editing -->
+                    <div class="games-management-section">
+                        <h4>Jogos Registados</h4>
+                        <div id="gamesList" class="games-management-list">
+                            <!-- Jogos serão carregados aqui -->
+                        </div>
+                        <div id="emptyGames" class="empty-state" style="display: none;">
+                            <p>Nenhum jogo registado. Adicione um novo jogo acima.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal para editar jogo -->
+    <div id="editModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Jogo</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            
+            <form id="editGameForm" class="game-form">
+                <input type="hidden" id="editGameId" name="gameId">
+
+                <div class="form-group">
+                    <label for="editStatus">Estado do Jogo:</label>
+                    <select id="editStatus" name="status" required>
+                        <option value="scheduled">Agendado</option>
+                        <option value="live">Em Direto</option>
+                        <option value="halftime">Intervalo</option>
+                        <option value="extra">Prolongamento</option>
+                        <option value="finished">Terminado</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editHomeGoals">Golos Casa:</label>
+                        <input 
+                            type="number" 
+                            id="editHomeGoals" 
+                            name="homeGoals" 
+                            min="0" 
+                            value="0" 
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editAwayGoals">Golos Visitante:</label>
+                        <input 
+                            type="number" 
+                            id="editAwayGoals" 
+                            name="awayGoals" 
+                            min="0" 
+                            value="0" 
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editMinute">Minuto:</label>
+                    <input 
+                        type="number" 
+                        id="editMinute" 
+                        name="minute" 
+                        min="0" 
+                        value="0" 
+                        required
+                    >
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEdit">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="deleteGame">Eliminar Jogo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

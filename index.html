@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VukaSport - Acompanhamento de Jogos em Tempo Real">
+    <meta name="theme-color" content="#1e7e34">
+    <title>VukaSport - Resultados em Tempo Real</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">⚽ VukaSport</h1>
+                <nav class="nav">
+                    <a href="index.html" class="nav-link active">Jogos</a>
+                    <a href="admin.html" class="nav-link">Admin</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Title Section -->
+            <section class="title-section">
+                <h2>Resultados dos Jogos</h2>
+                <p class="subtitle">Acompanhe os jogos em tempo real</p>
+            </section>
+
+            <!-- Games List -->
+            <section class="games-section">
+                <div id="gamesList" class="games-grid">
+                    <!-- Jogos serão carregados aqui pelo JavaScript -->
+                </div>
+            </section>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>Nenhum jogo disponível no momento.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
+            <p class="offline-indicator" id="offlineIndicator" style="display: none;">
+                ⚠️ Modo Offline - Dados em cache
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Registar o Service Worker para funcionalidade offline
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registado com sucesso:', registration);
+                })
+                .catch(error => {
+                    console.log('Erro ao registar Service Worker:', error);
+                });
+        }
+
+        // Monitorar estado online/offline
+        window.addEventListener('online', () => {
+            document.getElementById('offlineIndicator').style.display = 'none';
+            console.log('Aplicação online');
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineIndicator').style.display = 'block';
+            console.log('Aplicação offline');
+        });
+    </script>
+</body>
+</html>
