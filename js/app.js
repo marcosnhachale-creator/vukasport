@@ -221,7 +221,7 @@ class GameManager {
         } else {
             // Apenas criar jogos de exemplo na primeira utilização
             console.log('Primeira utilização - criando jogos de exemplo');
-            this.createSampleGames();
+      //      this.createSampleGames();
         }
     }
 
