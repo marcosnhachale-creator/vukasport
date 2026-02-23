@@ -1,5 +1,5 @@
 /* ========================================
-   Footer - NOVO DESIGN
+   Footer - DESENVOLVEDOR SEM EFEITOS
    ======================================== */
 
 .footer {
@@ -45,31 +45,21 @@
     font-size: 18px;
     font-weight: bold;
     color: #FFD700; /* Dourado */
-    cursor: pointer;
-    transition: all 0.3s ease;
+    cursor: pointer; /* MANTÉM O CLIQUE SECRETO */
+    /* REMOVIDOS TODOS OS EFEITOS */
+    transition: none;
     display: inline-block;
-    position: relative;
+    /* SEM SUBLINHADO, SEM ANIMAÇÕES */
 }
 
+/* REMOVIDO O hover effect */
 .developer-name:hover {
-    transform: scale(1.05);
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    /* NADA ACONTECE - PARECE NORMAL */
 }
 
+/* REMOVIDO O after com sublinhado */
 .developer-name::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #FFD700;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.developer-name:hover::after {
-    transform: scaleX(1);
+    display: none;
 }
 
 .footer-support {
@@ -96,104 +86,4 @@
     border-radius: 20px;
     background: rgba(255, 255, 255, 0.15);
     display: inline-block;
-}
-
-/* ========================================
-   Cores dos Status - Mantendo as atuais
-   ======================================== */
-
-.status-scheduled {
-    background-color: #e8f4f8;
-    color: #0277bd;
-}
-
-.status-live {
-    background-color: #ffebee;
-    color: #c62828;
-    animation: pulse 1.5s infinite;
-}
-
-.status-halftime {
-    background-color: #fff3e0;
-    color: #e65100;
-}
-
-.status-extra {
-    background-color: #f3e5f5;
-    color: #6a1b9a;
-}
-
-.status-finished {
-    background-color: #e8f5e9;
-    color: #1b5e20;
-}
-
-/* ========================================
-   Placar - Cores
-   ======================================== */
-
-.score {
-    font-size: 48px;
-    font-weight: bold;
-    color: var(--primary-color); /* Verde */
-    line-height: 1;
-}
-
-.game-card {
-    border-left: 5px solid var(--primary-color); /* Verde */
-}
-
-.team-name {
-    color: var(--dark-text);
-    font-weight: 600;
-}
-
-/* ========================================
-   Apoio - Banner
-   ======================================== */
-
-.support-banner {
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
-    color: white;
-    padding: 12px 0;
-}
-
-.support-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.support-icon {
-    font-size: 20px;
-    animation: heartbeat 1.5s infinite;
-}
-
-.support-text {
-    font-weight: 500;
-    font-size: 14px;
-}
-
-.btn-support {
-    background-color: white;
-    color: #FF6B6B;
-    border: none;
-    padding: 6px 20px;
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-support:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
 }
