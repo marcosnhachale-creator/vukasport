@@ -14,12 +14,7 @@ class GameManager {
      * Inicializa a aplicação
      */
     initializeApp() {
-        // Se não há jogos, criar alguns de exemplo
-        if (this.games.length === 0) {
-            this.createSampleGames();
-        }
-
-        // Renderizar jogos
+        // Renderizar jogos (sem criar exemplos automaticamente)
         this.renderGames();
 
         // Atualizar o cronómetro a cada 60 segundos (1 minuto real)
@@ -40,7 +35,7 @@ class GameManager {
     }
 
     /**
-     * Cria jogos de exemplo para demonstração
+     * Cria jogos de exemplo para demonstração (apenas na primeira utilização)
      */
     createSampleGames() {
         const sampleGames = [
@@ -196,6 +191,10 @@ class GameManager {
                 console.error('Erro ao carregar jogos:', error);
                 this.games = [];
             }
+        } else {
+            // Apenas criar jogos de exemplo na primeira utilização (quando não há dados guardados)
+            console.log('Primeira utilização - criando jogos de exemplo');
+            this.createSampleGames();
         }
     }
 
