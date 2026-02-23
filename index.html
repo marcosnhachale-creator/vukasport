@@ -1,24 +1,40 @@
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-main">
-                <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
-                <p class="offline-indicator" id="offlineIndicator" style="display: none;">
-                    ⚠️ Modo Offline
-                </p>
-                <p class="sync-indicator" id="syncIndicator" style="display: none;">
-                    🔄 Sincronizando...
-                </p>
-            </div>
-            
-            <div class="footer-developer">
-                <div class="developer-label">DESENVOLVEDOR</div>
-                <div class="developer-name" id="developerName">Marcos Nhachale</div>
-                <div class="footer-support">
-                    <span>❤️ Apoie: <a href="#" onclick="openSupportModal(); return false;">M-Pesa 852092063</a></span>
-                </div>
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e7e34">
+    <title>VukaSport - Live Scores</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="dark-mode"> <header class="header">
+        <div class="container">
+            <div class="header-top">
+                <h1 class="logo">⚽ VukaSport</h1>
+                <div id="connectionStatus" class="status-dot online"></div>
             </div>
         </div>
-    </div>
-</footer>
+    </header>
+
+    <main class="container">
+        <div id="gamesContainer" class="games-list">
+            <div class="loading-spinner">Carregando resultados...</div>
+        </div>
+    </main>
+
+    <footer class="footer-modern">
+        <p>Desenvolvido por <span id="devName" class="dev-name">Marcos Nhachale</span></p>
+    </footer>
+
+    <script src="js/firebase.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Registo do SW para notificações e offline
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
+</body>
+</html>
