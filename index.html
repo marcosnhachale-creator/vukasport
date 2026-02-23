@@ -1,90 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt-PT">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VukaSport - Acompanhamento de Jogos em Tempo Real">
-    <meta name="theme-color" content="#1e7e34" id="themeColor">
-    <title>VukaSport - Resultados em Tempo Real</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dark-mode.css">
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <h1 class="logo">⚽ VukaSport</h1>
-                <div class="header-controls">
-                    <button class="theme-toggle" id="themeToggle" aria-label="Alternar modo escuro">
-                        <span class="theme-icon">🌙</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Support Banner -->
-    <div class="support-banner">
-        <div class="support-content">
-            <span class="support-icon">❤️</span>
-            <span class="support-text">Gosta da aplicação? Apoie-nos!</span>
-            <button class="btn btn-support" onclick="openSupportModal()">Apoiar</button>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <main class="main">
-        <div class="container">
-            <!-- Title Section -->
-            <section class="title-section">
-                <h2>Resultados dos Jogos</h2>
-                <p class="subtitle">Acompanhe os jogos em tempo real</p>
-            </section>
-
-            <!-- Games List -->
-            <section class="games-section">
-                <div id="gamesList" class="games-grid">
-                    <!-- Jogos serão carregados aqui -->
-                </div>
-            </section>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <p>Nenhum jogo disponível no momento.</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Support Modal -->
-    <div id="supportModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>❤️ Apoie a VukaSport</h3>
-                <button class="modal-close" onclick="closeSupportModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p class="support-description">Obrigado por usar a VukaSport! Se gosta da aplicação, pode apoiar-nos enviando um valor via M-Pesa.</p>
-                <div class="support-info-box">
-                    <p class="support-label">Número M-Pesa:</p>
-                    <p class="support-mpesa-number">852092063</p>
-                    <button class="btn btn-primary" onclick="copySupportNumber()">Copiar Número</button>
-                </div>
-                <p class="support-thanks">Qualquer valor é bem-vindo e nos ajuda a melhorar a aplicação!</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-main">
                 <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
-                <p class="developer" id="developerName">Desenvolvido por <span class="dev-name">Marcos Nhachale</span></p>
                 <p class="offline-indicator" id="offlineIndicator" style="display: none;">
                     ⚠️ Modo Offline
                 </p>
@@ -92,145 +11,14 @@
                     🔄 Sincronizando...
                 </p>
             </div>
-        </div>
-    </footer>
-
-    <!-- Hidden Admin Login -->
-    <div id="secretAdminModal" class="modal" style="display: none;">
-        <div class="modal-content admin-login-modal">
-            <div class="modal-header">
-                <h3>🔐 Acesso Administrativo</h3>
-                <button class="modal-close" onclick="closeSecretAdminModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="secretLoginForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="secretUsername">Utilizador:</label>
-                        <input type="text" id="secretUsername" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="secretPassword">Palavra-passe:</label>
-                        <input type="password" id="secretPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-large">Entrar</button>
-                </form>
-                <div id="secretLoginError" class="error-message" style="display: none;"></div>
+            
+            <div class="footer-developer">
+                <div class="developer-label">DESENVOLVEDOR</div>
+                <div class="developer-name" id="developerName">Marcos Nhachale</div>
+                <div class="footer-support">
+                    <span>❤️ Apoie: <a href="#" onclick="openSupportModal(); return false;">M-Pesa 852092063</a></span>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="js/auth.js"></script>
-    <script src="js/sync-manager.js"></script>
-    <script src="js/notifications.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/theme.js"></script>
-    <script>
-        // Funções para o modal de apoio
-        function openSupportModal() {
-            document.getElementById('supportModal').style.display = 'flex';
-        }
-
-        function closeSupportModal() {
-            document.getElementById('supportModal').style.display = 'none';
-        }
-
-        function copySupportNumber() {
-            const mpesaNumber = '852092063';
-            navigator.clipboard.writeText(mpesaNumber).then(() => {
-                alert('Número M-Pesa copiado: ' + mpesaNumber);
-            }).catch(err => {
-                console.error('Erro ao copiar:', err);
-                alert('Número M-Pesa: ' + mpesaNumber);
-            });
-        }
-
-        // Fechar modal ao clicar fora
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('supportModal');
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeSupportModal();
-                }
-            });
-        });
-
-        // Registar o Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registado');
-                })
-                .catch(error => {
-                    console.log('Erro ao registar Service Worker:', error);
-                });
-        }
-
-        // Monitorar estado online/offline
-        window.addEventListener('online', () => {
-            document.getElementById('offlineIndicator').style.display = 'none';
-            if (window.syncManager) {
-                window.syncManager.startSync();
-            }
-        });
-
-        window.addEventListener('offline', () => {
-            document.getElementById('offlineIndicator').style.display = 'block';
-        });
-
-        // Sistema de clique secreto para admin
-        let clickCount = 0;
-        let clickTimer = null;
-
-        document.getElementById('developerName').addEventListener('click', () => {
-            clickCount++;
-            
-            if (clickTimer) {
-                clearTimeout(clickTimer);
-            }
-
-            clickTimer = setTimeout(() => {
-                if (clickCount >= 6) {
-                    openSecretAdminModal();
-                }
-                clickCount = 0;
-            }, 1000);
-        });
-
-        function openSecretAdminModal() {
-            document.getElementById('secretAdminModal').style.display = 'flex';
-        }
-
-        function closeSecretAdminModal() {
-            document.getElementById('secretAdminModal').style.display = 'none';
-            document.getElementById('secretLoginForm').reset();
-            document.getElementById('secretLoginError').style.display = 'none';
-        }
-
-        // Login secreto
-        document.getElementById('secretLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('secretUsername').value;
-            const password = document.getElementById('secretPassword').value;
-
-            if (username === 'admin' && password === '123456') {
-                closeSecretAdminModal();
-                window.location.href = 'admin.html';
-            } else {
-                const error = document.getElementById('secretLoginError');
-                error.textContent = 'Credenciais inválidas';
-                error.style.display = 'block';
-            }
-        });
-
-        // Fechar modal secreto ao clicar fora
-        const secretModal = document.getElementById('secretAdminModal');
-        secretModal.addEventListener('click', (e) => {
-            if (e.target === secretModal) {
-                closeSecretAdminModal();
-            }
-        });
-    </script>
-</body>
-                    </html>
+</footer>
