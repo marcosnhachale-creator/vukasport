@@ -195,7 +195,7 @@ class AdminPanel {
      * Trata a adição de novo jogo
      * @param {Event} e - Evento do formulário
      */
-    handleAddGame(e) {
+    async handleAddGame(e) {
         e.preventDefault();
 
         if (!authManager.canEdit()) {
@@ -214,7 +214,7 @@ class AdminPanel {
         }
 
         // Adicionar jogo
-        gameManager.addGame({
+        await gameManager.addGame({
             homeTeam,
             awayTeam,
             gameDate,
@@ -235,7 +235,7 @@ class AdminPanel {
      * Trata a edição de jogo
      * @param {Event} e - Evento do formulário
      */
-    handleEditGame(e) {
+    async handleEditGame(e) {
         e.preventDefault();
 
         if (!authManager.canEdit()) {
@@ -249,7 +249,7 @@ class AdminPanel {
         const awayGoals = parseInt(document.getElementById('editAwayGoals').value);
         const minute = parseInt(document.getElementById('editMinute').value);
 
-        if (gameManager.updateGame(gameId, {
+        if (await gameManager.updateGame(gameId, {
             status,
             homeGoals,
             awayGoals,
@@ -266,7 +266,7 @@ class AdminPanel {
     /**
      * Trata a eliminação de jogo
      */
-    handleDeleteGame() {
+    async handleDeleteGame() {
         if (!authManager.canEdit()) {
             alert('Não tem permissão para eliminar jogos.');
             return;
@@ -275,7 +275,7 @@ class AdminPanel {
         const gameId = document.getElementById('editGameId').value;
 
         if (confirm('Tem a certeza que deseja eliminar este jogo?')) {
-            if (gameManager.deleteGame(gameId)) {
+            if (await gameManager.deleteGame(gameId)) {
                 this.closeModal();
                 this.renderGamesList();
                 alert('Jogo eliminado com sucesso!');

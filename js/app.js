@@ -1,30 +1,32 @@
 /**
  * VukaSport - Aplicação Principal
- * Gerencia a exibição de jogos e atualização dinâmica
+ * Gerencia a exibição de jogos e sincronização com Firebase
  */
 
 class GameManager {
     constructor() {
         this.games = [];
-        this.loadGames();
+        this.useFirebase = true; // Usar Firebase como principal
         this.initializeApp();
     }
 
     /**
      * Inicializa a aplicação
      */
-    initializeApp() {
-        // Renderizar jogos (sem criar exemplos automaticamente)
+    async initializeApp() {
+        // Carregar jogos (primeiro Firebase, depois localStorage como fallback)
+        await this.loadGames();
+        
+        // Renderizar jogos
         this.renderGames();
 
         // Atualizar o cronómetro a cada 60 segundos (1 minuto real)
-        // Para demonstração rápida, pode mudar para 10000 (10s) se preferir
         setInterval(() => this.updateLiveGames(), 60000);
 
         // Sincronização em tempo real entre abas (Admin -> Jogos)
         window.addEventListener('storage', (e) => {
             if (e.key === 'vukasport_games') {
-                this.loadGames();
+                this.loadGamesFromLocal();
                 this.renderGames();
                 // Se estivermos no admin, atualizar a lista lá também
                 if (typeof adminPanel !== 'undefined') {
@@ -178,9 +180,34 @@ class GameManager {
     }
 
     /**
+     * Carrega os jogos (Firebase ou localStorage)
+     */
+    async loadGames() {
+        try {
+            // Tentar carregar do Firebase primeiro
+            if (this.useFirebase && typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+                const firebaseGames = await firebaseManager.loadGamesFromFirebase();
+                
+                if (firebaseGames && typeof firebaseGames === 'object') {
+                    // Converter objeto Firebase para array
+                    this.games = Object.values(firebaseGames).filter(game => game && game.id);
+                    console.log('Jogos carregados do Firebase:', this.games.length);
+                    this.saveGamesLocal(); // Guardar em cache local
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao carregar do Firebase:', error);
+        }
+
+        // Fallback para localStorage
+        this.loadGamesFromLocal();
+    }
+
+    /**
      * Carrega os jogos do localStorage
      */
-    loadGames() {
+    loadGamesFromLocal() {
         const gamesStr = localStorage.getItem('vukasport_games');
         
         if (gamesStr) {
@@ -188,22 +215,39 @@ class GameManager {
                 this.games = JSON.parse(gamesStr);
                 console.log('Jogos carregados do localStorage:', this.games.length);
             } catch (error) {
-                console.error('Erro ao carregar jogos:', error);
+                console.error('Erro ao carregar jogos do localStorage:', error);
                 this.games = [];
             }
         } else {
-            // Apenas criar jogos de exemplo na primeira utilização (quando não há dados guardados)
+            // Apenas criar jogos de exemplo na primeira utilização
             console.log('Primeira utilização - criando jogos de exemplo');
             this.createSampleGames();
         }
     }
 
     /**
-     * Guarda os jogos no localStorage
+     * Guarda os jogos no localStorage (cache)
      */
-    saveGames() {
+    saveGamesLocal() {
         localStorage.setItem('vukasport_games', JSON.stringify(this.games));
         console.log('Jogos guardados no localStorage');
+    }
+
+    /**
+     * Guarda os jogos (Firebase e localStorage)
+     */
+    async saveGames() {
+        // Guardar em localStorage como cache
+        this.saveGamesLocal();
+
+        // Guardar no Firebase
+        if (this.useFirebase && typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+            try {
+                await firebaseManager.syncGames();
+            } catch (error) {
+                console.error('Erro ao guardar no Firebase:', error);
+            }
+        }
     }
 
     /**
@@ -228,7 +272,7 @@ class GameManager {
      * @param {object} gameData - Dados do jogo
      * @returns {object} - Jogo criado
      */
-    addGame(gameData) {
+    async addGame(gameData) {
         const newGame = {
             id: Date.now(),
             homeTeam: gameData.homeTeam,
@@ -242,7 +286,13 @@ class GameManager {
         };
 
         this.games.push(newGame);
-        this.saveGames();
+        await this.saveGames();
+        
+        // Sincronizar com Firebase
+        if (this.useFirebase && typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+            await firebaseManager.addGameToFirebase(newGame);
+        }
+        
         console.log('Novo jogo adicionado:', newGame);
         return newGame;
     }
@@ -253,7 +303,7 @@ class GameManager {
      * @param {object} updates - Dados a atualizar
      * @returns {boolean} - True se atualizado com sucesso
      */
-    updateGame(gameId, updates) {
+    async updateGame(gameId, updates) {
         const game = this.getGameById(gameId);
         
         if (!game) {
@@ -263,7 +313,13 @@ class GameManager {
 
         // Atualizar apenas os campos fornecidos
         Object.assign(game, updates);
-        this.saveGames();
+        await this.saveGames();
+        
+        // Sincronizar com Firebase
+        if (this.useFirebase && typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+            await firebaseManager.updateGameInFirebase(gameId, updates);
+        }
+        
         console.log('Jogo atualizado:', game);
         return true;
     }
@@ -273,7 +329,7 @@ class GameManager {
      * @param {number} gameId - ID do jogo
      * @returns {boolean} - True se eliminado com sucesso
      */
-    deleteGame(gameId) {
+    async deleteGame(gameId) {
         const index = this.games.findIndex(game => game.id === parseInt(gameId));
         
         if (index === -1) {
@@ -282,7 +338,13 @@ class GameManager {
         }
 
         this.games.splice(index, 1);
-        this.saveGames();
+        await this.saveGames();
+        
+        // Sincronizar com Firebase
+        if (this.useFirebase && typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+            await firebaseManager.deleteGameFromFirebase(gameId);
+        }
+        
         console.log('Jogo eliminado:', gameId);
         return true;
     }
@@ -306,7 +368,7 @@ class GameManager {
     /**
      * Atualiza os jogos em direto (cronómetro automático)
      */
-    updateLiveGames() {
+    async updateLiveGames() {
         let hasChanges = false;
 
         this.games.forEach(game => {
@@ -323,7 +385,7 @@ class GameManager {
         });
 
         if (hasChanges) {
-            this.saveGames();
+            await this.saveGames();
             this.renderGames();
             
             // Se estivermos no admin, atualizar a lista lá também
