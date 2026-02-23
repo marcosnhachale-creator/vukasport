@@ -9,7 +9,7 @@
     --dark-text: #e0e0e0;
     --dark-text-secondary: #a0a0a0;
     --dark-border: #404040;
-    --dark-primary: #2ecc71;
+    --dark-primary: #2ecc71;  /* Mantém o verde */
     --dark-primary-dark: #27ae60;
 }
 
@@ -22,9 +22,13 @@ body.dark-mode .header {
     background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
 }
 
+body.dark-mode .logo {
+    color: var(--dark-primary);  /* Verde mantido */
+}
+
 body.dark-mode .game-card {
     background: var(--dark-surface);
-    border-left-color: var(--dark-primary);
+    border-left-color: var(--dark-primary);  /* Verde mantido */
 }
 
 body.dark-mode .game-competition {
@@ -37,7 +41,7 @@ body.dark-mode .team-name {
 }
 
 body.dark-mode .score {
-    color: var(--dark-primary);
+    color: var(--dark-primary);  /* Verde mantido */
 }
 
 body.dark-mode .game-info {
@@ -56,12 +60,38 @@ body.dark-mode .footer {
     background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
 }
 
+body.dark-mode .footer p {
+    color: var(--dark-text);
+}
+
 body.dark-mode .support-banner {
     background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+    border-bottom: 2px solid var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .support-text {
+    color: var(--dark-text);
+}
+
+body.dark-mode .btn-support {
+    background-color: var(--dark-primary);  /* Verde mantido */
+    color: var(--dark-bg);
 }
 
 body.dark-mode .modal-content {
     background: var(--dark-surface);
+    color: var(--dark-text);
+}
+
+body.dark-mode .modal-header {
+    border-bottom-color: var(--dark-border);
+}
+
+body.dark-mode .modal-header h3 {
+    color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .form-group label {
     color: var(--dark-text);
 }
 
@@ -76,11 +106,16 @@ body.dark-mode .form-group textarea {
 body.dark-mode .form-group input:focus,
 body.dark-mode .form-group select:focus,
 body.dark-mode .form-group textarea:focus {
-    border-color: var(--dark-primary);
+    border-color: var(--dark-primary);  /* Verde mantido */
 }
 
 body.dark-mode .support-info-box {
     background: var(--dark-surface-light);
+    border-left-color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .support-mpesa-number {
+    color: var(--dark-primary);  /* Verde mantido */
 }
 
 body.dark-mode .status-scheduled {
@@ -104,85 +139,106 @@ body.dark-mode .status-extra {
 }
 
 body.dark-mode .status-finished {
-    background: #27ae60;
+    background: var(--dark-primary-dark);  /* Verde mantido */
     color: #ffffff;
 }
 
-/* Toggle Button */
-.theme-toggle {
-    background: none;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
+body.dark-mode .minute-indicator {
+    color: var(--dark-primary);  /* Verde mantido */
 }
 
-.theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
+body.dark-mode .dev-name {
+    color: var(--dark-primary);  /* Verde mantido */
 }
 
-.theme-icon {
-    font-size: 20px;
+body.dark-mode .dev-name::after {
+    background: var(--dark-primary);  /* Verde mantido */
 }
 
-/* Developer Name */
-.developer {
-    margin-top: 10px;
-    font-size: 14px;
-    opacity: 0.8;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
+body.dark-mode .sync-indicator {
+    color: var(--dark-primary);  /* Verde mantido */
 }
 
-.developer:hover {
-    opacity: 1;
+body.dark-mode .nav-link.active {
+    background-color: var(--dark-primary);  /* Verde mantido */
+    color: var(--dark-bg);
 }
 
-.dev-name {
-    font-weight: 600;
-    color: var(--dark-primary);
-    position: relative;
-    display: inline-block;
+body.dark-mode .nav-link:hover {
+    background-color: rgba(46, 204, 113, 0.2);  /* Verde com transparência */
 }
 
-.dev-name::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--dark-primary);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
+body.dark-mode .btn-primary {
+    background-color: var(--dark-primary);  /* Verde mantido */
+    color: var(--dark-bg);
 }
 
-.developer:hover .dev-name::after {
-    transform: scaleX(1);
+body.dark-mode .btn-primary:hover {
+    background-color: var(--dark-primary-dark);
 }
 
-/* Sync Indicator */
-.sync-indicator {
-    margin-top: 5px;
-    font-size: 12px;
-    animation: pulse 1.5s infinite;
+body.dark-mode .btn-secondary {
+    background-color: var(--dark-surface-light);
+    color: var(--dark-text);
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+body.dark-mode .admin-section {
+    background: var(--dark-surface);
 }
 
-/* Footer Content */
-.footer-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
+body.dark-mode .add-game-section {
+    background-color: var(--dark-surface-light);
+}
+
+body.dark-mode .game-form {
+    background-color: var(--dark-surface);
+}
+
+body.dark-mode .game-management-card {
+    background-color: var(--dark-surface-light);
+    border-left-color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .auth-card {
+    background: var(--dark-surface);
+}
+
+body.dark-mode .form-info {
+    background-color: var(--dark-surface-light);
+    color: var(--dark-text);
+}
+
+body.dark-mode .form-info code {
+    background-color: var(--dark-surface);
+    color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .empty-state p {
+    color: var(--dark-text-secondary);
+}
+
+/* Ajustes para o toggle button no modo escuro */
+body.dark-mode .theme-toggle {
+    border-color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .theme-toggle:hover {
+    background-color: rgba(46, 204, 113, 0.2);  /* Verde com transparência */
+}
+
+/* Mantém o verde nos elementos importantes */
+body.dark-mode .title-section h2 {
+    color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .auth-card h2 {
+    color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .admin-header h2 {
+    color: var(--dark-primary);  /* Verde mantido */
+}
+
+body.dark-mode .admin-content h3 {
+    color: var(--dark-primary);  /* Verde mantido */
+}
