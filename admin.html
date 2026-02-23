@@ -77,6 +77,53 @@
                     <button id="logoutBtn" class="btn btn-secondary">Sair</button>
                 </div>
 
+                <!-- Settings Section -->
+                <div class="admin-settings">
+                    <h3>Definições de Administrador</h3>
+                    
+                    <div class="settings-card">
+                        <h4>Alterar Palavra-passe</h4>
+                        <form id="changePasswordForm" class="settings-form">
+                            <div class="form-group">
+                                <label for="currentPassword">Palavra-passe Atual:</label>
+                                <input 
+                                    type="password" 
+                                    id="currentPassword" 
+                                    name="currentPassword" 
+                                    placeholder="••••••••" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="newPassword">Nova Palavra-passe:</label>
+                                <input 
+                                    type="password" 
+                                    id="newPassword" 
+                                    name="newPassword" 
+                                    placeholder="••••••••" 
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirmar Palavra-passe:</label>
+                                <input 
+                                    type="password" 
+                                    id="confirmPassword" 
+                                    name="confirmPassword" 
+                                    placeholder="••••••••" 
+                                    required
+                                >
+                            </div>
+
+                            <div id="passwordMessage" class="form-message" style="display: none;"></div>
+                            
+                            <button type="submit" class="btn btn-primary">Atualizar Palavra-passe</button>
+                        </form>
+                    </div>
+                </div>
+
                 <!-- Games Management -->
                 <div class="admin-content">
                     <h3>Gerir Jogos</h3>
@@ -230,6 +277,7 @@
     <!-- Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/firebase.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>

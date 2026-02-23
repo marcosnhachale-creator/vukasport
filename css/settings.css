@@ -1,0 +1,71 @@
+/* ========================================
+   Admin Settings Section
+   ======================================== */
+
+.admin-settings {
+    background-color: var(--light-bg);
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.admin-settings h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.settings-card {
+    background: var(--white);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.settings-card h4 {
+    color: var(--dark-text);
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* ========================================
+   Form Messages
+   ======================================== */
+
+.form-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.form-message.success {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+    border-left-color: var(--success-color);
+}
+
+.form-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left-color: var(--danger-color);
+}
+
+.form-message.warning {
+    background-color: #fff3e0;
+    color: #e65100;
+    border-left-color: var(--warning-color);
+}
+
+.form-message.info {
+    background-color: #e3f2fd;
+    color: #0277bd;
+    border-left-color: #2196f3;
+}

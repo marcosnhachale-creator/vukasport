@@ -124,9 +124,12 @@ body {
 
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
     margin-bottom: 40px;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .game-card {
@@ -653,7 +656,8 @@ body {
     }
 
     .games-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
     }
 
     .form-row {
@@ -699,23 +703,27 @@ body {
 
 @media (max-width: 480px) {
     .container {
-        padding: 0 15px;
+        padding: 0 12px;
     }
 
     .main {
-        padding: 20px 0;
+        padding: 15px 0;
     }
 
     .title-section h2 {
-        font-size: 24px;
+        font-size: 22px;
+    }
+
+    .title-section {
+        margin-bottom: 20px;
     }
 
     .game-card {
-        padding: 15px;
+        padding: 12px;
     }
 
     .score {
-        font-size: 36px;
+        font-size: 32px;
     }
 
     .btn {
@@ -735,6 +743,11 @@ body {
         padding: 6px 12px;
         font-size: 13px;
     }
+
+    .games-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+    }
 }
 
 /* ========================================
@@ -748,5 +761,149 @@ body {
 
     .game-card {
         page-break-inside: avoid;
+    }
+}
+
+
+/* ========================================
+   Support Banner and Modal
+   ======================================== */
+
+.support-banner {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: var(--white);
+    padding: 15px 0;
+    box-shadow: var(--shadow);
+}
+
+.support-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.support-icon {
+    font-size: 20px;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.support-text {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.btn-support {
+    background-color: var(--white);
+    color: #ff6b6b;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-support:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+.modal-body {
+    padding: 20px 0;
+}
+
+.support-description {
+    font-size: 15px;
+    color: var(--dark-text);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.support-info-box {
+    background-color: var(--light-bg);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 4px solid #ff6b6b;
+}
+
+.support-label {
+    font-size: 13px;
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.support-mpesa-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff6b6b;
+    margin-bottom: 15px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.support-thanks {
+    font-size: 14px;
+    color: var(--secondary-color);
+    text-align: center;
+    font-style: italic;
+    margin-top: 15px;
+}
+
+/* ========================================
+   Responsive Support Banner
+   ======================================== */
+
+@media (max-width: 768px) {
+    .support-content {
+        gap: 10px;
+    }
+
+    .support-text {
+        font-size: 13px;
+    }
+
+    .btn-support {
+        padding: 7px 16px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .support-banner {
+        padding: 12px 0;
+    }
+
+    .support-content {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .support-text {
+        font-size: 12px;
+    }
+
+    .btn-support {
+        width: 100%;
+        padding: 10px 16px;
+    }
+
+    .support-mpesa-number {
+        font-size: 24px;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+
+    .support-info-box {
+        padding: 15px;
     }
 }

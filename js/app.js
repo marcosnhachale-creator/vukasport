@@ -87,6 +87,94 @@ class GameManager {
                 minute: 90,
                 competition: 'Primeira Liga',
                 date: new Date(Date.now() - 3600000).toISOString()
+            },
+            {
+                id: 5,
+                homeTeam: 'Boavista',
+                awayTeam: 'Académica',
+                homeGoals: 1,
+                awayGoals: 0,
+                status: 'live',
+                minute: 34,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() + 1800000).toISOString()
+            },
+            {
+                id: 6,
+                homeTeam: 'Estoril',
+                awayTeam: 'Guarda',
+                homeGoals: 2,
+                awayGoals: 2,
+                status: 'live',
+                minute: 78,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() + 5400000).toISOString()
+            },
+            {
+                id: 7,
+                homeTeam: 'Paços Ferreira',
+                awayTeam: 'Farense',
+                homeGoals: 0,
+                awayGoals: 1,
+                status: 'scheduled',
+                minute: 0,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() + 172800000).toISOString()
+            },
+            {
+                id: 8,
+                homeTeam: 'Vizela',
+                awayTeam: 'Chaves',
+                homeGoals: 2,
+                awayGoals: 1,
+                status: 'finished',
+                minute: 90,
+                competition: 'Primeira Liga',
+                date: new Date(Date.now() - 7200000).toISOString()
+            },
+            {
+                id: 9,
+                homeTeam: 'Marítimo',
+                awayTeam: 'Nacional',
+                homeGoals: 1,
+                awayGoals: 1,
+                status: 'live',
+                minute: 52,
+                competition: 'Segunda Liga',
+                date: new Date(Date.now() + 9000000).toISOString()
+            },
+            {
+                id: 10,
+                homeTeam: 'Tondela',
+                awayTeam: 'Penafiel',
+                homeGoals: 3,
+                awayGoals: 0,
+                status: 'finished',
+                minute: 90,
+                competition: 'Segunda Liga',
+                date: new Date(Date.now() - 10800000).toISOString()
+            },
+            {
+                id: 11,
+                homeTeam: 'Leiria',
+                awayTeam: 'Oliveirense',
+                homeGoals: 0,
+                awayGoals: 0,
+                status: 'scheduled',
+                minute: 0,
+                competition: 'Segunda Liga',
+                date: new Date(Date.now() + 259200000).toISOString()
+            },
+            {
+                id: 12,
+                homeTeam: 'Arouca B',
+                awayTeam: 'Felgueiras',
+                homeGoals: 2,
+                awayGoals: 1,
+                status: 'live',
+                minute: 88,
+                competition: 'Segunda Liga',
+                date: new Date(Date.now() + 10800000).toISOString()
             }
         ];
 

@@ -26,6 +26,12 @@ class AdminPanel {
             logoutBtn.addEventListener('click', () => this.handleLogout());
         }
 
+        // Alterar Palavra-passe
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', (e) => this.handleChangePassword(e));
+        }
+
         // Adicionar novo jogo
         const addGameForm = document.getElementById('addGameForm');
         if (addGameForm) {
@@ -135,6 +141,53 @@ class AdminPanel {
         if (confirm('Tem a certeza que deseja sair?')) {
             authManager.logout();
             this.checkAuthStatus();
+        }
+    }
+    /**
+     * Trata a alteracao de palavra-passe
+     * @param {Event} e - Evento do formulario
+     */
+    handleChangePassword(e) {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const passwordMessage = document.getElementById('passwordMessage');
+
+        // Validar se as senhas novas coincidem
+        if (newPassword !== confirmPassword) {
+            if (passwordMessage) {
+                passwordMessage.textContent = 'As palavras-passe nao coincidem.';
+                passwordMessage.className = 'form-message error';
+                passwordMessage.style.display = 'block';
+            }
+            return;
+        }
+
+        // Chamar o metodo de alteracao de senha
+        const result = authManager.changePassword(currentPassword, newPassword);
+
+        if (passwordMessage) {
+            passwordMessage.textContent = result.message;
+            passwordMessage.className = 'form-message ' + (result.success ? 'success' : 'error');
+            passwordMessage.style.display = 'block';
+        }
+
+        if (result.success) {
+            // Limpar formulario
+            document.getElementById('changePasswordForm').reset();
+            
+            // Sincronizar com Firebase se disponivel
+            if (typeof firebaseManager !== 'undefined') {
+                firebaseManager.updateAdminPassword(newPassword).then(success => {
+                    if (success) {
+                        console.log('Senha sincronizada com Firebase');
+                    }
+                }).catch(error => {
+                    console.warn('Nao foi possivel sincronizar com Firebase:', error);
+                });
+            }
         }
     }
 

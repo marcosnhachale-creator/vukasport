@@ -26,6 +26,15 @@
         </div>
     </header>
 
+    <!-- Support Button -->
+    <div class="support-banner">
+        <div class="support-content">
+            <span class="support-icon">❤️</span>
+            <span class="support-text">Gosta da aplicação? Apoie-nos!</span>
+            <button class="btn btn-support" onclick="openSupportModal()">Apoiar</button>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="main">
         <div class="container">
@@ -49,6 +58,25 @@
         </div>
     </main>
 
+    <!-- Support Modal -->
+    <div id="supportModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>❤️ Apoie a VukaSport</h3>
+                <button class="modal-close" onclick="closeSupportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="support-description">Obrigado por usar a VukaSport! Se gosta da aplicação, pode apoiar-nos enviando um valor via M-Pesa.</p>
+                <div class="support-info-box">
+                    <p class="support-label">Número M-Pesa:</p>
+                    <p class="support-mpesa-number">852092063</p>
+                    <button class="btn btn-primary" onclick="copySupportNumber()">Copiar Número</button>
+                </div>
+                <p class="support-thanks">Qualquer valor é bem-vindo e nos ajuda a melhorar a aplicação!</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -62,7 +90,37 @@
     <!-- Scripts -->
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/firebase.js"></script>
     <script>
+        // Funções para o modal de apoio
+        function openSupportModal() {
+            document.getElementById('supportModal').style.display = 'flex';
+        }
+
+        function closeSupportModal() {
+            document.getElementById('supportModal').style.display = 'none';
+        }
+
+        function copySupportNumber() {
+            const mpesaNumber = '852092063';
+            navigator.clipboard.writeText(mpesaNumber).then(() => {
+                alert('Número M-Pesa copiado: ' + mpesaNumber);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                alert('Número M-Pesa: ' + mpesaNumber);
+            });
+        }
+
+        // Fechar modal ao clicar fora
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('supportModal');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeSupportModal();
+                }
+            });
+        });
+
         // Registar o Service Worker para funcionalidade offline
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
