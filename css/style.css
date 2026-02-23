@@ -1,4 +1,103 @@
 /* ========================================
+   Admin Login Modal Secreto
+   ======================================== */
+
+.admin-login-modal {
+    max-width: 400px;
+}
+
+/* ========================================
+   Developer Name com Efeito
+   ======================================== */
+
+.developer {
+    margin-top: 10px;
+    font-size: 14px;
+    opacity: 0.8;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.developer:hover {
+    opacity: 1;
+}
+
+.dev-name {
+    font-weight: 600;
+    color: #ffd700;
+    position: relative;
+    display: inline-block;
+}
+
+.dev-name::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #ffd700;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.developer:hover .dev-name::after {
+    transform: scaleX(1);
+}
+
+/* ========================================
+   Header Controls (Theme Toggle)
+   ======================================== */
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.theme-toggle {
+    background: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.theme-icon {
+    font-size: 20px;
+}
+
+/* ========================================
+   Sync Indicator
+   ======================================== */
+
+.sync-indicator {
+    margin-top: 5px;
+    font-size: 12px;
+    animation: pulse 1.5s infinite;
+    color: #ffd700;
+}
+
+/* ========================================
+   Footer Content
+   ======================================== */
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}/* ========================================
    Support Banner and Modal (ADICIONAR ISTO)
    ======================================== */
 
