@@ -5,7 +5,6 @@
 
 class AuthManager {
     constructor() {
-        // Credenciais de teste (em produção, usar servidor)
         this.validCredentials = {
             username: 'admin',
             password: '123456'
@@ -13,13 +12,11 @@ class AuthManager {
 
         this.currentUser = null;
         this.loadUser();
+        this.loadCredentials();
     }
 
     /**
      * Faz login com as credenciais fornecidas
-     * @param {string} username - Nome de utilizador
-     * @param {string} password - Palavra-passe
-     * @returns {boolean} - True se login bem-sucedido
      */
     login(username, password) {
         if (username === this.validCredentials.username && 
@@ -30,15 +27,16 @@ class AuthManager {
                 loginTime: new Date().toISOString()
             };
             
-            // Guardar no localStorage
             localStorage.setItem('vukasport_user', JSON.stringify(this.currentUser));
             localStorage.setItem('vukasport_token', this.generateToken());
             
-            console.log('Login bem-sucedido para:', username);
+            // Guardar acesso secreto
+            sessionStorage.setItem('secretAdminAccess', 'true');
+            
+            console.log('Login bem-sucedido');
             return true;
         }
         
-        console.log('Falha no login - credenciais inválidas');
         return false;
     }
 
@@ -49,12 +47,11 @@ class AuthManager {
         this.currentUser = null;
         localStorage.removeItem('vukasport_user');
         localStorage.removeItem('vukasport_token');
-        console.log('Logout realizado');
+        sessionStorage.removeItem('secretAdminAccess');
     }
 
     /**
      * Verifica se o utilizador está autenticado
-     * @returns {boolean} - True se autenticado
      */
     isAuthenticated() {
         return this.currentUser !== null && this.getToken() !== null;
@@ -62,7 +59,6 @@ class AuthManager {
 
     /**
      * Obtém o utilizador atual
-     * @returns {object|null} - Utilizador ou null
      */
     getCurrentUser() {
         return this.currentUser;
@@ -78,7 +74,6 @@ class AuthManager {
         if (userStr && token) {
             try {
                 this.currentUser = JSON.parse(userStr);
-                console.log('Utilizador carregado do localStorage:', this.currentUser.username);
             } catch (error) {
                 console.error('Erro ao carregar utilizador:', error);
                 this.logout();
@@ -88,7 +83,6 @@ class AuthManager {
 
     /**
      * Gera um token simples para autenticação
-     * @returns {string} - Token gerado
      */
     generateToken() {
         return 'token_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
@@ -96,7 +90,6 @@ class AuthManager {
 
     /**
      * Obtém o token de autenticação
-     * @returns {string|null} - Token ou null
      */
     getToken() {
         return localStorage.getItem('vukasport_token');
@@ -104,7 +97,6 @@ class AuthManager {
 
     /**
      * Valida se o utilizador tem permissão para editar
-     * @returns {boolean} - True se tem permissão
      */
     canEdit() {
         return this.isAuthenticated();
@@ -112,12 +104,8 @@ class AuthManager {
 
     /**
      * Altera a senha do admin
-     * @param {string} currentPassword - Senha atual
-     * @param {string} newPassword - Nova senha
-     * @returns {object} - Objeto com sucesso e mensagem
      */
     changePassword(currentPassword, newPassword) {
-        // Verificar se a senha atual está correta
         if (currentPassword !== this.validCredentials.password) {
             return {
                 success: false,
@@ -125,7 +113,6 @@ class AuthManager {
             };
         }
 
-        // Validar nova senha
         if (!newPassword || newPassword.length < 6) {
             return {
                 success: false,
@@ -133,13 +120,9 @@ class AuthManager {
             };
         }
 
-        // Atualizar a senha
         this.validCredentials.password = newPassword;
-        
-        // Guardar no localStorage
         localStorage.setItem('vukasport_credentials', JSON.stringify(this.validCredentials));
         
-        console.log('Senha de admin alterada com sucesso');
         return {
             success: true,
             message: 'Palavra-passe alterada com sucesso!'
@@ -147,14 +130,13 @@ class AuthManager {
     }
 
     /**
-     * Carrega as credenciais do localStorage se existirem
+     * Carrega as credenciais do localStorage
      */
     loadCredentials() {
         const storedCredentials = localStorage.getItem('vukasport_credentials');
         if (storedCredentials) {
             try {
                 this.validCredentials = JSON.parse(storedCredentials);
-                console.log('Credenciais carregadas do localStorage');
             } catch (error) {
                 console.error('Erro ao carregar credenciais:', error);
             }
@@ -162,8 +144,5 @@ class AuthManager {
     }
 }
 
-// Instância global do gestor de autenticação
 const authManager = new AuthManager();
-
-// Carregar credenciais ao inicializar
 authManager.loadCredentials();
