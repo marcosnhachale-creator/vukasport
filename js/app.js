@@ -21,20 +21,21 @@ class GameManager {
         this.renderGames();
 
         // Atualizar o cronómetro a cada 60 segundos (1 minuto real)
-        setInterval(() => this.updateLiveGames(), 60000);
-
-        // Sincronização em tempo real entre abas (Admin -> Jogos)
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'vukasport_games') {
-                this.loadGamesFromLocal();
-                this.renderGames();
-                // Se estivermos no admin, atualizar a lista lá também
-                if (typeof adminPanel !== 'undefined') {
-                    adminPanel.renderGamesList();
-                }
-            }
-        });
-    }
+updateLiveGames() {
+    this.games.forEach(game => {
+        if (game.status === ‘live’ && game.startTime) {
+            const start = new Date(game.startTime);
+            const now = new Date();
+            const diffMs = now – start;
+            // Calcula minutos passados + o minuto em que o jogo estava quando deu “Start”
+            Const diffMins = Math.floor(diffMs / 60000) + (game.minuteAtStart || 0);
+            
+            // Atualiza apenas visualmente para não sobrecarregar o Firebase
+            Game.currentMinute = diffMins > 125 ? 125 : diffMins;
+        }
+    });
+    This.renderGames();
+}
 
     /**
      * Cria jogos de exemplo para demonstração (apenas na primeira utilização)
