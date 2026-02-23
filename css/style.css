@@ -1,111 +1,161 @@
 /* ========================================
-   Admin Login Modal Secreto
+   Footer - NOVO DESIGN
    ======================================== */
 
-.admin-login-modal {
-    max-width: 400px;
+.footer {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+    color: var(--white);
+    padding: 25px 0 15px;
+    margin-top: auto;
 }
-
-/* ========================================
-   Developer Name com Efeito
-   ======================================== */
-
-.developer {
-    margin-top: 10px;
-    font-size: 14px;
-    opacity: 0.8;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-}
-
-.developer:hover {
-    opacity: 1;
-}
-
-.dev-name {
-    font-weight: 600;
-    color: #ffd700;
-    position: relative;
-    display: inline-block;
-}
-
-.dev-name::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #ffd700;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.developer:hover .dev-name::after {
-    transform: scaleX(1);
-}
-
-/* ========================================
-   Header Controls (Theme Toggle)
-   ======================================== */
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.theme-toggle {
-    background: none;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
-}
-
-.theme-icon {
-    font-size: 20px;
-}
-
-/* ========================================
-   Sync Indicator
-   ======================================== */
-
-.sync-indicator {
-    margin-top: 5px;
-    font-size: 12px;
-    animation: pulse 1.5s infinite;
-    color: #ffd700;
-}
-
-/* ========================================
-   Footer Content
-   ======================================== */
 
 .footer-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-}/* ========================================
-   Support Banner and Modal (ADICIONAR ISTO)
+    gap: 15px;
+}
+
+.footer-main {
+    text-align: center;
+}
+
+.footer-main p {
+    margin: 5px 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.footer-developer {
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 15px;
+    width: 100%;
+}
+
+.developer-label {
+    font-size: 12px;
+    opacity: 0.7;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.developer-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FFD700; /* Dourado */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    position: relative;
+}
+
+.developer-name:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.developer-name::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #FFD700;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.developer-name:hover::after {
+    transform: scaleX(1);
+}
+
+.footer-support {
+    margin-top: 5px;
+    font-size: 11px;
+    opacity: 0.6;
+}
+
+.footer-support a {
+    color: #FFD700;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.footer-support a:hover {
+    text-decoration: underline;
+}
+
+.offline-indicator,
+.sync-indicator {
+    font-size: 11px;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    display: inline-block;
+}
+
+/* ========================================
+   Cores dos Status - Mantendo as atuais
+   ======================================== */
+
+.status-scheduled {
+    background-color: #e8f4f8;
+    color: #0277bd;
+}
+
+.status-live {
+    background-color: #ffebee;
+    color: #c62828;
+    animation: pulse 1.5s infinite;
+}
+
+.status-halftime {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.status-extra {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+}
+
+.status-finished {
+    background-color: #e8f5e9;
+    color: #1b5e20;
+}
+
+/* ========================================
+   Placar - Cores
+   ======================================== */
+
+.score {
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--primary-color); /* Verde */
+    line-height: 1;
+}
+
+.game-card {
+    border-left: 5px solid var(--primary-color); /* Verde */
+}
+
+.team-name {
+    color: var(--dark-text);
+    font-weight: 600;
+}
+
+/* ========================================
+   Apoio - Banner
    ======================================== */
 
 .support-banner {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    color: var(--white);
-    padding: 15px 0;
-    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+    color: white;
+    padding: 12px 0;
 }
 
 .support-content {
@@ -121,121 +171,29 @@
     animation: heartbeat 1.5s infinite;
 }
 
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
-
 .support-text {
     font-weight: 500;
     font-size: 14px;
 }
 
 .btn-support {
-    background-color: var(--white);
-    color: #ff6b6b;
+    background-color: white;
+    color: #FF6B6B;
+    border: none;
+    padding: 6px 20px;
+    border-radius: 25px;
     font-weight: 600;
-    padding: 8px 20px;
-    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .btn-support:hover {
-    background-color: #f0f0f0;
     transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.modal-body {
-    padding: 20px 0;
-}
-
-.support-description {
-    font-size: 15px;
-    color: var(--dark-text);
-    margin-bottom: 20px;
-    line-height: 1.6;
-}
-
-.support-info-box {
-    background-color: var(--light-bg);
-    padding: 20px;
-    border-radius: 8px;
-    margin: 20px 0;
-    border-left: 4px solid #ff6b6b;
-}
-
-.support-label {
-    font-size: 13px;
-    color: var(--secondary-color);
-    font-weight: 600;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-
-.support-mpesa-number {
-    font-size: 28px;
-    font-weight: bold;
-    color: #ff6b6b;
-    margin-bottom: 15px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-
-.support-thanks {
-    font-size: 14px;
-    color: var(--secondary-color);
-    text-align: center;
-    font-style: italic;
-    margin-top: 15px;
-}
-
-/* ========================================
-   Responsive Support Banner
-   ======================================== */
-
-@media (max-width: 768px) {
-    .support-content {
-        gap: 10px;
-    }
-
-    .support-text {
-        font-size: 13px;
-    }
-
-    .btn-support {
-        padding: 7px 16px;
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .support-banner {
-        padding: 12px 0;
-    }
-
-    .support-content {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .support-text {
-        font-size: 12px;
-    }
-
-    .btn-support {
-        width: 100%;
-        padding: 10px 16px;
-    }
-
-    .support-mpesa-number {
-        font-size: 24px;
-    }
-
-    .modal-content {
-        padding: 20px;
-    }
-
-    .support-info-box {
-        padding: 15px;
-    }
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
