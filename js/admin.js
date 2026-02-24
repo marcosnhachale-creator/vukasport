@@ -97,11 +97,6 @@ class AdminPanel {
             loginSection.style.display = 'none';
             adminSection.style.display = 'block';
             
-            // Garantir que os jogos de exemplo existem se a lista estiver vazia
-            if (typeof gameManager !== 'undefined' && gameManager.getGames().length === 0) {
-                gameManager.createSampleGames();
-            }
-            
             this.renderGamesList();
         } else {
             loginSection.style.display = 'block';

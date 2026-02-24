@@ -265,9 +265,15 @@ body {
 }
 
 .minute-indicator {
-    font-size: 12px;
+    font-size: 18px;
     color: var(--primary-color);
     font-weight: bold;
+    background-color: var(--light-bg);
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 10px;
+    border-left: 4px solid var(--primary-color);
 }
 
 /* ========================================

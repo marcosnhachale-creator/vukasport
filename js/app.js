@@ -1,6 +1,7 @@
 /**
  * VukaSport - Aplicação Principal
  * Sincronização automática em tempo real com Firebase
+ * Tempo sincronizado com o aparelho do utilizador
  */
 
 class GameManager {
@@ -19,8 +20,8 @@ class GameManager {
         // Renderizar jogos
         this.renderGames();
 
-        // Atualizar o cronómetro a cada 1 segundo para jogos em direto
-        setInterval(() => this.updateLiveGames(), 1000);
+        // Atualizar a visualização a cada 1 segundo (para mostrar tempo real)
+        setInterval(() => this.renderGames(), 1000);
 
         // Sincronizar com Firebase a cada 3 segundos
         setInterval(() => this.syncWithFirebase(), 3000);
@@ -143,6 +144,47 @@ class GameManager {
     }
 
     /**
+     * Calcula os minutos de jogo com base no tempo real do aparelho
+     */
+    calculateGameMinute(game) {
+        if (game.status === 'scheduled') {
+            return 0;
+        }
+
+        if (game.status === 'finished') {
+            return 90;
+        }
+
+        if (game.status === 'halftime') {
+            return 45;
+        }
+
+        if (game.status === 'extra') {
+            // Prolongamento começa aos 90 minutos
+            return Math.min(120, game.minute || 90);
+        }
+
+        // Para jogos em direto (live)
+        if (game.status === 'live') {
+            // Se o jogo tem um startTime, calcular com base nele
+            if (game.startTime) {
+                const startTime = new Date(game.startTime).getTime();
+                const currentTime = new Date().getTime();
+                const elapsedSeconds = Math.floor((currentTime - startTime) / 1000);
+                const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+                
+                // Limitar a 90 minutos para o tempo normal
+                return Math.min(90, elapsedMinutes);
+            }
+            
+            // Se não tem startTime, usar o valor armazenado
+            return game.minute || 0;
+        }
+
+        return game.minute || 0;
+    }
+
+    /**
      * Adiciona um novo jogo
      */
     async addGame(gameData) {
@@ -154,6 +196,7 @@ class GameManager {
             awayGoals: 0,
             status: 'scheduled',
             minute: 0,
+            startTime: null,
             competition: gameData.competition,
             date: gameData.gameDate
         };
@@ -182,6 +225,18 @@ class GameManager {
         }
 
         const oldGoals = { home: game.homeGoals, away: game.awayGoals };
+        const oldStatus = game.status;
+
+        // Se o status mudar para "live", registar o tempo de início
+        if (updates.status === 'live' && oldStatus !== 'live') {
+            updates.startTime = new Date().toISOString();
+            updates.minute = 0;
+        }
+
+        // Se o status mudar para "finished" ou "halftime", parar o cronómetro
+        if ((updates.status === 'finished' || updates.status === 'halftime') && oldStatus === 'live') {
+            updates.startTime = null;
+        }
 
         // Atualizar apenas os campos fornecidos
         Object.assign(game, updates);
@@ -296,36 +351,6 @@ class GameManager {
     }
 
     /**
-     * Atualiza os jogos em direto (cronómetro automático)
-     */
-    async updateLiveGames() {
-        let hasChanges = false;
-
-        this.games.forEach(game => {
-            // Apenas avança o tempo se o jogo estiver "Em Direto" ou "Prolongamento"
-            if (game.status === 'live' || game.status === 'extra') {
-                // Limite máximo de 120 minutos para prolongamentos
-                const maxMinute = (game.status === 'extra') ? 120 : 90;
-                
-                if (game.minute < maxMinute) {
-                    game.minute += 1;
-                    hasChanges = true;
-                }
-            }
-        });
-
-        if (hasChanges) {
-            await this.saveGames();
-            this.renderGames();
-            
-            // Se estivermos no admin, atualizar a lista lá também
-            if (typeof adminPanel !== 'undefined') {
-                adminPanel.renderGamesList();
-            }
-        }
-    }
-
-    /**
      * Renderiza os jogos na página
      */
     renderGames() {
@@ -365,13 +390,18 @@ class GameManager {
             minute: '2-digit'
         });
 
+        // Calcular minutos de jogo em tempo real
+        const currentMinute = this.calculateGameMinute(game);
+
         let minuteDisplay = '';
         if (game.status === 'live') {
-            minuteDisplay = `<div class="minute-indicator">${game.minute}'</div>`;
+            minuteDisplay = `<div class="minute-indicator">${currentMinute}'</div>`;
         } else if (game.status === 'halftime') {
             minuteDisplay = `<div class="minute-indicator">45' (Intervalo)</div>`;
         } else if (game.status === 'extra') {
-            minuteDisplay = `<div class="minute-indicator">${game.minute}' (Prolongamento)</div>`;
+            minuteDisplay = `<div class="minute-indicator">${currentMinute}' (Prolongamento)</div>`;
+        } else if (game.status === 'finished') {
+            minuteDisplay = `<div class="minute-indicator">90' (Terminado)</div>`;
         }
 
         return `
