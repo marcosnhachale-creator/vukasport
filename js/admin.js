@@ -57,6 +57,22 @@ class AdminPanel {
             });
         }
 
+        // Botões de eventos (goleadas e cartões)
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        if (addGoalBtn) {
+            addGoalBtn.addEventListener('click', (e) => this.handleAddGoal(e));
+        }
+
+        const addYellowCardBtn = document.getElementById('addYellowCardBtn');
+        if (addYellowCardBtn) {
+            addYellowCardBtn.addEventListener('click', (e) => this.handleAddYellowCard(e));
+        }
+
+        const addRedCardBtn = document.getElementById('addRedCardBtn');
+        if (addRedCardBtn) {
+            addRedCardBtn.addEventListener('click', (e) => this.handleAddRedCard(e));
+        }
+
         // Modal
         const closeModal = document.getElementById('closeModal');
         if (closeModal) {
@@ -259,6 +275,187 @@ class AdminPanel {
     }
 
     /**
+     * Trata a adição de um golo
+     * @param {Event} e - Evento do botão
+     */
+    handleAddGoal(e) {
+        e.preventDefault();
+
+        const gameId = parseInt(document.getElementById('editGameId').value);
+        const team = document.getElementById('goalTeam').value;
+        const minute = parseInt(document.getElementById('goalMinute').value);
+        const playerName = document.getElementById('goalPlayerName').value;
+
+        if (!playerName.trim()) {
+            alert('Por favor, insira o nome do jogador.');
+            return;
+        }
+
+        // Adicionar golo
+        eventManager.addGoal(gameId, team, minute, playerName);
+
+        // Atualizar a contagem de golos no formulário
+        if (team === 'home') {
+            const homeGoalsInput = document.getElementById('editHomeGoals');
+            homeGoalsInput.value = parseInt(homeGoalsInput.value) + 1;
+        } else {
+            const awayGoalsInput = document.getElementById('editAwayGoals');
+            awayGoalsInput.value = parseInt(awayGoalsInput.value) + 1;
+        }
+
+        // Limpar campos
+        document.getElementById('goalPlayerName').value = '';
+        document.getElementById('goalMinute').value = '0';
+
+        // Atualizar lista de eventos
+        this.renderEventsList(gameId);
+
+        alert('Golo adicionado com sucesso!');
+    }
+
+    /**
+     * Trata a adição de um cartão amarelo
+     * @param {Event} e - Evento do botão
+     */
+    handleAddYellowCard(e) {
+        e.preventDefault();
+
+        const gameId = parseInt(document.getElementById('editGameId').value);
+        const team = document.getElementById('yellowCardTeam').value;
+        const minute = parseInt(document.getElementById('yellowCardMinute').value);
+        const playerName = document.getElementById('yellowCardPlayerName').value;
+
+        if (!playerName.trim()) {
+            alert('Por favor, insira o nome do jogador.');
+            return;
+        }
+
+        // Adicionar cartão amarelo
+        eventManager.addYellowCard(gameId, team, minute, playerName);
+
+        // Limpar campos
+        document.getElementById('yellowCardPlayerName').value = '';
+        document.getElementById('yellowCardMinute').value = '0';
+
+        // Atualizar lista de eventos
+        this.renderEventsList(gameId);
+
+        alert('Cartão amarelo adicionado com sucesso!');
+    }
+
+    /**
+     * Trata a adição de um cartão vermelho
+     * @param {Event} e - Evento do botão
+     */
+    handleAddRedCard(e) {
+        e.preventDefault();
+
+        const gameId = parseInt(document.getElementById('editGameId').value);
+        const team = document.getElementById('redCardTeam').value;
+        const minute = parseInt(document.getElementById('redCardMinute').value);
+        const playerName = document.getElementById('redCardPlayerName').value;
+
+        if (!playerName.trim()) {
+            alert('Por favor, insira o nome do jogador.');
+            return;
+        }
+
+        // Adicionar cartão vermelho
+        eventManager.addRedCard(gameId, team, minute, playerName);
+
+        // Limpar campos
+        document.getElementById('redCardPlayerName').value = '';
+        document.getElementById('redCardMinute').value = '0';
+
+        // Atualizar lista de eventos
+        this.renderEventsList(gameId);
+
+        alert('Cartão vermelho adicionado com sucesso!');
+    }
+
+    /**
+     * Renderiza a lista de eventos do jogo
+     * @param {number} gameId - ID do jogo
+     */
+    renderEventsList(gameId) {
+        const eventsList = document.getElementById('eventsList');
+        if (!eventsList) return;
+
+        const events = eventManager.getAllEventsOrdered(gameId);
+
+        if (events.length === 0) {
+            eventsList.innerHTML = '<p class="empty-events">Nenhum evento registado</p>';
+            return;
+        }
+
+        eventsList.innerHTML = events.map(event => this.createEventItem(event, gameId)).join('');
+
+        // Adicionar event listeners aos botões de eliminar
+        document.querySelectorAll('.event-delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const eventId = e.target.dataset.eventId;
+                const eventType = e.target.dataset.eventType;
+                this.handleDeleteEvent(gameId, eventId, eventType);
+            });
+        });
+    }
+
+    /**
+     * Cria o HTML de um item de evento
+     * @param {object} event - Dados do evento
+     * @param {number} gameId - ID do jogo
+     * @returns {string} - HTML do item
+     */
+    createEventItem(event, gameId) {
+        const game = gameManager.getGameById(gameId);
+        const teamName = event.team === 'home' ? game.homeTeam : game.awayTeam;
+        
+        let eventIcon = '';
+        let eventTypeText = '';
+        let eventClass = '';
+
+        if (event.type === 'goal') {
+            eventIcon = '⚽';
+            eventTypeText = 'Golo';
+            eventClass = 'goal';
+        } else if (event.type === 'yellow_card') {
+            eventIcon = '🟨';
+            eventTypeText = 'Cartão Amarelo';
+            eventClass = 'yellow-card';
+        } else if (event.type === 'red_card') {
+            eventIcon = '🟥';
+            eventTypeText = 'Cartão Vermelho';
+            eventClass = 'red-card';
+        }
+
+        return `
+            <div class="event-item ${eventClass}">
+                <div class="event-info">
+                    <div class="event-type">${eventIcon} ${eventTypeText}</div>
+                    <div class="event-details">${event.playerName} (${teamName}) - ${event.minute}'</div>
+                </div>
+                <button class="event-delete-btn" data-event-id="${event.id}" data-event-type="${event.type}">
+                    Eliminar
+                </button>
+            </div>
+        `;
+    }
+
+    /**
+     * Trata a eliminação de um evento
+     * @param {number} gameId - ID do jogo
+     * @param {number} eventId - ID do evento
+     * @param {string} eventType - Tipo de evento
+     */
+    handleDeleteEvent(gameId, eventId, eventType) {
+        if (confirm('Tem a certeza que deseja eliminar este evento?')) {
+            eventManager.removeEvent(gameId, eventId, eventType);
+            this.renderEventsList(gameId);
+            alert('Evento eliminado com sucesso!');
+        }
+    }
+
+    /**
      * Trata a eliminação de jogo
      */
     async handleDeleteGame() {
@@ -357,12 +554,18 @@ class AdminPanel {
             return;
         }
 
+        // Carregar eventos do jogo
+        eventManager.loadEventsLocal(gameId);
+
         // Preencher o formulário com os dados do jogo
         document.getElementById('editGameId').value = game.id;
         document.getElementById('editStatus').value = game.status;
         document.getElementById('editHomeGoals').value = game.homeGoals;
         document.getElementById('editAwayGoals').value = game.awayGoals;
         document.getElementById('editMinute').value = game.minute;
+
+        // Renderizar lista de eventos
+        this.renderEventsList(gameId);
 
         // Mostrar modal
         const modal = document.getElementById('editModal');

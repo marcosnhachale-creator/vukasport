@@ -13,6 +13,7 @@ const ASSETS_TO_CACHE = [
   './js/admin.js',
   './js/auth.js',
   './js/firebase.js',
+  './js/events.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'
@@ -70,14 +71,14 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Listener para mensagens de notificações de golos
+// Listener para mensagens de notificações
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SHOW_GOAL_NOTIFICATION') {
-    const { teamName, goals } = event.data;
+    const { teamName, playerName, minute } = event.data;
     
     // Mostrar notificação push
     self.registration.showNotification('⚽ GOLO!', {
-      body: `${teamName} marcou! (${goals})`,
+      body: `${playerName} (${teamName}) marcou aos ${minute}'!`,
       icon: 'icons/icon-192.png',
       badge: 'icons/icon-192.png',
       tag: 'goal-notification',
@@ -91,8 +92,31 @@ self.addEventListener('message', (event) => {
       ]
     });
 
-    // Som de notificação (opcional)
+    // Som de notificação
     playGoalSound();
+  } else if (event.data && event.data.type === 'SHOW_CARD_NOTIFICATION') {
+    const { cardColor, teamName, playerName, minute } = event.data;
+    const cardEmoji = cardColor === 'yellow' ? '🟨' : '🟥';
+    const cardText = cardColor === 'yellow' ? 'Cartão Amarelo' : 'Cartão Vermelho';
+    
+    // Mostrar notificação push
+    self.registration.showNotification(`${cardEmoji} ${cardText}`, {
+      body: `${playerName} (${teamName}) recebeu ${cardText.toLowerCase()} aos ${minute}'!`,
+      icon: 'icons/icon-192.png',
+      badge: 'icons/icon-192.png',
+      tag: `card-notification-${Date.now()}`,
+      requireInteraction: false,
+      vibrate: [100, 50, 100, 50, 100],
+      actions: [
+        {
+          action: 'open',
+          title: 'Ver Jogo'
+        }
+      ]
+    });
+
+    // Som de notificação
+    playCardSound(cardColor);
   }
 });
 
@@ -137,6 +161,40 @@ function playGoalSound() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
+  } catch (error) {
+    console.log('Áudio não disponível no Service Worker');
+  }
+}
+
+// Função para reproduzir som de cartão
+function playCardSound(cardColor) {
+  // Criar um som simples usando Web Audio API
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Som diferente para cartão amarelo e vermelho
+    if (cardColor === 'yellow') {
+      // Som agudo para cartão amarelo
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(700, audioContext.currentTime + 0.05);
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+    } else {
+      // Som grave para cartão vermelho
+      oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.05);
+      oscillator.frequency.setValueAtTime(400, audioContext.currentTime + 0.1);
+    }
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime + 0.15);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.15);
   } catch (error) {
     console.log('Áudio não disponível no Service Worker');
   }

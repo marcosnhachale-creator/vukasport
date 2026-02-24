@@ -375,6 +375,66 @@ class FirebaseManager {
     }
 
     /**
+     * Adiciona um evento ao Firebase
+     */
+    async addEventToFirebase(gameId, event) {
+        if (!this.isOnline) {
+            console.warn('Offline - evento será sincronizado quando online');
+            return false;
+        }
+
+        try {
+            const eventId = event.id || Date.now();
+            const response = await fetch(`${this.databaseURL}/events/${gameId}/${eventId}.json`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            console.log('Evento adicionado ao Firebase:', eventId);
+            return true;
+        } catch (error) {
+            console.error('Erro ao adicionar evento ao Firebase:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Remove um evento do Firebase
+     */
+    async removeEventFromFirebase(gameId, eventId) {
+        if (!this.isOnline) {
+            console.warn('Offline - remoção será sincronizada quando online');
+            return false;
+        }
+
+        try {
+            const response = await fetch(`${this.databaseURL}/events/${gameId}/${eventId}.json`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+
+            console.log('Evento removido do Firebase:', eventId);
+            return true;
+        } catch (error) {
+            console.error('Erro ao remover evento do Firebase:', error);
+            return false;
+        }
+    }
+
+    /**
      * Ativa ou desativa a sincronização
      * @param {boolean} enabled - Ativar ou desativar
      */

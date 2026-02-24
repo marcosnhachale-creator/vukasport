@@ -264,6 +264,88 @@
                     >
                 </div>
 
+                <!-- Seção de Eventos (Goleadas e Cartões) -->
+                <div class="events-section">
+                    <h4>Registar Eventos do Jogo</h4>
+                    
+                    <!-- Goleadas -->
+                    <div class="event-subsection">
+                        <h5>⚽ Goleadas</h5>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="goalTeam">Equipa:</label>
+                                <select id="goalTeam" name="goalTeam">
+                                    <option value="home">Casa</option>
+                                    <option value="away">Visitante</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="goalMinute">Minuto:</label>
+                                <input type="number" id="goalMinute" name="goalMinute" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="goalPlayerName">Nome do Jogador:</label>
+                            <input type="text" id="goalPlayerName" name="goalPlayerName" placeholder="Ex: Cristiano Ronaldo">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-small" id="addGoalBtn">Adicionar Golo</button>
+                    </div>
+
+                    <!-- Cartões Amarelos -->
+                    <div class="event-subsection">
+                        <h5>🟨 Cartão Amarelo</h5>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="yellowCardTeam">Equipa:</label>
+                                <select id="yellowCardTeam" name="yellowCardTeam">
+                                    <option value="home">Casa</option>
+                                    <option value="away">Visitante</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="yellowCardMinute">Minuto:</label>
+                                <input type="number" id="yellowCardMinute" name="yellowCardMinute" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="yellowCardPlayerName">Nome do Jogador:</label>
+                            <input type="text" id="yellowCardPlayerName" name="yellowCardPlayerName" placeholder="Ex: João Félix">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-small" id="addYellowCardBtn">Adicionar Cartão Amarelo</button>
+                    </div>
+
+                    <!-- Cartões Vermelhos -->
+                    <div class="event-subsection">
+                        <h5>🟥 Cartão Vermelho</h5>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="redCardTeam">Equipa:</label>
+                                <select id="redCardTeam" name="redCardTeam">
+                                    <option value="home">Casa</option>
+                                    <option value="away">Visitante</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="redCardMinute">Minuto:</label>
+                                <input type="number" id="redCardMinute" name="redCardMinute" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="redCardPlayerName">Nome do Jogador:</label>
+                            <input type="text" id="redCardPlayerName" name="redCardPlayerName" placeholder="Ex: Pepe">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-small" id="addRedCardBtn">Adicionar Cartão Vermelho</button>
+                    </div>
+
+                    <!-- Histórico de Eventos -->
+                    <div class="events-history">
+                        <h5>Histórico de Eventos</h5>
+                        <div id="eventsList" class="events-list">
+                            <p class="empty-events">Nenhum evento registado</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Guardar Alterações</button>
                     <button type="button" class="btn btn-secondary" id="cancelEdit">Cancelar</button>
@@ -277,6 +359,7 @@
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
     <script src="js/firebase.js"></script>
+    <script src="js/events.js"></script>
     <script src="js/admin.js"></script>
 </body>
 </html>
