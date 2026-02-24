@@ -6,25 +6,7 @@
 class AdminPanel {
     constructor() {
         this.currentEditingGameId = null;
-        this.checkAccess();
         this.initializeEventListeners();
-    }
-
-    /**
-     * Verifica se o acesso é permitido
-     */
-    checkAccess() {
-        // Verificar se veio do clique secreto
-        const referrer = document.referrer;
-        const hasSecretAccess = sessionStorage.getItem('secretAdminAccess');
-
-        if (!hasSecretAccess && !referrer.includes('index.html')) {
-            // Redirecionar para página principal
-            window.location.href = 'index.html';
-            return;
-        }
-
-        // Verificar autenticação
         this.checkAuthStatus();
     }
 
@@ -62,7 +44,7 @@ class AdminPanel {
             editGameForm.addEventListener('submit', (e) => this.handleEditGame(e));
         }
 
-        // Ajuste automático de minutos
+        // Ajuste automático de minutos ao mudar estado para prolongamento
         const editStatus = document.getElementById('editStatus');
         if (editStatus) {
             editStatus.addEventListener('change', (e) => {
@@ -103,7 +85,7 @@ class AdminPanel {
     }
 
     /**
-     * Verifica o estado de autenticação
+     * Verifica o estado de autenticação e mostra a secção apropriada
      */
     checkAuthStatus() {
         const loginSection = document.getElementById('loginSection');
@@ -114,6 +96,12 @@ class AdminPanel {
         if (authManager.isAuthenticated()) {
             loginSection.style.display = 'none';
             adminSection.style.display = 'block';
+            
+            // Garantir que os jogos de exemplo existem se a lista estiver vazia
+            if (typeof gameManager !== 'undefined' && gameManager.getGames().length === 0) {
+                gameManager.createSampleGames();
+            }
+            
             this.renderGamesList();
         } else {
             loginSection.style.display = 'block';
@@ -123,6 +111,7 @@ class AdminPanel {
 
     /**
      * Trata o login
+     * @param {Event} e - Evento do formulário
      */
     handleLogin(e) {
         e.preventDefault();
@@ -132,10 +121,12 @@ class AdminPanel {
         const loginError = document.getElementById('loginError');
 
         if (authManager.login(username, password)) {
-            loginError.style.display = 'none';
+            // Login bem-sucedido
+            if (loginError) loginError.style.display = 'none';
             document.getElementById('loginForm').reset();
             this.checkAuthStatus();
         } else {
+            // Login falhou
             if (loginError) {
                 loginError.textContent = 'Utilizador ou palavra-passe incorretos.';
                 loginError.style.display = 'block';
@@ -150,17 +141,11 @@ class AdminPanel {
         if (confirm('Tem a certeza que deseja sair?')) {
             authManager.logout();
             this.checkAuthStatus();
-            
-            // Remover acesso secreto
-            sessionStorage.removeItem('secretAdminAccess');
-            
-            // Redirecionar para página principal
-            window.location.href = 'index.html';
         }
     }
-
     /**
-     * Trata a alteração de palavra-passe
+     * Trata a alteracao de palavra-passe
+     * @param {Event} e - Evento do formulario
      */
     handleChangePassword(e) {
         e.preventDefault();
@@ -170,15 +155,17 @@ class AdminPanel {
         const confirmPassword = document.getElementById('confirmPassword').value;
         const passwordMessage = document.getElementById('passwordMessage');
 
+        // Validar se as senhas novas coincidem
         if (newPassword !== confirmPassword) {
             if (passwordMessage) {
-                passwordMessage.textContent = 'As palavras-passe não coincidem.';
+                passwordMessage.textContent = 'As palavras-passe nao coincidem.';
                 passwordMessage.className = 'form-message error';
                 passwordMessage.style.display = 'block';
             }
             return;
         }
 
+        // Chamar o metodo de alteracao de senha
         const result = authManager.changePassword(currentPassword, newPassword);
 
         if (passwordMessage) {
@@ -188,13 +175,17 @@ class AdminPanel {
         }
 
         if (result.success) {
+            // Limpar formulario
             document.getElementById('changePasswordForm').reset();
             
-            // Sincronizar com outros dispositivos
-            if (window.syncManager) {
-                window.syncManager.addPendingChange({
-                    type: 'CREDENTIALS_UPDATE',
-                    timestamp: Date.now()
+            // Sincronizar com Firebase se disponivel
+            if (typeof firebaseManager !== 'undefined') {
+                firebaseManager.updateAdminPassword(newPassword).then(success => {
+                    if (success) {
+                        console.log('Senha sincronizada com Firebase');
+                    }
+                }).catch(error => {
+                    console.warn('Nao foi possivel sincronizar com Firebase:', error);
                 });
             }
         }
@@ -202,6 +193,7 @@ class AdminPanel {
 
     /**
      * Trata a adição de novo jogo
+     * @param {Event} e - Evento do formulário
      */
     async handleAddGame(e) {
         e.preventDefault();
@@ -221,6 +213,7 @@ class AdminPanel {
             return;
         }
 
+        // Adicionar jogo
         await gameManager.addGame({
             homeTeam,
             awayTeam,
@@ -228,13 +221,19 @@ class AdminPanel {
             competition
         });
 
+        // Limpar formulário
         document.getElementById('addGameForm').reset();
+
+        // Atualizar lista
         this.renderGamesList();
+
+        // Mostrar mensagem de sucesso
         alert('Jogo adicionado com sucesso!');
     }
 
     /**
      * Trata a edição de jogo
+     * @param {Event} e - Evento do formulário
      */
     async handleEditGame(e) {
         e.preventDefault();
@@ -305,12 +304,14 @@ class AdminPanel {
 
         if (emptyGames) emptyGames.style.display = 'none';
 
+        // Ordenar jogos por data
         const sortedGames = [...games].sort((a, b) => 
-            new Date(b.date) - new Date(a.date)
+            new Date(a.date) - new Date(b.date)
         );
 
         gamesList.innerHTML = sortedGames.map(game => this.createGameManagementCard(game)).join('');
 
+        // Adicionar event listeners aos botões de edição
         document.querySelectorAll('.edit-game-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const gameId = e.target.dataset.gameId;
@@ -321,6 +322,8 @@ class AdminPanel {
 
     /**
      * Cria o HTML de um cartão de jogo para gerenciamento
+     * @param {object} game - Dados do jogo
+     * @returns {string} - HTML do cartão
      */
     createGameManagementCard(game) {
         const statusText = gameManager.getStatusText(game.status);
@@ -333,13 +336,11 @@ class AdminPanel {
             minute: '2-digit'
         });
 
-        const isLive = game.status === 'live' ? '🔴' : '';
-
         return `
             <div class="game-management-card">
-                <h5>${isLive} ${game.homeTeam} vs ${game.awayTeam}</h5>
+                <h5>${game.homeTeam} vs ${game.awayTeam}</h5>
                 <p><strong>Placar:</strong> ${game.homeGoals} - ${game.awayGoals}</p>
-                <p><strong>Status:</strong> ${statusText} ${game.minute > 0 ? `(${game.minute}')` : ''}</p>
+                <p><strong>Status:</strong> ${statusText}</p>
                 <p><strong>Competição:</strong> ${game.competition}</p>
                 <p><strong>Data:</strong> ${dateStr}</p>
                 <button class="btn btn-primary edit-game-btn" data-game-id="${game.id}">
@@ -351,6 +352,7 @@ class AdminPanel {
 
     /**
      * Abre o modal de edição de jogo
+     * @param {number} gameId - ID do jogo
      */
     openEditModal(gameId) {
         const game = gameManager.getGameById(gameId);
@@ -360,12 +362,14 @@ class AdminPanel {
             return;
         }
 
+        // Preencher o formulário com os dados do jogo
         document.getElementById('editGameId').value = game.id;
         document.getElementById('editStatus').value = game.status;
         document.getElementById('editHomeGoals').value = game.homeGoals;
         document.getElementById('editAwayGoals').value = game.awayGoals;
         document.getElementById('editMinute').value = game.minute;
 
+        // Mostrar modal
         const modal = document.getElementById('editModal');
         if (modal) {
             modal.style.display = 'flex';

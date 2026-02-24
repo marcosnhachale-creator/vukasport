@@ -3,38 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VukaSport - Acompanhamento de Jogos em Tempo Real">
     <meta name="theme-color" content="#1e7e34">
-    <title>VukaSport - Live Scores</title>
+    <title>VukaSport - Resultados em Tempo Real</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="dark-mode"> <header class="header">
+<body>
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <div class="header-top">
+            <div class="header-content">
                 <h1 class="logo">⚽ VukaSport</h1>
-                <div id="connectionStatus" class="status-dot online"></div>
+                <div class="header-controls">
+                    <button id="darkModeToggle" class="btn-icon" title="Modo Escuro">🌙</button>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="container">
-        <div id="gamesContainer" class="games-list">
-            <div class="loading-spinner">Carregando resultados...</div>
+    <!-- Support Button -->
+    <div class="support-banner">
+        <div class="support-content">
+            <span class="support-icon">❤️</span>
+            <span class="support-text">Gosta da aplicação? Apoie-nos!</span>
+            <button class="btn btn-support" onclick="openSupportModal()">Apoiar</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Title Section -->
+            <section class="title-section">
+                <h2>Resultados dos Jogos</h2>
+                <p class="subtitle">Acompanhe os jogos em tempo real</p>
+            </section>
+
+            <!-- Games List -->
+            <section class="games-section">
+                <div id="gamesList" class="games-grid">
+                    <!-- Jogos serão carregados aqui pelo JavaScript -->
+                </div>
+            </section>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>Nenhum jogo disponível no momento.</p>
+            </div>
         </div>
     </main>
 
-    <footer class="footer-modern">
-        <p>Desenvolvido por <span id="devName" class="dev-name">Marcos Nhachale</span></p>
+    <!-- Support Modal -->
+    <div id="supportModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>❤️ Apoie a VukaSport</h3>
+                <button class="modal-close" onclick="closeSupportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="support-description">Obrigado por usar a VukaSport! Se gosta da aplicação, pode apoiar-nos enviando um valor via M-Pesa.</p>
+                <div class="support-info-box">
+                    <p class="support-label">Número M-Pesa:</p>
+                    <p class="support-mpesa-number">852092063</p>
+                    <button class="btn btn-primary" onclick="copySupportNumber()">Copiar Número</button>
+                </div>
+                <p class="support-thanks">Qualquer valor é bem-vindo e nos ajuda a melhorar a aplicação!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
+            <p class="developer-credit">
+                Desenvolvido por <span id="developerName" class="developer-name">Marcos Nhachale</span>
+            </p>
+            <p class="offline-indicator" id="offlineIndicator" style="display: none;">
+                ⚠️ Modo Offline - Dados em cache
+            </p>
+        </div>
     </footer>
 
-    <script src="js/firebase.js"></script>
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/firebase.js"></script>
     <script>
-        // Registo do SW para notificações e offline
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js');
+        // Variável para contar cliques no nome do desenvolvedor
+        let developerClickCount = 0;
+        let developerClickTimeout;
+
+        // Funções para o modal de apoio
+        function openSupportModal() {
+            document.getElementById('supportModal').style.display = 'flex';
         }
+
+        function closeSupportModal() {
+            document.getElementById('supportModal').style.display = 'none';
+        }
+
+        function copySupportNumber() {
+            const mpesaNumber = '852092063';
+            navigator.clipboard.writeText(mpesaNumber).then(() => {
+                alert('Número M-Pesa copiado: ' + mpesaNumber);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                alert('Número M-Pesa: ' + mpesaNumber);
+            });
+        }
+
+        // Fechar modal ao clicar fora
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('supportModal');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeSupportModal();
+                }
+            });
+
+            // Adicionar listener ao nome do desenvolvedor para acesso secreto
+            const developerName = document.getElementById('developerName');
+            developerName.addEventListener('click', () => {
+                developerClickCount++;
+                
+                // Resetar contador após 1 segundo de inatividade
+                clearTimeout(developerClickTimeout);
+                developerClickTimeout = setTimeout(() => {
+                    developerClickCount = 0;
+                }, 1000);
+
+                // Se 6 cliques, abrir admin
+                if (developerClickCount === 6) {
+                    developerClickCount = 0;
+                    window.location.href = 'admin.html';
+                }
+            });
+
+            // Modo escuro
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const htmlElement = document.documentElement;
+
+            // Verificar preferência salva
+            const savedDarkMode = localStorage.getItem('vukasport_dark_mode') === 'true';
+            if (savedDarkMode) {
+                htmlElement.setAttribute('data-theme', 'dark');
+                darkModeToggle.textContent = '☀️';
+            }
+
+            // Toggle modo escuro
+            darkModeToggle.addEventListener('click', () => {
+                const isDark = htmlElement.getAttribute('data-theme') === 'dark';
+                
+                if (isDark) {
+                    htmlElement.removeAttribute('data-theme');
+                    localStorage.setItem('vukasport_dark_mode', 'false');
+                    darkModeToggle.textContent = '🌙';
+                } else {
+                    htmlElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('vukasport_dark_mode', 'true');
+                    darkModeToggle.textContent = '☀️';
+                }
+            });
+        });
+
+        // Registar o Service Worker para funcionalidade offline e notificações
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registado com sucesso:', registration);
+                })
+                .catch(error => {
+                    console.log('Erro ao registar Service Worker:', error);
+                });
+        }
+
+        // Monitorar estado online/offline
+        window.addEventListener('online', () => {
+            document.getElementById('offlineIndicator').style.display = 'none';
+            console.log('Aplicação online');
+            // Sincronizar quando voltar online
+            if (typeof gameManager !== 'undefined') {
+                gameManager.loadGames();
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineIndicator').style.display = 'block';
+            console.log('Aplicação offline');
+        });
     </script>
 </body>
 </html>
