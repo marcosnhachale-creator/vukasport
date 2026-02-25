@@ -2,14 +2,12 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VukaSport - Acompanhamento de Jogos em Tempo Real">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="VukaSport - Resultados de Futebol em Tempo Real">
     <meta name="theme-color" content="#1e7e34">
-    <title>VukaSport - Resultados em Tempo Real</title>
+    <title>VukaSport - Live Scores</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -19,185 +17,150 @@
             <div class="header-content">
                 <h1 class="logo">⚽ VukaSport</h1>
                 <div class="header-controls">
-                    <a href="settings.html" class="btn-icon" title="Definições">⚙️</a>
-                    <button id="darkModeToggle" class="btn-icon" title="Modo Escuro">🌙</button>
+                    <button id="darkModeToggle" class="btn-icon">🌙</button>
+                    <a href="settings.html" class="btn-icon">⚙️</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Support Button -->
-    <div class="support-banner">
-        <div class="support-content">
-            <span class="support-icon">❤️</span>
-            <span class="support-text">Gosta da aplicação? Apoie-nos!</span>
-            <button class="btn btn-support" onclick="openSupportModal()">Apoiar</button>
+    <!-- Date Navigation -->
+    <nav class="date-nav">
+        <div id="dateList" class="date-list">
+            <!-- Datas serão inseridas aqui -->
         </div>
+    </nav>
+
+    <!-- Support Banner -->
+    <div class="support-banner">
+        <span>Gosta da aplicação? <strong>Apoie o projeto!</strong></span>
+        <button class="btn-primary" onclick="openSupportModal()" style="margin-left: 10px; padding: 4px 10px; font-size: 11px;">Apoiar</button>
     </div>
 
     <!-- Main Content -->
     <main class="main">
-        <div class="container">
-            <!-- Title Section -->
-            <section class="title-section">
-                <h2>Resultados dos Jogos</h2>
-                <p class="subtitle">Acompanhe os jogos em tempo real</p>
-            </section>
-
-            <!-- Games List -->
-            <section class="games-section">
-                <div id="gamesList" class="games-grid">
-                    <!-- Jogos serão carregados aqui pelo JavaScript -->
-                </div>
-            </section>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <p>Nenhum jogo disponível no momento.</p>
+        <div id="gamesContainer" class="container">
+            <!-- Lista de jogos agrupada por competição será carregada aqui -->
+            <div id="gamesList">
+                <!-- Skeleton/Loading state -->
+                <div style="padding: 20px; text-align: center; color: #888;">Carregando jogos...</div>
             </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none; padding: 40px 20px; text-align: center; color: #888;">
+            <p>Nenhum jogo agendado para esta data.</p>
         </div>
     </main>
 
     <!-- Support Modal -->
-    <div id="supportModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>❤️ Apoie a VukaSport</h3>
-                <button class="modal-close" onclick="closeSupportModal()">&times;</button>
+    <div id="supportModal" class="modal-admin" style="display: none;">
+        <div class="modal-admin-content">
+            <div class="modal-admin-header" style="display: flex; justify-content: space-between;">
+                <span>Apoie a VukaSport</span>
+                <button onclick="closeSupportModal()" style="background:none; border:none; color:white; font-size:20px;">&times;</button>
             </div>
-            <div class="modal-body">
-                <p class="support-description">Obrigado por usar a VukaSport! Se gosta da aplicação, pode apoiar-nos enviando um valor via M-Pesa.</p>
-                <div class="support-info-box">
-                    <p class="support-label">Número M-Pesa:</p>
-                    <p class="support-mpesa-number">852092063</p>
-                    <button class="btn btn-primary" onclick="copySupportNumber()">Copiar Número</button>
-                </div>
-                <p class="support-thanks">Qualquer valor é bem-vindo e nos ajuda a melhorar a aplicação!</p>
+            <p style="font-size: 13px; margin-bottom: 15px; color: #ccc;">Sua contribuição ajuda a manter os servidores ativos.</p>
+            <div style="background: #333; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                <p style="font-size: 11px; color: #888; margin-bottom: 5px;">M-Pesa Moçambique</p>
+                <p style="font-size: 20px; font-weight: 800; color: #28A745;">852092063</p>
             </div>
+            <button class="btn-primary btn-large" onclick="copyNumber()">Copiar Número</button>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
-            <p class="developer-credit">
-                Desenvolvido por <span id="developerName" class="developer-name">Marcos Nhachale</span>
-            </p>
-            <p class="offline-indicator" id="offlineIndicator" style="display: none;">
-                ⚠️ Modo Offline - Dados em cache
-            </p>
-        </div>
+        <p>&copy; 2026 VukaSport • <span id="developerName" style="cursor:pointer">Marcos Nhachale</span></p>
+        <p id="offlineIndicator" style="display: none; color: #dc3545; margin-top: 5px;">⚠️ Modo Offline</p>
     </footer>
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
-    <script src="js/notifications-settings.js"></script>
-    <script src="js/app.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/events.js"></script>
+    <script src="js/sample-data.js"></script>
+    <script src="js/app.js"></script>
     <script>
-        // Variável para contar cliques no nome do desenvolvedor
-        let developerClickCount = 0;
-        let developerClickTimeout;
+        // Lógica de UI específica da página
+        let selectedDate = new Date().toISOString().split('T')[0];
 
-        // Funções para o modal de apoio
-        function openSupportModal() {
-            document.getElementById('supportModal').style.display = 'flex';
-        }
-
-        function closeSupportModal() {
-            document.getElementById('supportModal').style.display = 'none';
-        }
-
-        function copySupportNumber() {
-            const mpesaNumber = '852092063';
-            navigator.clipboard.writeText(mpesaNumber).then(() => {
-                alert('Número M-Pesa copiado: ' + mpesaNumber);
-            }).catch(err => {
-                console.error('Erro ao copiar:', err);
-                alert('Número M-Pesa: ' + mpesaNumber);
-            });
-        }
-
-        // Fechar modal ao clicar fora
-        document.addEventListener('DOMContentLoaded', () => {
-            const modal = document.getElementById('supportModal');
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeSupportModal();
-                }
-            });
-
-            // Adicionar listener ao nome do desenvolvedor para acesso secreto
-            const developerName = document.getElementById('developerName');
-            developerName.addEventListener('click', () => {
-                developerClickCount++;
+        function renderDateNav() {
+            const dateList = document.getElementById('dateList');
+            dateList.innerHTML = '';
+            
+            const today = new Date();
+            const dates = [];
+            
+            // Gerar 3 dias antes e 4 dias depois
+            for (let i = -3; i <= 4; i++) {
+                const d = new Date();
+                d.setDate(today.getDate() + i);
+                dates.push(d);
+            }
+            
+            dates.forEach(date => {
+                const dateStr = date.toISOString().split('T')[0];
+                const btn = document.createElement('button');
+                btn.className = `date-item ${dateStr === selectedDate ? 'active' : ''}`;
                 
-                // Resetar contador após 1 segundo de inatividade
-                clearTimeout(developerClickTimeout);
-                developerClickTimeout = setTimeout(() => {
-                    developerClickCount = 0;
-                }, 1000);
-
-                // Se 6 cliques, abrir admin
-                if (developerClickCount === 6) {
-                    developerClickCount = 0;
-                    window.location.href = 'admin.html';
+                let label = '';
+                const dayDiff = Math.floor((date - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24));
+                
+                if (dayDiff === 0) label = 'HOJE';
+                else if (dayDiff === -1) label = 'ONTEM';
+                else if (dayDiff === 1) label = 'AMANHÃ';
+                else {
+                    const days = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+                    label = `${days[date.getDay()]} ${date.getDate()}`;
                 }
+                
+                btn.textContent = label;
+                btn.onclick = () => {
+                    selectedDate = dateStr;
+                    renderDateNav();
+                    if (window.gameManager) window.gameManager.renderGames();
+                };
+                dateList.appendChild(btn);
             });
+        }
 
-            // Modo escuro
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const htmlElement = document.documentElement;
+        function openSupportModal() { document.getElementById('supportModal').style.display = 'flex'; }
+        function closeSupportModal() { document.getElementById('supportModal').style.display = 'none'; }
+        function copyNumber() {
+            navigator.clipboard.writeText('852092063');
+            alert('Número copiado!');
+        }
 
-            // Verificar preferência salva
-            const savedDarkMode = localStorage.getItem('vukasport_dark_mode') === 'true';
-            if (savedDarkMode) {
-                htmlElement.setAttribute('data-theme', 'dark');
+        // Developer secret access
+        let devClicks = 0;
+        document.getElementById('developerName').onclick = () => {
+            devClicks++;
+            if (devClicks >= 6) window.location.href = 'admin.html';
+            setTimeout(() => devClicks = 0, 2000);
+        };
+
+        // Dark mode
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.onclick = () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('vukasport_theme', 'light');
+                darkModeToggle.textContent = '🌙';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('vukasport_theme', 'dark');
                 darkModeToggle.textContent = '☀️';
             }
+        };
 
-            // Toggle modo escuro
-            darkModeToggle.addEventListener('click', () => {
-                const isDark = htmlElement.getAttribute('data-theme') === 'dark';
-                
-                if (isDark) {
-                    htmlElement.removeAttribute('data-theme');
-                    localStorage.setItem('vukasport_dark_mode', 'false');
-                    darkModeToggle.textContent = '🌙';
-                } else {
-                    htmlElement.setAttribute('data-theme', 'dark');
-                    localStorage.setItem('vukasport_dark_mode', 'true');
-                    darkModeToggle.textContent = '☀️';
-                }
-            });
-        });
-
-        // Registar o Service Worker para funcionalidade offline e notificações
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registado com sucesso:', registration);
-                })
-                .catch(error => {
-                    console.log('Erro ao registar Service Worker:', error);
-                });
-        }
-
-        // Monitorar estado online/offline
-        window.addEventListener('online', () => {
-            document.getElementById('offlineIndicator').style.display = 'none';
-            console.log('Aplicação online');
-            // Sincronizar quando voltar online
-            if (typeof gameManager !== 'undefined') {
-                gameManager.loadGames();
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDateNav();
+            if (localStorage.getItem('vukasport_theme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                darkModeToggle.textContent = '☀️';
             }
-        });
-
-        window.addEventListener('offline', () => {
-            document.getElementById('offlineIndicator').style.display = 'block';
-            console.log('Aplicação offline');
         });
     </script>
 </body>

@@ -2,364 +2,147 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VukaSport - Painel de Administração">
-    <meta name="theme-color" content="#1e7e34">
-    <title>VukaSport - Painel de Administração</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VukaSport - Admin Só Edição</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { background-color: #121212; color: white; }
+        .admin-section { display: none; }
+        .active { display: block; }
+    </style>
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <h1 class="logo">⚽ VukaSport</h1>
-                <nav class="nav">
-                    <a href="index.html" class="nav-link">Voltar aos Jogos</a>
-                </nav>
+<body class="admin-body">
+    <!-- Login Section -->
+    <section id="loginSection" class="admin-only-panel active" style="padding-top: 50px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #28A745;">⚽ VukaSport Admin</h1>
+            <p style="color: #888; font-size: 14px;">Painel de Controlo em Tempo Real</p>
+        </div>
+        
+        <form id="loginForm" style="background: #1e1e1e; padding: 20px; border-radius: 12px;">
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:5px; font-size:12px; color:#888;">Utilizador</label>
+                <input type="text" id="username" style="width:100%; padding:12px; background:#333; border:1px solid #444; color:white; border-radius:8px;" required>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; margin-bottom:5px; font-size:12px; color:#888;">Palavra-passe</label>
+                <input type="password" id="password" style="width:100%; padding:12px; background:#333; border:1px solid #444; color:white; border-radius:8px;" required>
+            </div>
+            <button type="submit" class="btn-primary btn-large">ENTRAR</button>
+            <p id="loginError" style="color:#dc3545; font-size:12px; margin-top:10px; display:none; text-align:center;">Credenciais inválidas.</p>
+        </form>
+    </section>
+
+    <!-- Admin Section -->
+    <section id="adminSection" class="admin-section">
+        <div class="admin-only-panel">
+            <div class="admin-header-compact">
+                <h2>⚽ SÓ EDIÇÃO</h2>
+                <button id="logoutBtn" style="background:none; border:none; color:#888; font-size:12px;">Sair</button>
+            </div>
+
+            <!-- Seleção de Jogo -->
+            <div style="margin-bottom: 20px;">
+                <select id="gameSelect" style="width:100%; padding:12px; background:#1e1e1e; border:1px solid #333; color:white; border-radius:8px; font-weight:bold;">
+                    <option value="">SELECIONAR JOGO PARA EDITAR</option>
+                </select>
+                <button id="btnNewGame" style="width:100%; margin-top:10px; padding:8px; background:none; border:1px dashed #444; color:#888; font-size:11px; border-radius:8px;">+ ADICIONAR NOVO JOGO</button>
+            </div>
+
+            <div id="editorContainer" style="display: none;">
+                <!-- Controle de Tempo -->
+                <div class="time-control">
+                    <button id="btnPlayPause" class="btn-play-pause">▶️</button>
+                    <div class="minute-edit">
+                        <label>Minutos de Jogo</label>
+                        <input type="number" id="gameMinute" class="minute-input" value="0">
+                    </div>
+                </div>
+
+                <!-- Placar Interativo -->
+                <div class="score-control">
+                    <div class="score-grid">
+                        <div class="team-score-edit">
+                            <span id="homeName" class="team-score-name">CASA</span>
+                            <div id="homeScore" class="score-value">0</div>
+                            <div class="score-btns">
+                                <button onclick="adjustScore('home', -1)" class="btn-score btn-minus">-</button>
+                                <button onclick="adjustScore('home', 1)" class="btn-score btn-plus">+</button>
+                            </div>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: #444;">VS</div>
+                        <div class="team-score-edit">
+                            <span id="awayName" class="team-score-name">VISITANTE</span>
+                            <div id="awayScore" class="score-value">0</div>
+                            <div class="score-btns">
+                                <button onclick="adjustScore('away', -1)" class="btn-score btn-minus">-</button>
+                                <button onclick="adjustScore('away', 1)" class="btn-score btn-plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="btnRegisterEvent" class="event-register-btn">REGISTAR EVENTO (GOLO/CARTÃO)</button>
+                </div>
+
+                <!-- Log de Eventos -->
+                <div class="event-log">
+                    <h3>EVENTOS REGISTADOS</h3>
+                    <div id="eventList">
+                        <!-- Eventos aqui -->
+                    </div>
+                </div>
             </div>
         </div>
-    </header>
+    </section>
 
-    <!-- Main Content -->
-    <main class="main">
-        <div class="container">
-            <!-- Login Section (shown when not authenticated) -->
-            <section id="loginSection" class="auth-section">
-                <div class="auth-card">
-                    <h2>Painel de Administração</h2>
-                    <p class="auth-subtitle">Faça login para gerir os jogos</p>
-                    
-                    <form id="loginForm" class="auth-form">
-                        <div class="form-group">
-                            <label for="username">Utilizador:</label>
-                            <input 
-                                type="text" 
-                                id="username" 
-                                name="username" 
-                                placeholder="admin" 
-                                required
-                            >
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="password">Palavra-passe:</label>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                placeholder="••••••••" 
-                                required
-                            >
-                        </div>
-
-                        <div class="form-info">
-                            <p><strong>Credenciais de teste:</strong></p>
-                            <p>Utilizador: <code>admin</code></p>
-                            <p>Palavra-passe: <code>123456</code></p>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-large">Entrar</button>
-                    </form>
-
-                    <div id="loginError" class="error-message" style="display: none;"></div>
-                </div>
-            </section>
-
-            <!-- Admin Dashboard (shown when authenticated) -->
-            <section id="adminSection" class="admin-section" style="display: none;">
-                <div class="admin-header">
-                    <h2>Painel de Administração</h2>
-                    <button id="logoutBtn" class="btn btn-secondary">Sair</button>
-                </div>
-
-                <!-- Settings Section -->
-                <div class="admin-settings">
-                    <h3>Definições de Administrador</h3>
-                    
-                    <div class="settings-card">
-                        <h4>Alterar Palavra-passe</h4>
-                        <form id="changePasswordForm" class="settings-form">
-                            <div class="form-group">
-                                <label for="currentPassword">Palavra-passe Atual:</label>
-                                <input 
-                                    type="password" 
-                                    id="currentPassword" 
-                                    name="currentPassword" 
-                                    placeholder="••••••••" 
-                                    required
-                                >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="newPassword">Nova Palavra-passe:</label>
-                                <input 
-                                    type="password" 
-                                    id="newPassword" 
-                                    name="newPassword" 
-                                    placeholder="••••••••" 
-                                    required
-                                >
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirmPassword">Confirmar Palavra-passe:</label>
-                                <input 
-                                    type="password" 
-                                    id="confirmPassword" 
-                                    name="confirmPassword" 
-                                    placeholder="••••••••" 
-                                    required
-                                >
-                            </div>
-
-                            <div id="passwordMessage" class="form-message" style="display: none;"></div>
-                            
-                            <button type="submit" class="btn btn-primary">Atualizar Palavra-passe</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Games Management -->
-                <div class="admin-content">
-                    <h3>Gerir Jogos</h3>
-                    
-                    <!-- Add New Game Form -->
-                    <div class="add-game-section">
-                        <h4>Adicionar Novo Jogo</h4>
-                        <form id="addGameForm" class="game-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="homeTeam">Equipa Casa:</label>
-                                    <input 
-                                        type="text" 
-                                        id="homeTeam" 
-                                        name="homeTeam" 
-                                        placeholder="Ex: Sporting CP" 
-                                        required
-                                    >
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="awayTeam">Equipa Visitante:</label>
-                                    <input 
-                                        type="text" 
-                                        id="awayTeam" 
-                                        name="awayTeam" 
-                                        placeholder="Ex: Benfica" 
-                                        required
-                                    >
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="gameDate">Data do Jogo:</label>
-                                    <input 
-                                        type="datetime-local" 
-                                        id="gameDate" 
-                                        name="gameDate" 
-                                        required
-                                    >
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="competition">Competição:</label>
-                                    <input 
-                                        type="text" 
-                                        id="competition" 
-                                        name="competition" 
-                                        placeholder="Ex: Primeira Liga" 
-                                        required
-                                    >
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Adicionar Jogo</button>
-                        </form>
-                    </div>
-
-                    <!-- Games List for Editing -->
-                    <div class="games-management-section">
-                        <h4>Jogos Registados</h4>
-                        <div id="gamesList" class="games-management-list">
-                            <!-- Jogos serão carregados aqui -->
-                        </div>
-                        <div id="emptyGames" class="empty-state" style="display: none;">
-                            <p>Nenhum jogo registado. Adicione um novo jogo acima.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
-        </div>
-    </footer>
-
-    <!-- Modal para editar jogo -->
-    <div id="editModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Editar Jogo</h3>
-                <button class="modal-close" id="closeModal">&times;</button>
+    <!-- Modal Evento -->
+    <div id="eventModal" class="modal-admin" style="display: none;">
+        <div class="modal-admin-content">
+            <div class="modal-admin-header">Registar Evento</div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Tipo</label>
+                <select id="eventType" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+                    <option value="goal">⚽ GOLO</option>
+                    <option value="yellow">🟨 CARTÃO AMARELO</option>
+                    <option value="red">🟥 CARTÃO VERMELHO</option>
+                </select>
             </div>
-            
-            <form id="editGameForm" class="game-form">
-                <input type="hidden" id="editGameId" name="gameId">
-
-                <div class="form-group">
-                    <label for="editStatus">Estado do Jogo:</label>
-                    <select id="editStatus" name="status" required>
-                        <option value="scheduled">Agendado</option>
-                        <option value="live">Em Direto</option>
-                        <option value="halftime">Intervalo</option>
-                        <option value="extra">Prolongamento</option>
-                        <option value="finished">Terminado</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="editHomeGoals">Golos Casa:</label>
-                        <input 
-                            type="number" 
-                            id="editHomeGoals" 
-                            name="homeGoals" 
-                            min="0" 
-                            value="0" 
-                            required
-                        >
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="editAwayGoals">Golos Visitante:</label>
-                        <input 
-                            type="number" 
-                            id="editAwayGoals" 
-                            name="awayGoals" 
-                            min="0" 
-                            value="0" 
-                            required
-                        >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="editMinute">Minuto:</label>
-                    <input 
-                        type="number" 
-                        id="editMinute" 
-                        name="minute" 
-                        min="0" 
-                        value="0" 
-                        required
-                    >
-                </div>
-
-                <!-- Seção de Eventos (Goleadas e Cartões) -->
-                <div class="events-section">
-                    <h4>Registar Eventos do Jogo</h4>
-                    
-                    <!-- Goleadas -->
-                    <div class="event-subsection">
-                        <h5>⚽ Goleadas</h5>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="goalTeam">Equipa:</label>
-                                <select id="goalTeam" name="goalTeam">
-                                    <option value="home">Casa</option>
-                                    <option value="away">Visitante</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="goalMinute">Minuto:</label>
-                                <input type="number" id="goalMinute" name="goalMinute" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="goalPlayerName">Nome do Jogador:</label>
-                            <input type="text" id="goalPlayerName" name="goalPlayerName" placeholder="Ex: Cristiano Ronaldo">
-                        </div>
-                        <button type="button" class="btn btn-primary btn-small" id="addGoalBtn">Adicionar Golo</button>
-                    </div>
-
-                    <!-- Cartões Amarelos -->
-                    <div class="event-subsection">
-                        <h5>🟨 Cartão Amarelo</h5>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="yellowCardTeam">Equipa:</label>
-                                <select id="yellowCardTeam" name="yellowCardTeam">
-                                    <option value="home">Casa</option>
-                                    <option value="away">Visitante</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="yellowCardMinute">Minuto:</label>
-                                <input type="number" id="yellowCardMinute" name="yellowCardMinute" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="yellowCardPlayerName">Nome do Jogador:</label>
-                            <input type="text" id="yellowCardPlayerName" name="yellowCardPlayerName" placeholder="Ex: João Félix">
-                        </div>
-                        <button type="button" class="btn btn-primary btn-small" id="addYellowCardBtn">Adicionar Cartão Amarelo</button>
-                    </div>
-
-                    <!-- Cartões Vermelhos -->
-                    <div class="event-subsection">
-                        <h5>🟥 Cartão Vermelho</h5>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="redCardTeam">Equipa:</label>
-                                <select id="redCardTeam" name="redCardTeam">
-                                    <option value="home">Casa</option>
-                                    <option value="away">Visitante</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="redCardMinute">Minuto:</label>
-                                <input type="number" id="redCardMinute" name="redCardMinute" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="redCardPlayerName">Nome do Jogador:</label>
-                            <input type="text" id="redCardPlayerName" name="redCardPlayerName" placeholder="Ex: Pepe">
-                        </div>
-                        <button type="button" class="btn btn-primary btn-small" id="addRedCardBtn">Adicionar Cartão Vermelho</button>
-                    </div>
-
-                    <!-- Histórico de Eventos -->
-                    <div class="events-history">
-                        <h5>Histórico de Eventos</h5>
-                        <div id="eventsList" class="events-list">
-                            <p class="empty-events">Nenhum evento registado</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Guardar Alterações</button>
-                    <button type="button" class="btn btn-secondary" id="cancelEdit">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="deleteGame">Eliminar Jogo</button>
-                </div>
-            </form>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Equipa</label>
+                <select id="eventTeam" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+                    <option value="home">CASA</option>
+                    <option value="away">VISITANTE</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Jogador</label>
+                <input type="text" id="eventPlayer" placeholder="Nome ou número" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="saveEvent()" class="btn-primary" style="flex:1;">GUARDAR</button>
+                <button onclick="closeEventModal()" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
+            </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/events.js"></script>
+    <script src="js/sample-data.js"></script>
+    <script src="js/app.js"></script>
     <script src="js/admin.js"></script>
+    <script>
+        // Funções globais para botões inline
+        function adjustScore(team, delta) {
+            if (window.adminPanel) window.adminPanel.adjustScore(team, delta);
+        }
+        function saveEvent() {
+            if (window.adminPanel) window.adminPanel.saveEvent();
+        }
+        function closeEventModal() {
+            document.getElementById('eventModal').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
