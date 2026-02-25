@@ -24,8 +24,14 @@
         </div>
     </header>
 
-    <!-- Date Navigation -->
-    <nav class="date-nav">
+    <!-- View Toggle (Ao Vivo / Por Data) -->
+    <nav class="view-toggle" style="display: flex; gap: 10px; padding: 10px 20px; background: #1e1e1e; border-bottom: 1px solid #333;">
+        <button id="btnLiveView" class="view-btn active" style="flex: 1; padding: 10px; background: #28A745; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">🔴 AO VIVO</button>
+        <button id="btnDateView" class="view-btn" style="flex: 1; padding: 10px; background: #333; color: #888; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">📅 POR DATA</button>
+    </nav>
+
+    <!-- Date Navigation (Oculto por padrão) -->
+    <nav id="dateNav" class="date-nav" style="display: none;">
         <div id="dateList" class="date-list">
             <!-- Datas serão inseridas aqui -->
         </div>
@@ -49,7 +55,7 @@
 
         <!-- Empty State -->
         <div id="emptyState" style="display: none; padding: 40px 20px; text-align: center; color: #888;">
-            <p>Nenhum jogo agendado para esta data.</p>
+            <p id="emptyStateText">Nenhum jogo agendado para esta data.</p>
         </div>
     </main>
 
@@ -84,6 +90,7 @@
     <script>
         // Lógica de UI específica da página
         let selectedDate = new Date().toISOString().split('T')[0];
+        let showLiveOnly = true; // Mostrar ao vivo por padrão
 
         function renderDateNav() {
             const dateList = document.getElementById('dateList');
@@ -92,7 +99,6 @@
             const today = new Date();
             const dates = [];
             
-            // Gerar 3 dias antes e 4 dias depois
             for (let i = -3; i <= 4; i++) {
                 const d = new Date();
                 d.setDate(today.getDate() + i);
@@ -125,6 +131,38 @@
             });
         }
 
+        function toggleView(viewType) {
+            const dateNav = document.getElementById('dateNav');
+            const btnLiveView = document.getElementById('btnLiveView');
+            const btnDateView = document.getElementById('btnDateView');
+            const emptyStateText = document.getElementById('emptyStateText');
+
+            if (viewType === 'live') {
+                showLiveOnly = true;
+                window.showLiveOnly = true;
+                dateNav.style.display = 'none';
+                btnLiveView.style.background = '#28A745';
+                btnLiveView.style.color = 'white';
+                btnDateView.style.background = '#333';
+                btnDateView.style.color = '#888';
+                emptyStateText.textContent = 'Nenhum jogo ao vivo neste momento.';
+            } else {
+                showLiveOnly = false;
+                window.showLiveOnly = false;
+                dateNav.style.display = 'block';
+                btnLiveView.style.background = '#333';
+                btnLiveView.style.color = '#888';
+                btnDateView.style.background = '#28A745';
+                btnDateView.style.color = 'white';
+                emptyStateText.textContent = 'Nenhum jogo agendado para esta data.';
+            }
+
+            if (window.gameManager) window.gameManager.renderGames();
+        }
+
+        document.getElementById('btnLiveView').onclick = () => toggleView('live');
+        document.getElementById('btnDateView').onclick = () => toggleView('date');
+
         function openSupportModal() { document.getElementById('supportModal').style.display = 'flex'; }
         function closeSupportModal() { document.getElementById('supportModal').style.display = 'none'; }
         function copyNumber() {
@@ -132,7 +170,6 @@
             alert('Número copiado!');
         }
 
-        // Developer secret access
         let devClicks = 0;
         document.getElementById('developerName').onclick = () => {
             devClicks++;
@@ -140,7 +177,6 @@
             setTimeout(() => devClicks = 0, 2000);
         };
 
-        // Dark mode
         const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.onclick = () => {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -157,6 +193,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderDateNav();
+            window.showLiveOnly = true;
+            if (window.gameManager) window.gameManager.renderGames();
+            
             if (localStorage.getItem('vukasport_theme') === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 darkModeToggle.textContent = '☀️';

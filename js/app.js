@@ -1,6 +1,7 @@
 /**
- * VukaSport - Aplicação Principal (Atualizada)
+ * VukaSport - Aplicação Principal (Atualizada v4)
  * Renderização compacta otimizada para dispositivos móveis
+ * Com suporte para jogos ao vivo e persistência offline
  */
 
 class GameManager {
@@ -20,6 +21,11 @@ class GameManager {
         // Polling para simular tempo real
         setInterval(() => this.renderGames(), 1000);
         setInterval(() => this.syncWithFirebase(), 3000);
+
+        // Sincronizar quando o app volta ao foco
+        window.addEventListener('focus', () => {
+            this.syncWithFirebase();
+        });
     }
 
     async loadGames() {
@@ -67,20 +73,34 @@ class GameManager {
     getGameById(gameId) { return this.games.find(g => g.id == gameId); }
 
     /**
+     * Obtém jogos ao vivo
+     */
+    getLiveGames() {
+        return this.games.filter(game => game.status === 'live');
+    }
+
+    /**
      * Renderiza os jogos agrupados por competição com banners de patrocínio
      */
     renderGames() {
         const container = document.getElementById('gamesList');
         if (!container) return;
 
-        // Obter data selecionada do script global
-        const selectedDate = window.selectedDate || new Date().toISOString().split('T')[0];
-        
-        // Filtrar jogos pela data
-        const filteredGames = this.games.filter(game => {
-            const gameDate = game.date ? game.date.split('T')[0] : '';
-            return gameDate === selectedDate;
-        });
+        // Verificar se estamos a mostrar jogos ao vivo
+        const showLiveOnly = window.showLiveOnly || false;
+        let filteredGames = [];
+
+        if (showLiveOnly) {
+            // Mostrar apenas jogos ao vivo
+            filteredGames = this.getLiveGames();
+        } else {
+            // Mostrar jogos da data selecionada
+            const selectedDate = window.selectedDate || new Date().toISOString().split('T')[0];
+            filteredGames = this.games.filter(game => {
+                const gameDate = game.date ? game.date.split('T')[0] : '';
+                return gameDate === selectedDate;
+            });
+        }
 
         if (filteredGames.length === 0) {
             document.getElementById('emptyState').style.display = 'block';
@@ -100,7 +120,6 @@ class GameManager {
 
         let html = '';
         Object.keys(grouped).forEach(compName => {
-            // Header da competição
             html += `
                 <div class="competition-group">
                     <div class="competition-header">
@@ -112,7 +131,6 @@ class GameManager {
                     </div>
             `;
 
-            // Jogos da competição
             grouped[compName].forEach((game, index) => {
                 const statusHtml = this.getStatusHtml(game);
                 
@@ -135,7 +153,6 @@ class GameManager {
                     </div>
                 `;
 
-                // Banner de patrocínio a cada 3 jogos
                 if ((index + 1) % 3 === 0) {
                     const sponsor = this.sponsors[Math.floor(Math.random() * this.sponsors.length)];
                     html += `
@@ -147,7 +164,7 @@ class GameManager {
                 }
             });
 
-            html += `</div>`; // Fechar grupo
+            html += `</div>`;
         });
 
         container.innerHTML = html;
@@ -155,13 +172,13 @@ class GameManager {
 
     getStatusHtml(game) {
         if (game.status === 'live') {
-            return `<span class="status-live-text"><span class="status-live-dot"></span>AO VIVO ${game.minute || 0}'</span>`;
+            const elapsedMinutes = this.getElapsedMinutes(game);
+            return `<span class="status-live-text"><span class="status-live-dot"></span>AO VIVO ${elapsedMinutes}'</span>`;
         }
         if (game.status === 'halftime') return 'INTERVALO';
         if (game.status === 'extra') return `PROLONGAMENTO ${game.minute || 90}'`;
         if (game.status === 'finished') return 'FIM';
         
-        // Scheduled: mostrar apenas o horário
         if (game.date) {
             const time = new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
             return time;
@@ -169,12 +186,21 @@ class GameManager {
         return 'AGENDADO';
     }
 
-    // Métodos de administração adaptados para o novo painel
+    /**
+     * Calcula minutos decorridos baseado no startTime
+     */
+    getElapsedMinutes(game) {
+        if (!game.startTime) return game.minute || 0;
+        
+        const elapsedMs = Date.now() - game.startTime;
+        const elapsedMinutes = Math.floor(elapsedMs / 60000);
+        return elapsedMinutes;
+    }
+
     async updateGame(gameId, updates) {
         const game = this.getGameById(gameId);
         if (!game) return false;
 
-        // Notificação visual de golo
         if (updates.homeGoals > game.homeGoals || updates.awayGoals > game.awayGoals) {
             updates.flashing = true;
             setTimeout(() => {
@@ -207,7 +233,9 @@ class GameManager {
             homeGoals: 0,
             awayGoals: 0,
             status: 'scheduled',
-            minute: 0
+            minute: 0,
+            phase: 'first',
+            startTime: null
         };
         this.games.push(newGame);
         this.saveGamesLocal();
@@ -218,12 +246,20 @@ class GameManager {
     }
 
     async deleteGame(gameId) {
-        this.games = this.games.filter(g => g.id != gameId);
-        this.saveGamesLocal();
-        if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
-            await firebaseManager.deleteGameFromFirebase(gameId);
+        const gameIndex = this.games.findIndex(g => g.id == gameId);
+        if (gameIndex !== -1) {
+            this.games.splice(gameIndex, 1);
+            this.saveGamesLocal();
+            
+            if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+                await firebaseManager.deleteGameFromFirebase(gameId);
+            }
+            
+            this.renderGames();
+            
+            // Disparar evento para sincronizar em outras abas
+            window.dispatchEvent(new CustomEvent('gamesUpdated', { detail: this.games }));
         }
-        this.renderGames();
     }
 }
 

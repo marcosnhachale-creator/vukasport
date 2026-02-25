@@ -1,6 +1,6 @@
 /**
- * VukaSport - Painel de Administração "Só Edição" (Atualizado)
- * Focado em botões rápidos de entrada de dados
+ * VukaSport - Painel de Administração "Só Edição" (Atualizado v4)
+ * Focado em botões rápidos de entrada de dados com agendamento e fases de jogo
  */
 
 class AdminPanel {
@@ -8,7 +8,7 @@ class AdminPanel {
         this.currentGameId = null;
         this.isPlaying = false;
         this.timerInterval = null;
-        this.gamesListener = null; // Listener para atualizações em tempo real
+        this.gamesListener = null;
         this.initialize();
     }
 
@@ -16,9 +16,8 @@ class AdminPanel {
         this.checkAuth();
         this.setupListeners();
         this.loadGamesToSelect();
-        this.setupGamesListener(); // Listener contínuo para atualizações
+        this.setupGamesListener();
         
-        // Atribuir ao objeto global para botões HTML
         window.adminPanel = this;
 
         // Retomar cronómetro quando o admin é reaberto
@@ -27,13 +26,14 @@ class AdminPanel {
                 this.resumeTimerIfNeeded();
             }
         });
+
+        // Sincronizar jogos eliminados
+        window.addEventListener('gamesUpdated', () => {
+            this.loadGamesToSelect();
+        });
     }
 
-    /**
-     * Configura um listener contínuo para atualizações de jogos
-     */
     setupGamesListener() {
-        // Polling a cada 2 segundos para verificar atualizações
         this.gamesListener = setInterval(() => {
             if (authManager.isAuthenticated()) {
                 this.loadGamesToSelect();
@@ -41,9 +41,6 @@ class AdminPanel {
         }, 2000);
     }
 
-    /**
-     * Remove o listener de atualizações
-     */
     removeGamesListener() {
         if (this.gamesListener) {
             clearInterval(this.gamesListener);
@@ -55,11 +52,11 @@ class AdminPanel {
         if (authManager.isAuthenticated()) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
-            this.setupGamesListener(); // Iniciar listener quando autenticado
+            this.setupGamesListener();
         } else {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('adminSection').style.display = 'none';
-            this.removeGamesListener(); // Parar listener quando desautenticado
+            this.removeGamesListener();
         }
     }
 
@@ -102,26 +99,63 @@ class AdminPanel {
             }
         };
 
+        // Seleção de fase do jogo
+        const phaseSelect = document.getElementById('gamePhase');
+        if (phaseSelect) {
+            phaseSelect.onchange = (e) => {
+                if (this.currentGameId) {
+                    gameManager.updateGame(this.currentGameId, { phase: e.target.value });
+                }
+            };
+        }
+
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
             document.getElementById('eventModal').style.display = 'flex';
         };
 
-        // Adicionar Novo Jogo (Simples)
+        // Adicionar Novo Jogo (Com agendamento)
         document.getElementById('btnNewGame').onclick = async () => {
-            const home = prompt('Equipa Casa:');
-            const away = prompt('Equipa Visitante:');
-            const comp = prompt('Competição:');
-            if (home && away && comp) {
-                const game = await gameManager.addGame({
-                    homeTeam: home,
-                    awayTeam: away,
-                    competition: comp,
-                    date: new Date().toISOString()
-                });
-                this.loadGamesToSelect();
-                this.loadGameToEdit(game.id);
+            document.getElementById('newGameModal').style.display = 'flex';
+        };
+
+        // Confirmar novo jogo
+        document.getElementById('btnConfirmNewGame').onclick = async () => {
+            const home = document.getElementById('inputHomeTeam').value.trim();
+            const away = document.getElementById('inputAwayTeam').value.trim();
+            const comp = document.getElementById('inputCompetition').value.trim();
+            const gameDate = document.getElementById('inputGameDate').value;
+            const gameTime = document.getElementById('inputGameTime').value;
+
+            if (!home || !away || !comp || !gameDate || !gameTime) {
+                alert('Preencha todos os campos!');
+                return;
             }
+
+            const dateTimeStr = gameDate + 'T' + gameTime + ':00';
+            const game = await gameManager.addGame({
+                homeTeam: home,
+                awayTeam: away,
+                competition: comp,
+                date: new Date(dateTimeStr).toISOString(),
+                phase: 'first'
+            });
+
+            // Limpar modal
+            document.getElementById('inputHomeTeam').value = '';
+            document.getElementById('inputAwayTeam').value = '';
+            document.getElementById('inputCompetition').value = '';
+            document.getElementById('inputGameDate').value = '';
+            document.getElementById('inputGameTime').value = '';
+            document.getElementById('newGameModal').style.display = 'none';
+
+            this.loadGamesToSelect();
+            this.loadGameToEdit(game.id);
+        };
+
+        // Cancelar novo jogo
+        document.getElementById('btnCancelNewGame').onclick = () => {
+            document.getElementById('newGameModal').style.display = 'none';
         };
     }
 
@@ -129,7 +163,6 @@ class AdminPanel {
         const select = document.getElementById('gameSelect');
         const games = gameManager.getGames();
         
-        // Guardar valor atual
         const currentVal = select.value;
         
         select.innerHTML = '<option value="">SELECIONAR JOGO PARA EDITAR</option>';
@@ -161,6 +194,12 @@ class AdminPanel {
         document.getElementById('awayScore').textContent = game.awayGoals;
         document.getElementById('gameMinute').value = game.minute || 0;
 
+        // Atualizar fase do jogo
+        const phaseSelect = document.getElementById('gamePhase');
+        if (phaseSelect) {
+            phaseSelect.value = game.phase || 'first';
+        }
+
         // Estado do cronómetro
         this.isPlaying = game.status === 'live';
         this.updatePlayPauseBtn();
@@ -171,9 +210,6 @@ class AdminPanel {
         this.updateDeleteButtonVisibility();
     }
 
-    /**
-     * Atualiza a visibilidade do botão de eliminar
-     */
     updateDeleteButtonVisibility() {
         const btn = document.getElementById('btnDeleteGame');
         if (btn) {
@@ -181,9 +217,6 @@ class AdminPanel {
         }
     }
 
-    /**
-     * Elimina o jogo atual com confirmação
-     */
     async deleteCurrentGame() {
         if (!this.currentGameId) return;
         
@@ -230,7 +263,6 @@ class AdminPanel {
         const status = this.isPlaying ? 'live' : 'halftime';
         const updates = { status: status };
         
-        // Se está a iniciar, guardar o startTime se não existir
         if (this.isPlaying) {
             const game = gameManager.getGameById(this.currentGameId);
             if (!game.startTime) {
@@ -261,14 +293,11 @@ class AdminPanel {
         const game = gameManager.getGameById(this.currentGameId);
         if (!game) return;
 
-        // Se não houver startTime, guardar agora (timestamp do servidor)
         if (!game.startTime) {
             const now = Date.now();
             gameManager.updateGame(this.currentGameId, { startTime: now, status: 'live' });
-            console.log('Cronómetro iniciado');
         }
 
-        // Atualizar minuto a cada segundo baseado no startTime
         this.timerInterval = setInterval(() => {
             const currentGame = gameManager.getGameById(this.currentGameId);
             if (!currentGame || !currentGame.startTime) {
@@ -276,7 +305,6 @@ class AdminPanel {
                 return;
             }
 
-            // Calcular minutos decorridos desde startTime
             const elapsedMs = Date.now() - currentGame.startTime;
             const elapsedMinutes = Math.floor(elapsedMs / 60000);
             
@@ -285,7 +313,6 @@ class AdminPanel {
                 input.value = elapsedMinutes;
             }
             
-            // Atualizar no Firebase a cada 10 segundos
             if (Math.floor(elapsedMs / 10000) % 1 === 0) {
                 gameManager.updateGame(this.currentGameId, { minute: elapsedMinutes });
             }
@@ -299,18 +326,13 @@ class AdminPanel {
         }
     }
 
-    /**
-     * Retoma o cronómetro quando o app é reaberto
-     */
     resumeTimerIfNeeded() {
         const game = gameManager.getGameById(this.currentGameId);
         if (!game) return;
 
         if (game.status === 'live' && game.startTime) {
-            // Parar cronómetro anterior se existir
             this.stopTimer();
             
-            // Recalcular minuto baseado no startTime
             const elapsedMs = Date.now() - game.startTime;
             const elapsedMinutes = Math.floor(elapsedMs / 60000);
             
@@ -319,7 +341,6 @@ class AdminPanel {
                 input.value = elapsedMinutes;
             }
             
-            // Reiniciar cronómetro
             this.isPlaying = true;
             this.updatePlayPauseBtn();
             this.startTimer();
@@ -336,10 +357,8 @@ class AdminPanel {
         const player = document.getElementById('eventPlayer').value;
         const minute = document.getElementById('gameMinute').value;
 
-        // Usar o eventManager global do projeto
         if (type === 'goal') {
             eventManager.addGoal(this.currentGameId, team, minute, player);
-            // Se for golo, incrementar placar automaticamente
             this.adjustScore(team, 1);
         } else if (type === 'yellow') {
             eventManager.addYellowCard(this.currentGameId, team, minute, player);
@@ -393,7 +412,6 @@ class AdminPanel {
     }
 }
 
-// Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     window.adminPanel = new AdminPanel();
 });

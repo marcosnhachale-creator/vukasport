@@ -55,6 +55,18 @@
                     <button id="btnDeleteGame" style="width:100%; padding:10px; background:#dc3545; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Eliminar este jogo">🗑️ ELIMINAR JOGO</button>
                 </div>
 
+                <!-- Seleção de Fase do Jogo -->
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Fase do Jogo</label>
+                    <select id="gamePhase" style="width:100%; padding:10px; background:#1e1e1e; border:1px solid #333; color:white; border-radius:8px; font-weight:bold;">
+                        <option value="first">1ª PARTE</option>
+                        <option value="halftime">INTERVALO</option>
+                        <option value="second">2ª PARTE</option>
+                        <option value="extra">PROLONGAMENTO</option>
+                        <option value="finished">FIM</option>
+                    </select>
+                </div>
+
                 <!-- Controle de Tempo -->
                 <div class="time-control">
                     <button id="btnPlayPause" class="btn-play-pause">▶️</button>
@@ -99,6 +111,37 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal Novo Jogo -->
+    <div id="newGameModal" class="modal-admin" style="display: none;">
+        <div class="modal-admin-content">
+            <div class="modal-admin-header">Criar Novo Jogo</div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Equipa Casa</label>
+                <input type="text" id="inputHomeTeam" placeholder="Nome da equipa" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Equipa Visitante</label>
+                <input type="text" id="inputAwayTeam" placeholder="Nome da equipa" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Competição</label>
+                <input type="text" id="inputCompetition" placeholder="Ex: Campeonato" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Data do Jogo</label>
+                <input type="date" id="inputGameDate" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Hora do Jogo</label>
+                <input type="time" id="inputGameTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btnConfirmNewGame" class="btn-primary" style="flex:1;">CRIAR JOGO</button>
+                <button id="btnCancelNewGame" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal Evento -->
     <div id="eventModal" class="modal-admin" style="display: none;">
