@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VukaSport - Definições">
+    <meta name="theme-color" content="#28A745">
+    <title>VukaSport - Definições</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/settings-page.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">⚽ VukaSport</h1>
+                <div class="header-controls">
+                    <button id="darkModeToggle" class="btn-icon" title="Modo Escuro">🌙</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Back Button -->
+            <div class="back-navigation">
+                <a href="index.html" class="back-link">← Voltar</a>
+            </div>
+
+            <!-- Settings Title -->
+            <section class="settings-title-section">
+                <h2>⚙️ Definições</h2>
+                <p class="subtitle">Personalize a sua experiência VukaSport</p>
+            </section>
+
+            <!-- Notifications Settings -->
+            <section class="settings-section">
+                <div class="settings-card">
+                    <h3>🔔 Notificações</h3>
+                    <p class="section-description">Configure quais eventos geram notificações</p>
+
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-matchStart">Início da Partida</label>
+                                <p class="setting-description">Receba notificação quando um jogo começar</p>
+                            </div>
+                            <input type="checkbox" id="notif-matchStart" class="notification-toggle" data-setting="matchStart" checked>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-goals">Golos</label>
+                                <p class="setting-description">Receba notificação quando houver um golo</p>
+                            </div>
+                            <input type="checkbox" id="notif-goals" class="notification-toggle" data-setting="goals" checked>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-goalPlayerName">Incluir Nome do Marcador</label>
+                                <p class="setting-description">Mostrar o nome do jogador que marcou</p>
+                            </div>
+                            <input type="checkbox" id="notif-goalPlayerName" class="notification-toggle" data-setting="goalPlayerName" checked>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-halftimeResult">Resultado do Intervalo</label>
+                                <p class="setting-description">Receba notificação no intervalo com o resultado</p>
+                            </div>
+                            <input type="checkbox" id="notif-halftimeResult" class="notification-toggle" data-setting="halftimeResult" checked>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-finalResult">Resultado Final</label>
+                                <p class="setting-description">Receba notificação com o resultado final</p>
+                            </div>
+                            <input type="checkbox" id="notif-finalResult" class="notification-toggle" data-setting="finalResult" checked>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-redCards">Cartões Vermelhos</label>
+                                <p class="setting-description">Receba notificação quando houver cartão vermelho</p>
+                            </div>
+                            <input type="checkbox" id="notif-redCards" class="notification-toggle" data-setting="redCards" checked>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-yellowCards">Cartões Amarelos</label>
+                                <p class="setting-description">Receba notificação quando houver cartão amarelo</p>
+                            </div>
+                            <input type="checkbox" id="notif-yellowCards" class="notification-toggle" data-setting="yellowCards">
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notif-substitutions">Substituições</label>
+                                <p class="setting-description">Receba notificação sobre substituições</p>
+                            </div>
+                            <input type="checkbox" id="notif-substitutions" class="notification-toggle" data-setting="substitutions">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Display Settings -->
+            <section class="settings-section">
+                <div class="settings-card">
+                    <h3>🎨 Apresentação</h3>
+                    <p class="section-description">Customize a aparência da aplicação</p>
+
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="darkMode">Modo Escuro</label>
+                                <p class="setting-description">Ativa o tema escuro para melhor conforto visual</p>
+                            </div>
+                            <input type="checkbox" id="darkMode" class="theme-toggle">
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="autoRefresh">Atualização Automática</label>
+                                <p class="setting-description">Atualizar dados automaticamente em tempo real</p>
+                            </div>
+                            <input type="checkbox" id="autoRefresh" class="auto-refresh-toggle" checked>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="settings-section">
+                <div class="settings-card">
+                    <h3>ℹ️ Sobre</h3>
+                    <p class="section-description">Informações sobre a aplicação</p>
+
+                    <div class="about-info">
+                        <div class="info-row">
+                            <span class="info-label">Versão:</span>
+                            <span class="info-value">2.0.0</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Desenvolvido por:</span>
+                            <span class="info-value">Marcos Nhachale</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Ano:</span>
+                            <span class="info-value">2026</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="clearCacheBtn" class="btn btn-secondary">Limpar Cache</button>
+                        <button id="resetSettingsBtn" class="btn btn-secondary">Restaurar Padrões</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/notifications-settings.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

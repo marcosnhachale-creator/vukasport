@@ -1,0 +1,308 @@
+/* ========================================
+   Settings Page - Estilos
+   ======================================== */
+
+:root {
+    --pitch-green: #28A745;
+    --pitch-green-light: #2ecc71;
+}
+
+/* ========================================
+   Settings Title Section
+   ======================================== */
+
+.settings-title-section {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 20px;
+}
+
+.settings-title-section h2 {
+    font-size: 36px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+/* ========================================
+   Settings Sections
+   ======================================== */
+
+.settings-section {
+    margin-bottom: 30px;
+}
+
+.settings-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+}
+
+.settings-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 22px;
+}
+
+.section-description {
+    color: var(--secondary-color);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+/* ========================================
+   Settings Group
+   ======================================== */
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: var(--light-bg);
+    transition: all 0.3s ease;
+}
+
+.setting-item:hover {
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-info label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.setting-description {
+    font-size: 13px;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* ========================================
+   Toggle Switches
+   ======================================== */
+
+.notification-toggle,
+.theme-toggle,
+.auto-refresh-toggle {
+    width: 50px;
+    height: 28px;
+    appearance: none;
+    background-color: #ccc;
+    border-radius: 14px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 20px;
+}
+
+.notification-toggle:checked,
+.theme-toggle:checked,
+.auto-refresh-toggle:checked {
+    background-color: var(--pitch-green);
+}
+
+.notification-toggle::before,
+.theme-toggle::before,
+.auto-refresh-toggle::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: white;
+    top: 2px;
+    left: 2px;
+    transition: left 0.3s ease;
+}
+
+.notification-toggle:checked::before,
+.theme-toggle:checked::before,
+.auto-refresh-toggle:checked::before {
+    left: 24px;
+}
+
+/* ========================================
+   About Info
+   ======================================== */
+
+.about-info {
+    background-color: var(--light-bg);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.info-value {
+    color: var(--dark-text);
+    font-weight: 500;
+}
+
+/* ========================================
+   Action Buttons
+   ======================================== */
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* ========================================
+   Back Navigation
+   ======================================== */
+
+.back-navigation {
+    margin-bottom: 30px;
+    padding-top: 20px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+    transform: translateX(-4px);
+}
+
+/* ========================================
+   Dark Mode
+   ======================================== */
+
+html[data-theme="dark"] .settings-card {
+    background: #1E1E1E;
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .settings-card h3 {
+    color: var(--pitch-green-light);
+}
+
+html[data-theme="dark"] .setting-item {
+    background-color: #2a2a2a;
+}
+
+html[data-theme="dark"] .setting-item:hover {
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+html[data-theme="dark"] .setting-info label {
+    color: #ffffff;
+}
+
+html[data-theme="dark"] .setting-description {
+    color: #b0b0b0;
+}
+
+html[data-theme="dark"] .about-info {
+    background-color: #2a2a2a;
+}
+
+html[data-theme="dark"] .info-row {
+    border-bottom-color: #3a3a3a;
+}
+
+html[data-theme="dark"] .info-label {
+    color: #b0b0b0;
+}
+
+html[data-theme="dark"] .info-value {
+    color: #ffffff;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .settings-card {
+        padding: 20px;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .notification-toggle,
+    .theme-toggle,
+    .auto-refresh-toggle {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-title-section h2 {
+        font-size: 28px;
+    }
+
+    .settings-card {
+        padding: 15px;
+    }
+
+    .settings-card h3 {
+        font-size: 18px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}

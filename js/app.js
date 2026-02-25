@@ -373,6 +373,15 @@ class GameManager {
         );
 
         gamesList.innerHTML = sortedGames.map(game => this.createGameCard(game)).join('');
+
+        // Adicionar click handlers aos cartões de jogo
+        document.querySelectorAll('.game-card').forEach((card, index) => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => {
+                const gameId = sortedGames[index].id;
+                window.location.href = `game-details.html?id=${gameId}`;
+            });
+        });
     }
 
     /**
@@ -405,7 +414,7 @@ class GameManager {
         }
 
         return `
-            <div class="game-card">
+            <div class="game-card" data-game-id="${game.id}">
                 <div class="game-header">
                     <span class="game-competition">${game.competition}</span>
                     <span class="game-status ${statusClass}">${statusText}</span>

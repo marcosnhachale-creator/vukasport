@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VukaSport - Detalhes do Jogo">
+    <meta name="theme-color" content="#28A745">
+    <title>VukaSport - Detalhes do Jogo</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game-details.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">⚽ VukaSport</h1>
+                <div class="header-controls">
+                    <button id="darkModeToggle" class="btn-icon" title="Modo Escuro">🌙</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Back Button -->
+            <div class="back-navigation">
+                <a href="index.html" class="back-link">← Voltar aos Jogos</a>
+            </div>
+
+            <!-- Game Header -->
+            <section class="game-header-section">
+                <div class="game-score-display">
+                    <div class="team-info home-team">
+                        <h2 id="homeTeamName" class="team-name-large">--</h2>
+                        <div id="homeScore" class="score-large">0</div>
+                    </div>
+                    <div class="match-info">
+                        <div id="gameStatus" class="status-badge">Agendado</div>
+                        <div id="gameMinute" class="minute-display">0'</div>
+                        <div id="gameDate" class="date-display">--</div>
+                    </div>
+                    <div class="team-info away-team">
+                        <h2 id="awayTeamName" class="team-name-large">--</h2>
+                        <div id="awayScore" class="score-large">0</div>
+                    </div>
+                </div>
+                <div class="game-competition-info">
+                    <span id="gameCompetition" class="competition-badge">--</span>
+                </div>
+            </section>
+
+            <!-- Tabs Navigation -->
+            <section class="tabs-section">
+                <div class="tabs-container">
+                    <button class="tab-button active" data-tab="summary">
+                        📋 Resumo
+                    </button>
+                    <button class="tab-button" data-tab="statistics">
+                        📊 Estatísticas
+                    </button>
+                </div>
+            </section>
+
+            <!-- Tab Content: Summary -->
+            <section id="summary-tab" class="tab-content active">
+                <div class="timeline-section">
+                    <h3>Linha do Tempo</h3>
+                    <div id="timelineContainer" class="timeline">
+                        <div class="timeline-empty">
+                            <p>Nenhum evento registado ainda</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Content: Statistics -->
+            <section id="statistics-tab" class="tab-content">
+                <div class="statistics-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Posse de Bola</div>
+                        <div class="stat-comparison">
+                            <div class="stat-bar">
+                                <div id="possessionHome" class="stat-fill home" style="width: 50%"></div>
+                                <div id="possessionAway" class="stat-fill away" style="width: 50%"></div>
+                            </div>
+                            <div class="stat-values">
+                                <span id="possessionHomeValue">50%</span>
+                                <span id="possessionAwayValue">50%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Remates à Baliza</div>
+                        <div class="stat-comparison">
+                            <div class="stat-values-simple">
+                                <span id="shotsHome">0</span>
+                                <span class="vs-text">vs</span>
+                                <span id="shotsAway">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Faltas Cometidas</div>
+                        <div class="stat-comparison">
+                            <div class="stat-values-simple">
+                                <span id="foulsHome">0</span>
+                                <span class="vs-text">vs</span>
+                                <span id="foulsAway">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Cartões Amarelos</div>
+                        <div class="stat-comparison">
+                            <div class="stat-values-simple">
+                                <span id="yellowCardsHome">0</span>
+                                <span class="vs-text">vs</span>
+                                <span id="yellowCardsAway">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Cartões Vermelhos</div>
+                        <div class="stat-comparison">
+                            <div class="stat-values-simple">
+                                <span id="redCardsHome">0</span>
+                                <span class="vs-text">vs</span>
+                                <span id="redCardsAway">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Passes Completos</div>
+                        <div class="stat-comparison">
+                            <div class="stat-values-simple">
+                                <span id="passesHome">0</span>
+                                <span class="vs-text">vs</span>
+                                <span id="passesAway">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VukaSport. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/firebase.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/game-details.js"></script>
+</body>
+</html>
