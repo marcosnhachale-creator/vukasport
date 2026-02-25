@@ -8,6 +8,7 @@ class AdminPanel {
         this.currentGameId = null;
         this.isPlaying = false;
         this.timerInterval = null;
+        this.gamesListener = null; // Listener para atualizações em tempo real
         this.initialize();
     }
 
@@ -15,18 +16,50 @@ class AdminPanel {
         this.checkAuth();
         this.setupListeners();
         this.loadGamesToSelect();
+        this.setupGamesListener(); // Listener contínuo para atualizações
         
         // Atribuir ao objeto global para botões HTML
         window.adminPanel = this;
+
+        // Retomar cronómetro quando o admin é reaberto
+        window.addEventListener('focus', () => {
+            if (this.currentGameId) {
+                this.resumeTimerIfNeeded();
+            }
+        });
+    }
+
+    /**
+     * Configura um listener contínuo para atualizações de jogos
+     */
+    setupGamesListener() {
+        // Polling a cada 2 segundos para verificar atualizações
+        this.gamesListener = setInterval(() => {
+            if (authManager.isAuthenticated()) {
+                this.loadGamesToSelect();
+            }
+        }, 2000);
+    }
+
+    /**
+     * Remove o listener de atualizações
+     */
+    removeGamesListener() {
+        if (this.gamesListener) {
+            clearInterval(this.gamesListener);
+            this.gamesListener = null;
+        }
     }
 
     checkAuth() {
         if (authManager.isAuthenticated()) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
+            this.setupGamesListener(); // Iniciar listener quando autenticado
         } else {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('adminSection').style.display = 'none';
+            this.removeGamesListener(); // Parar listener quando desautenticado
         }
     }
 
@@ -42,6 +75,7 @@ class AdminPanel {
 
         // Logout
         document.getElementById('logoutBtn').onclick = () => {
+            this.removeGamesListener();
             authManager.logout();
             this.checkAuth();
         };
@@ -49,6 +83,11 @@ class AdminPanel {
         // Seleção de Jogo
         document.getElementById('gameSelect').onchange = (e) => {
             this.loadGameToEdit(e.target.value);
+        };
+
+        // Eliminar Jogo
+        document.getElementById('btnDeleteGame').onclick = () => {
+            this.deleteCurrentGame();
         };
 
         // Play/Pause Cronómetro
@@ -129,6 +168,41 @@ class AdminPanel {
         else this.stopTimer();
 
         this.renderEvents();
+        this.updateDeleteButtonVisibility();
+    }
+
+    /**
+     * Atualiza a visibilidade do botão de eliminar
+     */
+    updateDeleteButtonVisibility() {
+        const btn = document.getElementById('btnDeleteGame');
+        if (btn) {
+            btn.style.display = this.currentGameId ? 'block' : 'none';
+        }
+    }
+
+    /**
+     * Elimina o jogo atual com confirmação
+     */
+    async deleteCurrentGame() {
+        if (!this.currentGameId) return;
+        
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        const confirmDelete = confirm(
+            `Tem a certeza que deseja eliminar o jogo:\n\n${game.homeTeam} vs ${game.awayTeam}?\n\nEsta ação não pode ser desfeita.`
+        );
+
+        if (confirmDelete) {
+            this.stopTimer();
+            await gameManager.deleteGame(this.currentGameId);
+            this.currentGameId = null;
+            document.getElementById('editorContainer').style.display = 'none';
+            document.getElementById('gameSelect').value = '';
+            this.loadGamesToSelect();
+            alert('Jogo eliminado com sucesso!');
+        }
     }
 
     async adjustScore(team, delta) {
@@ -154,7 +228,17 @@ class AdminPanel {
         this.updatePlayPauseBtn();
         
         const status = this.isPlaying ? 'live' : 'halftime';
-        gameManager.updateGame(this.currentGameId, { status: status });
+        const updates = { status: status };
+        
+        // Se está a iniciar, guardar o startTime se não existir
+        if (this.isPlaying) {
+            const game = gameManager.getGameById(this.currentGameId);
+            if (!game.startTime) {
+                updates.startTime = Date.now();
+            }
+        }
+        
+        gameManager.updateGame(this.currentGameId, updates);
 
         if (this.isPlaying) this.startTimer();
         else this.stopTimer();
@@ -173,16 +257,75 @@ class AdminPanel {
 
     startTimer() {
         this.stopTimer();
+        
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        // Se não houver startTime, guardar agora (timestamp do servidor)
+        if (!game.startTime) {
+            const now = Date.now();
+            gameManager.updateGame(this.currentGameId, { startTime: now, status: 'live' });
+            console.log('Cronómetro iniciado');
+        }
+
+        // Atualizar minuto a cada segundo baseado no startTime
         this.timerInterval = setInterval(() => {
+            const currentGame = gameManager.getGameById(this.currentGameId);
+            if (!currentGame || !currentGame.startTime) {
+                this.stopTimer();
+                return;
+            }
+
+            // Calcular minutos decorridos desde startTime
+            const elapsedMs = Date.now() - currentGame.startTime;
+            const elapsedMinutes = Math.floor(elapsedMs / 60000);
+            
             const input = document.getElementById('gameMinute');
-            let min = parseInt(input.value) + 1;
-            input.value = min;
-            gameManager.updateGame(this.currentGameId, { minute: min });
-        }, 60000); // Incrementar a cada minuto real
+            if (input) {
+                input.value = elapsedMinutes;
+            }
+            
+            // Atualizar no Firebase a cada 10 segundos
+            if (Math.floor(elapsedMs / 10000) % 1 === 0) {
+                gameManager.updateGame(this.currentGameId, { minute: elapsedMinutes });
+            }
+        }, 1000);
     }
 
     stopTimer() {
-        if (this.timerInterval) clearInterval(this.timerInterval);
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    }
+
+    /**
+     * Retoma o cronómetro quando o app é reaberto
+     */
+    resumeTimerIfNeeded() {
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        if (game.status === 'live' && game.startTime) {
+            // Parar cronómetro anterior se existir
+            this.stopTimer();
+            
+            // Recalcular minuto baseado no startTime
+            const elapsedMs = Date.now() - game.startTime;
+            const elapsedMinutes = Math.floor(elapsedMs / 60000);
+            
+            const input = document.getElementById('gameMinute');
+            if (input) {
+                input.value = elapsedMinutes;
+            }
+            
+            // Reiniciar cronómetro
+            this.isPlaying = true;
+            this.updatePlayPauseBtn();
+            this.startTimer();
+            
+            console.log('Cronómetro retomado: ' + elapsedMinutes + ' minutos decorridos');
+        }
     }
 
     async saveEvent() {
