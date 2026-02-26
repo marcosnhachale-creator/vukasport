@@ -1,5 +1,5 @@
 /**
- * VukaSport - Aplicação Principal (Atualizada v5)
+ * VukaSport - Aplicação Principal (Atualizada v6)
  * Renderização compacta otimizada para dispositivos móveis
  * Com suporte para jogos ao vivo, organização inteligente por data e persistência offline
  */
@@ -147,6 +147,7 @@ class GameManager {
 
     /**
      * Renderiza os jogos agrupados por período inteligente (HOJE, AMANHÃ, etc.)
+     * Com estrutura clara e bem organizada
      */
     renderGamesBySmartPeriod() {
         const container = document.getElementById('gamesList');
@@ -157,17 +158,26 @@ class GameManager {
         const periodOrder = DateUtils.getPeriodOrder();
 
         let html = '';
+        let sponsorCounter = 0;
         
         periodOrder.forEach(periodKey => {
             const period = grouped[periodKey];
             if (!period.games || period.games.length === 0) return;
 
+            // Header do período com ícone e contagem
+            const periodIcon = this.getPeriodIcon(periodKey);
             html += `
                 <div class="period-group">
                     <div class="period-header">
-                        <span class="period-label">${period.label}</span>
-                        <span class="period-count">${period.games.length} jogo${period.games.length !== 1 ? 's' : ''}</span>
+                        <div class="period-info">
+                            <span class="period-icon">${periodIcon}</span>
+                            <div class="period-details">
+                                <span class="period-label">${period.label}</span>
+                                <span class="period-count">${period.games.length} jogo${period.games.length !== 1 ? 's' : ''}</span>
+                            </div>
+                        </div>
                     </div>
+                    <div class="period-content">
             `;
 
             // Agrupar por competição dentro do período
@@ -186,15 +196,16 @@ class GameManager {
                                 <span class="comp-icon">🏆</span>
                                 <span class="comp-name">${compName}</span>
                             </div>
-                            <div class="comp-options">•••</div>
                         </div>
                 `;
 
                 competitionGrouped[compName].forEach((game, index) => {
                     const statusHtml = this.getStatusHtml(game);
+                    const gameTime = game.date ? new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : '--:--';
                     
                     html += `
                         <div class="match-card" onclick="window.location.href='game-details.html?id=${game.id}'">
+                            <div class="match-time-badge">${gameTime}</div>
                             <div class="team-side home">
                                 <span class="team-name">${game.homeTeam}</span>
                                 <div class="team-shield">${game.homeTeam.charAt(0)}</div>
@@ -212,7 +223,8 @@ class GameManager {
                         </div>
                     `;
 
-                    if ((index + 1) % 3 === 0) {
+                    sponsorCounter++;
+                    if (sponsorCounter % 3 === 0) {
                         const sponsor = this.sponsors[Math.floor(Math.random() * this.sponsors.length)];
                         html += `
                             <div class="sponsor-banner">
@@ -226,7 +238,10 @@ class GameManager {
                 html += `</div>`;
             });
 
-            html += `</div>`;
+            html += `
+                    </div>
+                </div>
+            `;
         });
 
         if (html === '') {
@@ -236,6 +251,21 @@ class GameManager {
             document.getElementById('emptyState').style.display = 'none';
             container.innerHTML = html;
         }
+    }
+
+    /**
+     * Retorna o ícone apropriado para cada período
+     */
+    getPeriodIcon(periodKey) {
+        const iconMap = {
+            'HOJE': '📍',
+            'AMANHA': '⏭️',
+            'ESTA_SEMANA': '📅',
+            'PROXIMA_SEMANA': '🗓️',
+            'FUTURO': '🔮',
+            'PASSADO': '✅'
+        };
+        return iconMap[periodKey] || '📅';
     }
 
     getStatusHtml(game) {
@@ -251,10 +281,6 @@ class GameManager {
         if (game.status === 'extra') return `PROLONGAMENTO ${game.minute || 90}'`;
         if (game.status === 'finished') return 'FIM';
         
-        if (game.date) {
-            const time = new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
-            return time;
-        }
         return 'AGENDADO';
     }
 
