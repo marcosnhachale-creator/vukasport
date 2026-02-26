@@ -1,6 +1,6 @@
 /**
- * VukaSport - Painel de Administração "Só Edição" (Atualizado v5)
- * Focado em botões rápidos de entrada de dados com agendamento, fases de jogo e contador de utilizadores
+ * VukaSport - Painel de Administração "Só Edição" (Atualizado v6)
+ * Focado em botões rápidos de entrada de dados com agendamento, adiamento e fases de jogo
  */
 
 class AdminPanel {
@@ -231,6 +231,36 @@ class AdminPanel {
         document.getElementById('btnCancelNewGame').onclick = () => {
             document.getElementById('newGameModal').style.display = 'none';
         };
+
+        // Agendar Jogo
+        document.getElementById('btnScheduleGame').onclick = () => {
+            this.openScheduleModal();
+        };
+
+        // Confirmar agendamento
+        document.getElementById('btnConfirmSchedule').onclick = async () => {
+            await this.confirmScheduleGame();
+        };
+
+        // Cancelar agendamento
+        document.getElementById('btnCancelSchedule').onclick = () => {
+            document.getElementById('scheduleModal').style.display = 'none';
+        };
+
+        // Adiar Jogo
+        document.getElementById('btnPostponeGame').onclick = () => {
+            this.openPostponeModal();
+        };
+
+        // Confirmar adiamento
+        document.getElementById('btnConfirmPostpone').onclick = async () => {
+            await this.confirmPostponeGame();
+        };
+
+        // Cancelar adiamento
+        document.getElementById('btnCancelPostpone').onclick = () => {
+            document.getElementById('postponeModal').style.display = 'none';
+        };
     }
 
     loadGamesToSelect() {
@@ -243,11 +273,24 @@ class AdminPanel {
         games.forEach(g => {
             const opt = document.createElement('option');
             opt.value = g.id;
-            opt.textContent = `${g.homeTeam} vs ${g.awayTeam} (${g.competition})`;
+            const statusLabel = this.getGameStatusLabel(g);
+            opt.textContent = `${g.homeTeam} vs ${g.awayTeam} (${g.competition}) - ${statusLabel}`;
             select.appendChild(opt);
         });
         
         if (currentVal) select.value = currentVal;
+    }
+
+    getGameStatusLabel(game) {
+        const statusMap = {
+            'scheduled': 'Agendado',
+            'live': 'Ao Vivo',
+            'halftime': 'Intervalo',
+            'extra': 'Prolongamento',
+            'finished': 'Terminado',
+            'postponed': 'Adiado'
+        };
+        return statusMap[game.status] || game.status;
     }
 
     loadGameToEdit(gameId) {
@@ -287,12 +330,27 @@ class AdminPanel {
     updateDeleteButtonVisibility() {
         const btn = document.getElementById('btnDeleteGame');
         const finishBtn = document.getElementById('btnFinishGame');
+        const scheduleBtn = document.getElementById('btnScheduleGame');
+        const postponeBtn = document.getElementById('btnPostponeGame');
+        
         if (btn) {
             btn.style.display = this.currentGameId ? 'block' : 'none';
         }
         if (finishBtn) {
             const game = this.currentGameId ? gameManager.getGameById(this.currentGameId) : null;
-            finishBtn.style.display = (game && game.status !== 'finished' && game.status !== 'scheduled') ? 'block' : 'none';
+            finishBtn.style.display = (game && game.status !== 'finished' && game.status !== 'scheduled' && game.status !== 'postponed') ? 'block' : 'none';
+        }
+        
+        // Mostrar botões de agendamento e adiamento
+        if (scheduleBtn && postponeBtn) {
+            const game = this.currentGameId ? gameManager.getGameById(this.currentGameId) : null;
+            if (game) {
+                scheduleBtn.style.display = (game.status === 'scheduled' || game.status === 'postponed') ? 'block' : 'none';
+                postponeBtn.style.display = (game.status === 'live' || game.status === 'halftime' || game.status === 'extra') ? 'block' : 'none';
+            } else {
+                scheduleBtn.style.display = 'none';
+                postponeBtn.style.display = 'none';
+            }
         }
     }
 
@@ -513,6 +571,110 @@ class AdminPanel {
             eventManager.removeEvent(this.currentGameId, eventId, type);
             this.renderEvents();
         }
+    }
+
+    /**
+     * Abre o modal de agendamento
+     */
+    openScheduleModal() {
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        // Pré-preencher com data/hora atual do jogo
+        if (game.date) {
+            const date = new Date(game.date);
+            const dateStr = date.toISOString().split('T')[0];
+            const timeStr = date.toTimeString().slice(0, 5);
+            
+            document.getElementById('scheduleGameDate').value = dateStr;
+            document.getElementById('scheduleGameTime').value = timeStr;
+        }
+
+        document.getElementById('scheduleModal').style.display = 'flex';
+    }
+
+    /**
+     * Confirma o agendamento do jogo
+     */
+    async confirmScheduleGame() {
+        if (!this.currentGameId) return;
+
+        const newDate = document.getElementById('scheduleGameDate').value;
+        const newTime = document.getElementById('scheduleGameTime').value;
+
+        if (!newDate || !newTime) {
+            alert('Por favor, preencha a data e a hora!');
+            return;
+        }
+
+        const dateTimeStr = newDate + 'T' + newTime + ':00';
+        const newDateTime = new Date(dateTimeStr).toISOString();
+
+        await gameManager.updateGame(this.currentGameId, { 
+            date: newDateTime,
+            status: 'scheduled'
+        });
+
+        document.getElementById('scheduleModal').style.display = 'none';
+        this.loadGameToEdit(this.currentGameId);
+        alert('Jogo agendado com sucesso para ' + newDate + ' às ' + newTime);
+    }
+
+    /**
+     * Abre o modal de adiamento
+     */
+    openPostponeModal() {
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        // Limpar campos
+        document.getElementById('postponeGameDate').value = '';
+        document.getElementById('postponeGameTime').value = '';
+        document.getElementById('postponeReason').value = '';
+
+        document.getElementById('postponeModal').style.display = 'flex';
+    }
+
+    /**
+     * Confirma o adiamento do jogo
+     */
+    async confirmPostponeGame() {
+        if (!this.currentGameId) return;
+
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        const newDate = document.getElementById('postponeGameDate').value;
+        const newTime = document.getElementById('postponeGameTime').value;
+        const reason = document.getElementById('postponeReason').value;
+
+        if (!newDate || !newTime) {
+            alert('Por favor, preencha a data e a hora!');
+            return;
+        }
+
+        const dateTimeStr = newDate + 'T' + newTime + ':00';
+        const newDateTime = new Date(dateTimeStr).toISOString();
+
+        // Parar o cronómetro se estiver em andamento
+        this.stopTimer();
+        this.isPlaying = false;
+
+        await gameManager.updateGame(this.currentGameId, { 
+            date: newDateTime,
+            status: 'postponed',
+            postponedReason: reason || 'Adiado pelo administrador',
+            postponedDate: new Date().toISOString(),
+            homeGoals: 0,
+            awayGoals: 0,
+            minute: 0,
+            phase: 'first',
+            startTime: null
+        });
+
+        document.getElementById('postponeModal').style.display = 'none';
+        this.loadGameToEdit(this.currentGameId);
+        alert('Jogo adiado com sucesso para ' + newDate + ' às ' + newTime);
     }
 }
 

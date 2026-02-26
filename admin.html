@@ -105,6 +105,12 @@
                     <button id="btnFinishGame" style="width:100%; padding:10px; background:#ff6b6b; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Terminar o jogo imediatamente">🏁 TERMINAR JOGO</button>
                 </div>
 
+                <!-- Botões de Agendamento e Adiamento -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <button id="btnScheduleGame" style="padding:10px; background:#007bff; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Agendar jogo">📅 AGENDAR</button>
+                    <button id="btnPostponeGame" style="padding:10px; background:#ffc107; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Adiar jogo">⏸️ ADIAR</button>
+                </div>
+
                 <!-- Controle de Tempo -->
                 <div class="time-control">
                     <button id="btnPlayPause" class="btn-play-pause">▶️</button>
@@ -177,6 +183,48 @@
             <div style="display: flex; gap: 10px;">
                 <button id="btnConfirmNewGame" class="btn-primary" style="flex:1;">CRIAR JOGO</button>
                 <button id="btnCancelNewGame" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agendamento -->
+    <div id="scheduleModal" class="modal-admin" style="display: none;">
+        <div class="modal-admin-content">
+            <div class="modal-admin-header">Agendar Jogo</div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Data</label>
+                <input type="date" id="scheduleGameDate" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Hora</label>
+                <input type="time" id="scheduleGameTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btnConfirmSchedule" class="btn-primary" style="flex:1;">CONFIRMAR</button>
+                <button id="btnCancelSchedule" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adiamento -->
+    <div id="postponeModal" class="modal-admin" style="display: none;">
+        <div class="modal-admin-content">
+            <div class="modal-admin-header">Adiar Jogo</div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Data</label>
+                <input type="date" id="postponeGameDate" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Hora</label>
+                <input type="time" id="postponeGameTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Motivo do Adiamento</label>
+                <textarea id="postponeReason" placeholder="Ex: Condições climáticas, problemas técnicos..." style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px; resize:vertical; min-height:60px;"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btnConfirmPostpone" class="btn-primary" style="flex:1;">CONFIRMAR ADIAMENTO</button>
+                <button id="btnCancelPostpone" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
             </div>
         </div>
     </div>

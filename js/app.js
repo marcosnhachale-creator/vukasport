@@ -1,7 +1,7 @@
 /**
- * VukaSport - Aplicação Principal (Atualizada v6)
+ * VukaSport - Aplicação Principal (Atualizada v7)
  * Renderização compacta otimizada para dispositivos móveis
- * Com suporte para jogos ao vivo, organização inteligente por data e persistência offline
+ * Com suporte para jogos ao vivo, agendamento, adiamento e organização inteligente por data
  */
 
 class GameManager {
@@ -108,9 +108,11 @@ class GameManager {
 
             grouped[compName].forEach((game, index) => {
                 const statusHtml = this.getStatusHtml(game);
+                const gameTime = game.date ? new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : '--:--';
                 
                 html += `
                     <div class="match-card" onclick="window.location.href='game-details.html?id=${game.id}'">
+                        <div class="match-time-badge">${gameTime}</div>
                         <div class="team-side home">
                             <span class="team-name">${game.homeTeam}</span>
                             <div class="team-shield">${game.homeTeam.charAt(0)}</div>
@@ -280,6 +282,10 @@ class GameManager {
         }
         if (game.status === 'extra') return `PROLONGAMENTO ${game.minute || 90}'`;
         if (game.status === 'finished') return 'FIM';
+        if (game.status === 'postponed') {
+            const reason = game.postponedReason ? ` - ${game.postponedReason}` : '';
+            return `<span class="status-postponed-text">⏸️ ADIADO${reason}</span>`;
+        }
         
         return 'AGENDADO';
     }
@@ -348,32 +354,86 @@ class GameManager {
             phase: 'first',
             startTime: null
         };
+
         this.games.push(newGame);
         this.saveGamesLocal();
         
         if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
             await firebaseManager.addGameToFirebase(newGame);
         }
+        
+        this.renderGames();
         return newGame;
     }
 
     async deleteGame(gameId) {
-        const gameIndex = this.games.findIndex(g => g.id == gameId);
-        if (gameIndex !== -1) {
-            this.games.splice(gameIndex, 1);
-            this.saveGamesLocal();
-            
-            if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
-                await firebaseManager.deleteGameFromFirebase(gameId);
-            }
-            
-            this.renderGames();
-            
-            // Disparar evento para sincronizar em outras abas
-            window.dispatchEvent(new CustomEvent('gamesUpdated', { detail: this.games }));
+        this.games = this.games.filter(g => g.id != gameId);
+        this.saveGamesLocal();
+        
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await firebaseManager.deleteGameFromFirebase(gameId);
         }
+        
+        this.renderGames();
+        window.dispatchEvent(new Event('gamesUpdated'));
     }
 }
 
+// Inicializar a aplicação
 const gameManager = new GameManager();
 window.gameManager = gameManager;
+
+// Event listeners para alternar entre vistas
+document.addEventListener('DOMContentLoaded', () => {
+    const btnLiveView = document.getElementById('btnLiveView');
+    const btnPeriodView = document.getElementById('btnPeriodView');
+    const periodViewInfo = document.getElementById('periodViewInfo');
+
+    if (btnLiveView) {
+        btnLiveView.onclick = () => {
+            window.showLiveOnly = true;
+            window.selectedDate = null;
+            
+            btnLiveView.style.background = '#28A745';
+            btnLiveView.style.color = 'white';
+            btnPeriodView.style.background = '#333';
+            btnPeriodView.style.color = '#888';
+            
+            if (periodViewInfo) periodViewInfo.style.display = 'none';
+            gameManager.renderGames();
+        };
+    }
+
+    if (btnPeriodView) {
+        btnPeriodView.onclick = () => {
+            window.showLiveOnly = false;
+            window.selectedDate = new Date().toISOString().split('T')[0];
+            
+            btnLiveView.style.background = '#333';
+            btnLiveView.style.color = '#888';
+            btnPeriodView.style.background = '#28A745';
+            btnPeriodView.style.color = 'white';
+            
+            if (periodViewInfo) periodViewInfo.style.display = 'block';
+            gameManager.renderGamesBySmartPeriod();
+        };
+    }
+});
+
+// Funções globais para suporte
+function openSupportModal() {
+    document.getElementById('supportModal').style.display = 'flex';
+}
+
+function closeSupportModal() {
+    document.getElementById('supportModal').style.display = 'none';
+}
+
+function copyNumber() {
+    const number = '852092063';
+    navigator.clipboard.writeText(number).then(() => {
+        alert('Número copiado para a área de transferência!');
+    }).catch(err => {
+        console.error('Erro ao copiar:', err);
+    });
+}

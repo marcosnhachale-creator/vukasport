@@ -565,6 +565,12 @@ body {
     font-weight: 700;
 }
 
+/* Status Postponed (Adiado) */
+.status-postponed-text {
+    color: #ff9800;
+    font-weight: 700;
+}
+
 /* Main Container */
 .main {
     padding-bottom: 20px;
