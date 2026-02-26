@@ -1,7 +1,7 @@
 /**
- * VukaSport - Aplicação Principal (Atualizada v4)
+ * VukaSport - Aplicação Principal (Atualizada v5)
  * Renderização compacta otimizada para dispositivos móveis
- * Com suporte para jogos ao vivo e persistência offline
+ * Com suporte para jogos ao vivo, organização inteligente por data e persistência offline
  */
 
 class GameManager {
@@ -55,7 +55,7 @@ class GameManager {
     }
 
     /**
-     * Renderiza os jogos agrupados por competição com banners de patrocínio
+     * Renderiza os jogos agrupados de forma inteligente
      */
     renderGames() {
         const container = document.getElementById('gamesList');
@@ -143,6 +143,99 @@ class GameManager {
         });
 
         container.innerHTML = html;
+    }
+
+    /**
+     * Renderiza os jogos agrupados por período inteligente (HOJE, AMANHÃ, etc.)
+     */
+    renderGamesBySmartPeriod() {
+        const container = document.getElementById('gamesList');
+        if (!container) return;
+
+        // Agrupar jogos por período inteligente
+        const grouped = DateUtils.groupGamesBySmartPeriod(this.games);
+        const periodOrder = DateUtils.getPeriodOrder();
+
+        let html = '';
+        
+        periodOrder.forEach(periodKey => {
+            const period = grouped[periodKey];
+            if (!period.games || period.games.length === 0) return;
+
+            html += `
+                <div class="period-group">
+                    <div class="period-header">
+                        <span class="period-label">${period.label}</span>
+                        <span class="period-count">${period.games.length} jogo${period.games.length !== 1 ? 's' : ''}</span>
+                    </div>
+            `;
+
+            // Agrupar por competição dentro do período
+            const competitionGrouped = {};
+            period.games.forEach(game => {
+                const comp = game.competition || 'OUTRAS COMPETIÇÕES';
+                if (!competitionGrouped[comp]) competitionGrouped[comp] = [];
+                competitionGrouped[comp].push(game);
+            });
+
+            Object.keys(competitionGrouped).forEach(compName => {
+                html += `
+                    <div class="competition-group">
+                        <div class="competition-header">
+                            <div class="comp-info">
+                                <span class="comp-icon">🏆</span>
+                                <span class="comp-name">${compName}</span>
+                            </div>
+                            <div class="comp-options">•••</div>
+                        </div>
+                `;
+
+                competitionGrouped[compName].forEach((game, index) => {
+                    const statusHtml = this.getStatusHtml(game);
+                    
+                    html += `
+                        <div class="match-card" onclick="window.location.href='game-details.html?id=${game.id}'">
+                            <div class="team-side home">
+                                <span class="team-name">${game.homeTeam}</span>
+                                <div class="team-shield">${game.homeTeam.charAt(0)}</div>
+                            </div>
+                            <div class="match-center">
+                                <div class="match-score ${game.flashing ? 'flashing' : ''}">
+                                    ${game.homeGoals} - ${game.awayGoals}
+                                </div>
+                                <div class="match-status">${statusHtml}</div>
+                            </div>
+                            <div class="team-side away">
+                                <div class="team-shield">${game.awayTeam.charAt(0)}</div>
+                                <span class="team-name">${game.awayTeam}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    if ((index + 1) % 3 === 0) {
+                        const sponsor = this.sponsors[Math.floor(Math.random() * this.sponsors.length)];
+                        html += `
+                            <div class="sponsor-banner">
+                                <span class="sponsor-label">Patrocinador Local</span>
+                                <img src="${sponsor.logo}" alt="${sponsor.name}" class="sponsor-img">
+                            </div>
+                        `;
+                    }
+                });
+
+                html += `</div>`;
+            });
+
+            html += `</div>`;
+        });
+
+        if (html === '') {
+            document.getElementById('emptyState').style.display = 'block';
+            container.innerHTML = '';
+        } else {
+            document.getElementById('emptyState').style.display = 'none';
+            container.innerHTML = html;
+        }
     }
 
     getStatusHtml(game) {

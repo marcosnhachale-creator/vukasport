@@ -1,6 +1,6 @@
 /**
- * VukaSport - Painel de Administração "Só Edição" (Atualizado v4)
- * Focado em botões rápidos de entrada de dados com agendamento e fases de jogo
+ * VukaSport - Painel de Administração "Só Edição" (Atualizado v5)
+ * Focado em botões rápidos de entrada de dados com agendamento, fases de jogo e contador de utilizadores
  */
 
 class AdminPanel {
@@ -9,6 +9,8 @@ class AdminPanel {
         this.isPlaying = false;
         this.timerInterval = null;
         this.gamesListener = null;
+        this.activeUsers = new Set();
+        this.userTrackingInterval = null;
         this.initialize();
     }
 
@@ -17,6 +19,7 @@ class AdminPanel {
         this.setupListeners();
         this.loadGamesToSelect();
         this.setupGamesListener();
+        this.startUserTracking();
         
         window.adminPanel = this;
 
@@ -31,6 +34,71 @@ class AdminPanel {
         window.addEventListener('gamesUpdated', () => {
             this.loadGamesToSelect();
         });
+    }
+
+    /**
+     * Inicia o rastreamento de utilizadores ativos
+     */
+    startUserTracking() {
+        // Registar este admin como utilizador ativo
+        this.registerAdminAsActive();
+        
+        // Atualizar a cada 10 segundos
+        this.userTrackingInterval = setInterval(() => {
+            this.registerAdminAsActive();
+            this.updateActiveUserCount();
+        }, 10000);
+    }
+
+    /**
+     * Registar admin como utilizador ativo no Firestore
+     */
+    async registerAdminAsActive() {
+        if (!firebaseManager || !firebaseManager.db) return;
+        
+        try {
+            const adminId = 'admin_' + (authManager.currentUser || 'unknown');
+            const now = new Date().toISOString();
+            
+            await firebaseManager.db.collection('admin_activity').doc(adminId).set({
+                timestamp: now,
+                lastSeen: Date.now()
+            }, { merge: true });
+        } catch (error) {
+            console.error('Erro ao registar atividade do admin:', error);
+        }
+    }
+
+    /**
+     * Atualizar contagem de utilizadores ativos
+     */
+    async updateActiveUserCount() {
+        if (!firebaseManager || !firebaseManager.db) return;
+        
+        try {
+            const now = Date.now();
+            const fiveMinutesAgo = now - (5 * 60 * 1000); // 5 minutos
+            
+            const snapshot = await firebaseManager.db.collection('admin_activity')
+                .where('lastSeen', '>', fiveMinutesAgo)
+                .get();
+            
+            const count = snapshot.size;
+            this.displayActiveUserCount(count);
+        } catch (error) {
+            console.error('Erro ao contar utilizadores ativos:', error);
+        }
+    }
+
+    /**
+     * Exibir contagem de utilizadores ativos
+     */
+    displayActiveUserCount(count) {
+        const userCountEl = document.getElementById('activeUserCount');
+        if (userCountEl) {
+            userCountEl.textContent = count;
+            userCountEl.style.display = 'block';
+        }
     }
 
     setupGamesListener() {
@@ -63,13 +131,17 @@ class AdminPanel {
             e.preventDefault();
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
-            if (authManager.login(u, p)) this.checkAuth();
+            if (authManager.login(u, p)) {
+                this.checkAuth();
+                this.startUserTracking();
+            }
             else document.getElementById('loginError').style.display = 'block';
         };
 
         // Logout
         document.getElementById('logoutBtn').onclick = () => {
             this.removeGamesListener();
+            if (this.userTrackingInterval) clearInterval(this.userTrackingInterval);
             authManager.logout();
             this.checkAuth();
         };
@@ -82,6 +154,11 @@ class AdminPanel {
         // Eliminar Jogo
         document.getElementById('btnDeleteGame').onclick = () => {
             this.deleteCurrentGame();
+        };
+
+        // Terminar Jogo
+        document.getElementById('btnFinishGame').onclick = () => {
+            this.finishCurrentGame();
         };
 
         // Play/Pause Cronómetro
@@ -209,8 +286,13 @@ class AdminPanel {
 
     updateDeleteButtonVisibility() {
         const btn = document.getElementById('btnDeleteGame');
+        const finishBtn = document.getElementById('btnFinishGame');
         if (btn) {
             btn.style.display = this.currentGameId ? 'block' : 'none';
+        }
+        if (finishBtn) {
+            const game = this.currentGameId ? gameManager.getGameById(this.currentGameId) : null;
+            finishBtn.style.display = (game && game.status !== 'finished' && game.status !== 'scheduled') ? 'block' : 'none';
         }
     }
 
@@ -232,6 +314,31 @@ class AdminPanel {
             document.getElementById('gameSelect').value = '';
             this.loadGamesToSelect();
             alert('Jogo eliminado com sucesso!');
+        }
+    }
+
+    async finishCurrentGame() {
+        if (!this.currentGameId) return;
+        
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        if (game.status === 'finished') {
+            alert('Este jogo ja esta terminado.');
+            return;
+        }
+
+        const confirmFinish = confirm(
+            `Terminar o jogo agora?\n\n${game.homeTeam} ${game.homeGoals} - ${game.awayGoals} ${game.awayTeam}\n\nEsta acao e imediata.`
+        );
+
+        if (confirmFinish) {
+            this.stopTimer();
+            await gameManager.updateGame(this.currentGameId, { status: 'finished', phase: 'finished' });
+            this.isPlaying = false;
+            this.updatePlayPauseBtn();
+            this.updateDeleteButtonVisibility();
+            alert('Jogo terminado com sucesso!');
         }
     }
 
