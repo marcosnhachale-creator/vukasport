@@ -555,3 +555,58 @@ html[data-theme="dark"] .back-link:hover {
         padding: 20px;
     }
 }
+
+
+/* ========================================
+   Melhorias para Eventos em Tempo Real
+   ======================================== */
+
+.event-minute {
+    display: inline-block;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.event-player {
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* Status com Fase */
+.status-badge {
+    word-break: break-word;
+}
+
+/* Dark Mode para Timeline */
+html[data-theme="dark"] .timeline::before {
+    background: linear-gradient(180deg, var(--pitch-green-light) 0%, transparent 100%);
+}
+
+html[data-theme="dark"] .timeline-event::before {
+    background: var(--dark-card);
+    border-color: var(--pitch-green-light);
+}
+
+html[data-theme="dark"] .timeline-event.goal::before {
+    background: var(--pitch-green);
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.3);
+}
+
+html[data-theme="dark"] .event-minute {
+    background: rgba(46, 204, 113, 0.15);
+    color: var(--pitch-green-light);
+}
+
+/* ========================================
+   Google AdSense Styling
+   ======================================== */
+
+.adsbygoogle {
+    margin: 10px 0;
+}
+
+[data-theme="dark"] .adsbygoogle {
+    background-color: #1e1e1e;
+}

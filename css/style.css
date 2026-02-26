@@ -557,3 +557,90 @@ body {
     z-index: 3000;
     animation: slideIn 0.3s ease-out;
 }
+
+
+/* Status Halftime (Intervalo) */
+.status-halftime-text {
+    color: #ffc107;
+    font-weight: 700;
+}
+
+/* Main Container */
+.main {
+    padding-bottom: 20px;
+}
+
+/* Empty State */
+#emptyState {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* Card Notifications */
+.card-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 3000;
+    animation: slideIn 0.3s ease-out;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card-notification.show {
+    opacity: 1;
+}
+
+.card-notification.hide {
+    opacity: 0;
+}
+
+.card-notification.goal {
+    background-color: #28A745;
+    color: white;
+}
+
+.card-notification.yellow-card {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.card-notification.red-card {
+    background-color: #dc3545;
+    color: white;
+}
+
+.notification-title {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 12px;
+}
+
+
+/* ========================================
+   Google AdSense Styling
+   ======================================== */
+
+.adsbygoogle {
+    margin: 10px 0;
+}
+
+[data-theme="dark"] .adsbygoogle {
+    background-color: #1e1e1e;
+}
+
+/* Responsive Ad Container */
+@media (max-width: 600px) {
+    .adsbygoogle {
+        margin: 5px 0;
+    }
+}

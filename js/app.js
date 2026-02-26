@@ -47,10 +47,11 @@ class GameManager {
     getGameById(gameId) { return this.games.find(g => g.id == gameId); }
 
     /**
-     * Obtém jogos ao vivo
+     * Obtém jogos ao vivo (incluindo em intervalo)
+     * Jogos só desaparecem quando o estado é 'finished'
      */
     getLiveGames() {
-        return this.games.filter(game => game.status === 'live');
+        return this.games.filter(game => game.status === 'live' || game.status === 'halftime' || game.status === 'extra');
     }
 
     /**
@@ -147,9 +148,13 @@ class GameManager {
     getStatusHtml(game) {
         if (game.status === 'live') {
             const elapsedMinutes = this.getElapsedMinutes(game);
-            return `<span class="status-live-text"><span class="status-live-dot"></span>AO VIVO ${elapsedMinutes}'</span>`;
+            const phaseText = this.getPhaseText(game.phase);
+            return `<span class="status-live-text"><span class="status-live-dot"></span>AO VIVO ${elapsedMinutes}' (${phaseText})</span>`;
         }
-        if (game.status === 'halftime') return 'INTERVALO';
+        if (game.status === 'halftime') {
+            const phaseText = this.getPhaseText(game.phase);
+            return `<span class="status-halftime-text">INTERVALO (${phaseText})</span>`;
+        }
         if (game.status === 'extra') return `PROLONGAMENTO ${game.minute || 90}'`;
         if (game.status === 'finished') return 'FIM';
         
@@ -158,6 +163,19 @@ class GameManager {
             return time;
         }
         return 'AGENDADO';
+    }
+
+    /**
+     * Obtém o texto da fase do jogo
+     */
+    getPhaseText(phase) {
+        const phaseMap = {
+            'first': '1ª PARTE',
+            'second': '2ª PARTE',
+            'extra': 'PROL.',
+            'finished': 'FIM'
+        };
+        return phaseMap[phase] || '1ª PARTE';
     }
 
     /**

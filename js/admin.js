@@ -355,12 +355,12 @@ class AdminPanel {
         const minute = document.getElementById('gameMinute').value;
 
         if (type === 'goal') {
-            eventManager.addGoal(this.currentGameId, team, minute, player);
-            this.adjustScore(team, 1);
+            await eventManager.addGoal(this.currentGameId, team, minute, player);
+            await this.adjustScore(team, 1);
         } else if (type === 'yellow') {
-            eventManager.addYellowCard(this.currentGameId, team, minute, player);
+            await eventManager.addYellowCard(this.currentGameId, team, minute, player);
         } else if (type === 'red') {
-            eventManager.addRedCard(this.currentGameId, team, minute, player);
+            await eventManager.addRedCard(this.currentGameId, team, minute, player);
         }
 
         document.getElementById('eventModal').style.display = 'none';

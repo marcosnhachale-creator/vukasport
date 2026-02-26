@@ -34,7 +34,10 @@ class GameDetailsManager {
         this.setupTabs();
 
         // Atualizar a cada segundo
-        setInterval(() => this.updateGameDisplay(), 1000);
+        setInterval(() => {
+            this.updateGameDisplay();
+            this.renderTimeline(); // Atualizar eventos em tempo real
+        }, 1000);
 
         // Modo escuro
         this.setupDarkMode();
@@ -71,12 +74,17 @@ class GameDetailsManager {
         // Atualizar placar com animação
         this.updateScore();
 
-        // Atualizar estado
-        document.getElementById('gameStatus').textContent = this.getStatusText(this.game.status);
+        // Atualizar estado com fase
+        const statusText = this.getStatusText(this.game.status);
+        const phaseText = this.getPhaseText(this.game.phase);
+        const displayText = (this.game.status === 'live' || this.game.status === 'halftime') 
+            ? `${statusText} (${phaseText})` 
+            : statusText;
+        document.getElementById('gameStatus').textContent = displayText;
         document.getElementById('gameStatus').className = `status-badge status-${this.game.status}`;
 
         // Atualizar minuto
-        const minute = gameManager.calculateGameMinute(this.game);
+        const minute = this.getGameMinute(this.game);
         document.getElementById('gameMinute').textContent = `${minute}'`;
 
         // Atualizar data
@@ -90,6 +98,29 @@ class GameDetailsManager {
 
         // Atualizar competição
         document.getElementById('gameCompetition').textContent = this.game.competition;
+    }
+
+    /**
+     * Calcula o minuto do jogo
+     */
+    getGameMinute(game) {
+        if (!game.startTime) return game.minute || 0;
+        const elapsedMs = Date.now() - game.startTime;
+        const elapsedMinutes = Math.floor(elapsedMs / 60000);
+        return elapsedMinutes;
+    }
+
+    /**
+     * Obtém o texto da fase do jogo
+     */
+    getPhaseText(phase) {
+        const phaseMap = {
+            'first': '1ª PARTE',
+            'second': '2ª PARTE',
+            'extra': 'PROL.',
+            'finished': 'FIM'
+        };
+        return phaseMap[phase] || '1ª PARTE';
     }
 
     /**
@@ -157,12 +188,13 @@ class GameDetailsManager {
 
             const eventIcon = this.getEventIcon(event.type);
             const eventLabel = this.getEventLabel(event.type);
+            const teamName = event.team === 'home' ? this.game.homeTeam : this.game.awayTeam;
 
             eventEl.innerHTML = `
                 <div class="timeline-content">
                     <div class="event-minute">${eventIcon} ${event.minute}'</div>
                     <div class="event-description">${eventLabel}</div>
-                    <div class="event-player">${event.playerName}</div>
+                    <div class="event-player">${event.playerName} (${teamName})</div>
                 </div>
             `;
 
