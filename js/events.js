@@ -42,7 +42,7 @@ class EventManager {
         
         // Sincronizar com Firestore
         if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
-            await this.addEventToFirestore(gameId, goal);
+            await firebaseManager.addEventToFirebase(gameId, goal);
         }
 
         this.notifyGoal(gameId, team, playerName, minute);
@@ -69,7 +69,7 @@ class EventManager {
         this.saveEventsLocal(gameId);
         
         if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
-            await this.addEventToFirestore(gameId, card);
+            await firebaseManager.addEventToFirebase(gameId, card);
         }
 
         this.notifyCard(gameId, team, playerName, minute, 'yellow');
@@ -96,7 +96,7 @@ class EventManager {
         this.saveEventsLocal(gameId);
         
         if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
-            await this.addEventToFirestore(gameId, card);
+            await firebaseManager.addEventToFirebase(gameId, card);
         }
 
         this.notifyCard(gameId, team, playerName, minute, 'red');
@@ -138,11 +138,7 @@ class EventManager {
             
             // Remover do Firestore
             if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
-                try {
-                    await firebaseManager.db.collection("jogos").doc(gameId.toString()).collection("eventos").doc(eventId).delete();
-                } catch (error) {
-                    console.error('Erro ao remover evento do Firestore:', error);
-                }
+                await firebaseManager.deleteEventFromFirebase(gameId, eventId);
             }
             
             console.log('Evento removido:', eventId);

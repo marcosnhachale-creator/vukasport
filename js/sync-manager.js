@@ -9,7 +9,7 @@ class SyncManager {
         this.lastSyncTime = null;
         this.syncInProgress = false;
         this.pendingChanges = [];
-        this.useFirebase = false; // Não usar Firebase
+        this.useFirebase = true; // Habilitado para sincronização em nuvem
         this.storageKey = 'vukasport_games';
         this.syncKey = 'vukasport_sync';
         this.peerConnections = [];

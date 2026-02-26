@@ -185,7 +185,7 @@ class GameManager {
         Object.assign(game, updates);
         this.saveGamesLocal();
         
-        if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
             await firebaseManager.updateGameInFirebase(gameId, updates);
         }
         this.renderGames();
@@ -213,7 +213,8 @@ class GameManager {
         };
         this.games.push(newGame);
         this.saveGamesLocal();
-        if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+        
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
             await firebaseManager.addGameToFirebase(newGame);
         }
         return newGame;
@@ -225,7 +226,7 @@ class GameManager {
             this.games.splice(gameIndex, 1);
             this.saveGamesLocal();
             
-            if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
+            if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
                 await firebaseManager.deleteGameFromFirebase(gameId);
             }
             

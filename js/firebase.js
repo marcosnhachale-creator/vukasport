@@ -156,6 +156,36 @@ class FirebaseManager {
             console.error('Erro ao sincronizar credenciais:', error);
         }
     }
+
+    /**
+     * Adiciona um evento ao Firestore
+     */
+    async addEventToFirebase(gameId, eventData) {
+        if (!this.db) return false;
+        try {
+            await this.db.collection("jogos").doc(gameId.toString())
+                .collection("eventos").doc(eventData.id.toString()).set(eventData);
+            return true;
+        } catch (error) {
+            console.error('Erro ao adicionar evento ao Firestore:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Elimina um evento do Firestore
+     */
+    async deleteEventFromFirebase(gameId, eventId) {
+        if (!this.db) return false;
+        try {
+            await this.db.collection("jogos").doc(gameId.toString())
+                .collection("eventos").doc(eventId.toString()).delete();
+            return true;
+        } catch (error) {
+            console.error('Erro ao eliminar evento do Firestore:', error);
+            return false;
+        }
+    }
 }
 
 // Inicializar o gestor
