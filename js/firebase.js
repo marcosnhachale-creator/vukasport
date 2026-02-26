@@ -70,19 +70,23 @@ class FirebaseManager {
     }
 
     /**
-     * Configura a sincronização em tempo real usando onSnapshot do Firestore
+     * Configura a sincronizacao em tempo real usando onSnapshot do Firestore
      */
     setupRealtimeSync() {
         if (!this.db) return;
 
-        // Listener para a coleção de jogos
+        // Listener para a colecao de jogos
         const unsubscribe = this.db.collection("jogos").onSnapshot((querySnapshot) => {
             const gamesArray = [];
             querySnapshot.forEach((doc) => {
-                gamesArray.push({ id: doc.id, ...doc.data() });
+                const gameData = { id: doc.id, ...doc.data() };
+                gamesArray.push(gameData);
+                
+                // Configurar listener para eventos deste jogo
+                this.setupGameEventsListener(doc.id);
             });
 
-            console.log('Atualização Firestore recebida:', gamesArray.length, 'jogos');
+            console.log('Atualizacao Firestore recebida:', gamesArray.length, 'jogos');
             
             if (typeof gameManager !== 'undefined') {
                 gameManager.games = gamesArray;
@@ -97,6 +101,47 @@ class FirebaseManager {
         }, (error) => {
             console.error('Erro no listener do Firestore:', error);
         });
+
+        this.listeners.push(unsubscribe);
+    }
+
+    /**
+     * Configura listener para eventos de um jogo especifico
+     */
+    setupGameEventsListener(gameId) {
+        if (!this.db) return;
+
+        const unsubscribe = this.db.collection("jogos").doc(gameId.toString())
+            .collection("eventos").onSnapshot((querySnapshot) => {
+                const events = { goals: [], yellowCards: [], redCards: [] };
+                
+                querySnapshot.forEach((doc) => {
+                    const eventData = doc.data();
+                    if (eventData.type === 'goal') {
+                        events.goals.push(eventData);
+                    } else if (eventData.type === 'yellow_card') {
+                        events.yellowCards.push(eventData);
+                    } else if (eventData.type === 'red_card') {
+                        events.redCards.push(eventData);
+                    }
+                });
+
+                console.log('Eventos atualizados para jogo', gameId, ':', events);
+                
+                // Atualizar o eventManager
+                if (typeof eventManager !== 'undefined') {
+                    eventManager.events[gameId] = events;
+                    eventManager.saveEventsLocal(gameId);
+                    
+                    // Renderizar timeline se a pagina de detalhes esta aberta
+                    if (typeof gameDetailsManager !== 'undefined' && gameDetailsManager.gameId == gameId) {
+                        gameDetailsManager.renderTimeline();
+                        gameDetailsManager.renderStatistics();
+                    }
+                }
+            }, (error) => {
+                console.error('Erro ao ouvir eventos do jogo', gameId, ':', error);
+            });
 
         this.listeners.push(unsubscribe);
     }
