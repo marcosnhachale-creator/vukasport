@@ -178,7 +178,33 @@ class AdminPanel {
         if (phaseSelect) {
             phaseSelect.onchange = (e) => {
                 if (this.currentGameId) {
-                    gameManager.updateGame(this.currentGameId, { phase: e.target.value });
+                    const selectedPhase = e.target.value;
+                    
+                    // Verificar se a opção selecionada é para terminar o jogo
+                    if (selectedPhase === 'finished') {
+                        // Terminar jogo normalmente
+                        this.stopTimer();
+                        gameManager.updateGame(this.currentGameId, { 
+                            status: 'finished', 
+                            phase: 'finished'
+                        });
+                        this.isPlaying = false;
+                        this.updatePlayPauseBtn();
+                        alert('Jogo terminado com sucesso!');
+                    } else if (selectedPhase === 'finished_extra') {
+                        // Terminar jogo com prolongamento
+                        this.stopTimer();
+                        gameManager.updateGame(this.currentGameId, { 
+                            status: 'finished', 
+                            phase: 'extra'
+                        });
+                        this.isPlaying = false;
+                        this.updatePlayPauseBtn();
+                        alert('Jogo terminado com prolongamento!');
+                    } else {
+                        // Atualizar fase normalmente
+                        gameManager.updateGame(this.currentGameId, { phase: selectedPhase });
+                    }
                 }
             };
         }
