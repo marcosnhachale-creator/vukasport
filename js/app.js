@@ -1,7 +1,7 @@
 /**
- * VukaSport - Aplicação Principal (Atualizada v7)
+ * VukaSport - Aplicação Principal (Atualizada v4)
  * Renderização compacta otimizada para dispositivos móveis
- * Com suporte para jogos ao vivo, agendamento, adiamento e organização inteligente por data
+ * Com suporte para jogos ao vivo e persistência offline
  */
 
 class GameManager {
@@ -55,23 +55,7 @@ class GameManager {
     }
 
     /**
-     * Obtém todos os jogos agendados (não terminados)
-     * Inclui jogos ao vivo, agendados, adiados, etc.
-     */
-    getScheduledGames() {
-        return this.games.filter(game => game.status !== 'finished');
-    }
-
-    /**
-     * Obtém todos os jogos visíveis para o utilizador
-     * Inclui jogos ao vivo, agendados e adiados
-     */
-    getVisibleGames() {
-        return this.getScheduledGames();
-    }
-
-    /**
-     * Renderiza os jogos agrupados de forma inteligente
+     * Renderiza os jogos agrupados por competição com banners de patrocínio
      */
     renderGames() {
         const container = document.getElementById('gamesList');
@@ -124,11 +108,9 @@ class GameManager {
 
             grouped[compName].forEach((game, index) => {
                 const statusHtml = this.getStatusHtml(game);
-                const gameTime = game.date ? new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : '--:--';
                 
                 html += `
                     <div class="match-card" onclick="window.location.href='game-details.html?id=${game.id}'">
-                        <div class="match-time-badge">${gameTime}</div>
                         <div class="team-side home">
                             <span class="team-name">${game.homeTeam}</span>
                             <div class="team-shield">${game.homeTeam.charAt(0)}</div>
@@ -163,131 +145,6 @@ class GameManager {
         container.innerHTML = html;
     }
 
-    /**
-     * Renderiza os jogos agrupados por período inteligente (HOJE, AMANHÃ, etc.)
-     * Com estrutura clara e bem organizada
-     * Mostra TODOS os jogos agendados (não terminados) agrupados por período
-     */
-    renderGamesBySmartPeriod() {
-        const container = document.getElementById('gamesList');
-        if (!container) return;
-
-        // Agrupar TODOS os jogos visíveis por período inteligente
-        const visibleGames = this.getVisibleGames();
-        const grouped = DateUtils.groupGamesBySmartPeriod(visibleGames);
-        const periodOrder = DateUtils.getPeriodOrder();
-
-        let html = '';
-        let sponsorCounter = 0;
-        
-        periodOrder.forEach(periodKey => {
-            const period = grouped[periodKey];
-            if (!period.games || period.games.length === 0) return;
-
-            // Header do período com ícone e contagem
-            const periodIcon = this.getPeriodIcon(periodKey);
-            html += `
-                <div class="period-group">
-                    <div class="period-header">
-                        <div class="period-info">
-                            <span class="period-icon">${periodIcon}</span>
-                            <div class="period-details">
-                                <span class="period-label">${period.label}</span>
-                                <span class="period-count">${period.games.length} jogo${period.games.length !== 1 ? 's' : ''}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="period-content">
-            `;
-
-            // Agrupar por competição dentro do período
-            const competitionGrouped = {};
-            period.games.forEach(game => {
-                const comp = game.competition || 'OUTRAS COMPETIÇÕES';
-                if (!competitionGrouped[comp]) competitionGrouped[comp] = [];
-                competitionGrouped[comp].push(game);
-            });
-
-            Object.keys(competitionGrouped).forEach(compName => {
-                html += `
-                    <div class="competition-group">
-                        <div class="competition-header">
-                            <div class="comp-info">
-                                <span class="comp-icon">🏆</span>
-                                <span class="comp-name">${compName}</span>
-                            </div>
-                        </div>
-                `;
-
-                competitionGrouped[compName].forEach((game, index) => {
-                    const statusHtml = this.getStatusHtml(game);
-                    const gameTime = game.date ? new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : '--:--';
-                    
-                    html += `
-                        <div class="match-card" onclick="window.location.href='game-details.html?id=${game.id}'">
-                            <div class="match-time-badge">${gameTime}</div>
-                            <div class="team-side home">
-                                <span class="team-name">${game.homeTeam}</span>
-                                <div class="team-shield">${game.homeTeam.charAt(0)}</div>
-                            </div>
-                            <div class="match-center">
-                                <div class="match-score ${game.flashing ? 'flashing' : ''}">
-                                    ${game.homeGoals} - ${game.awayGoals}
-                                </div>
-                                <div class="match-status">${statusHtml}</div>
-                            </div>
-                            <div class="team-side away">
-                                <div class="team-shield">${game.awayTeam.charAt(0)}</div>
-                                <span class="team-name">${game.awayTeam}</span>
-                            </div>
-                        </div>
-                    `;
-
-                    sponsorCounter++;
-                    if (sponsorCounter % 3 === 0) {
-                        const sponsor = this.sponsors[Math.floor(Math.random() * this.sponsors.length)];
-                        html += `
-                            <div class="sponsor-banner">
-                                <span class="sponsor-label">Patrocinador Local</span>
-                                <img src="${sponsor.logo}" alt="${sponsor.name}" class="sponsor-img">
-                            </div>
-                        `;
-                    }
-                });
-
-                html += `</div>`;
-            });
-
-            html += `
-                    </div>
-                </div>
-            `;
-        });
-
-        if (html === '') {
-            document.getElementById('emptyState').style.display = 'block';
-            container.innerHTML = '';
-        } else {
-            document.getElementById('emptyState').style.display = 'none';
-            container.innerHTML = html;
-        }
-    }
-
-    /**
-     * Retorna o ícone apropriado para cada período
-     */
-    getPeriodIcon(periodKey) {
-        const iconMap = {
-            'HOJE': '📍',
-            'AMANHA': '⏭️',
-            'ESTA_SEMANA': '📅',
-            'PROXIMA_SEMANA': '🗓️',
-            'FUTURO': '🔮',
-            'PASSADO': '✅'
-        };
-        return iconMap[periodKey] || '📅';
-    }
-
     getStatusHtml(game) {
         if (game.status === 'live') {
             const elapsedMinutes = this.getElapsedMinutes(game);
@@ -300,152 +157,104 @@ class GameManager {
         }
         if (game.status === 'extra') return `PROLONGAMENTO ${game.minute || 90}'`;
         if (game.status === 'finished') return 'FIM';
-        if (game.status === 'postponed') return '⏸️ ADIADO';
-        if (game.status === 'scheduled') {
-            const gameDate = game.date ? new Date(game.date) : null;
-            if (!gameDate) return 'AGENDADO';
-            const now = new Date();
-            const diffMs = gameDate - now;
-            if (diffMs < 0) return 'AGENDADO';
-            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-            if (diffHours > 24) return `AGENDADO (${Math.floor(diffHours / 24)}d)`;
-            if (diffHours > 0) return `AGENDADO (${diffHours}h)`;
-            return `AGENDADO (${diffMins}m)`;
+        
+        if (game.date) {
+            const time = new Date(game.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+            return time;
         }
         return 'AGENDADO';
     }
 
+    /**
+     * Obtém o texto da fase do jogo
+     */
     getPhaseText(phase) {
         const phaseMap = {
-            'first': '1ª Parte',
-            'halftime': 'Intervalo',
-            'second': '2ª Parte',
-            'extra': 'Prolongamento'
+            'first': '1ª PARTE',
+            'second': '2ª PARTE',
+            'extra': 'PROL.',
+            'finished': 'FIM'
         };
-        return phaseMap[phase] || phase;
+        return phaseMap[phase] || '1ª PARTE';
     }
 
+    /**
+     * Calcula minutos decorridos baseado no startTime
+     */
     getElapsedMinutes(game) {
         if (!game.startTime) return game.minute || 0;
-        const elapsed = Math.floor((Date.now() - new Date(game.startTime).getTime()) / 60000);
-        return Math.max(game.minute || 0, elapsed);
+        
+        const elapsedMs = Date.now() - game.startTime;
+        const elapsedMinutes = Math.floor(elapsedMs / 60000);
+        return elapsedMinutes;
     }
 
-    /**
-     * Adiciona um novo jogo
-     */
-    async addGame(gameData) {
-        const id = Date.now().toString();
-        const game = {
-            id,
-            homeTeam: gameData.homeTeam,
-            awayTeam: gameData.awayTeam,
-            competition: gameData.competition,
-            date: gameData.date,
-            phase: gameData.phase || 'first',
-            status: 'scheduled',
-            homeGoals: 0,
-            awayGoals: 0,
-            events: [],
-            minute: 0,
-            startTime: null
-        };
-
-        this.games.push(game);
-        this.saveGamesLocal();
-
-        // Sincronizar com Firebase
-        if (firebaseManager) {
-            await firebaseManager.addGameToFirebase(game);
-        }
-
-        return game;
-    }
-
-    /**
-     * Atualiza um jogo
-     */
     async updateGame(gameId, updates) {
         const game = this.getGameById(gameId);
-        if (!game) return;
+        if (!game) return false;
+
+        if (updates.homeGoals > game.homeGoals || updates.awayGoals > game.awayGoals) {
+            updates.flashing = true;
+            setTimeout(() => {
+                this.updateGameInState(gameId, { flashing: false });
+            }, 2000);
+        }
 
         Object.assign(game, updates);
         this.saveGamesLocal();
-
-        // Sincronizar com Firebase
-        if (firebaseManager) {
+        
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
             await firebaseManager.updateGameInFirebase(gameId, updates);
         }
-
-        // Renderizar UI
         this.renderGames();
+        return true;
     }
 
-    /**
-     * Deleta um jogo
-     */
-    async deleteGame(gameId) {
-        this.games = this.games.filter(g => g.id !== gameId);
-        this.saveGamesLocal();
-
-        // Sincronizar com Firebase
-        if (firebaseManager) {
-            await firebaseManager.deleteGameFromFirebase(gameId);
+    updateGameInState(gameId, updates) {
+        const game = this.getGameById(gameId);
+        if (game) {
+            Object.assign(game, updates);
+            this.renderGames();
         }
-
-        this.renderGames();
     }
 
-    /**
-     * Inicia um jogo (muda status para 'live')
-     */
-    async startGame(gameId) {
-        const game = this.getGameById(gameId);
-        if (!game) return;
-
-        game.status = 'live';
-        game.phase = 'first';
-        game.startTime = new Date().toISOString();
-        game.minute = 0;
-
-        await this.updateGame(gameId, {
-            status: 'live',
+    async addGame(data) {
+        const newGame = {
+            id: Date.now(),
+            ...data,
+            homeGoals: 0,
+            awayGoals: 0,
+            status: 'scheduled',
+            minute: 0,
             phase: 'first',
-            startTime: game.startTime,
-            minute: 0
-        });
+            startTime: null
+        };
+        this.games.push(newGame);
+        this.saveGamesLocal();
+        
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await firebaseManager.addGameToFirebase(newGame);
+        }
+        return newGame;
     }
 
-    /**
-     * Termina um jogo (muda status para 'finished')
-     */
-    async finishGame(gameId) {
-        const game = this.getGameById(gameId);
-        if (!game) return;
-
-        game.status = 'finished';
-
-        await this.updateGame(gameId, { status: 'finished' });
-    }
-
-    /**
-     * Adia um jogo (muda status para 'postponed')
-     */
-    async postponeGame(gameId, newDate) {
-        const game = this.getGameById(gameId);
-        if (!game) return;
-
-        game.status = 'postponed';
-        game.date = newDate;
-
-        await this.updateGame(gameId, {
-            status: 'postponed',
-            date: newDate
-        });
+    async deleteGame(gameId) {
+        const gameIndex = this.games.findIndex(g => g.id == gameId);
+        if (gameIndex !== -1) {
+            this.games.splice(gameIndex, 1);
+            this.saveGamesLocal();
+            
+            if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+                await firebaseManager.deleteGameFromFirebase(gameId);
+            }
+            
+            this.renderGames();
+            
+            // Disparar evento para sincronizar em outras abas
+            window.dispatchEvent(new CustomEvent('gamesUpdated', { detail: this.games }));
+        }
     }
 }
 
-// Inicializar o gestor
 const gameManager = new GameManager();
 window.gameManager = gameManager;

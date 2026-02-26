@@ -9,35 +9,6 @@
         body { background-color: #121212; color: white; }
         .admin-section { display: none; }
         .active { display: block; }
-        .admin-header-compact {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
-        }
-        .admin-header-compact h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .admin-header-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-        .user-count-badge {
-            background: #28A745;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: none;
-        }
-        .user-count-badge.active {
-            display: inline-block;
-        }
     </style>
 </head>
 <body class="admin-body">
@@ -67,12 +38,7 @@
         <div class="admin-only-panel">
             <div class="admin-header-compact">
                 <h2>⚽ SÓ EDIÇÃO</h2>
-                <div class="admin-header-controls">
-                    <div class="user-count-badge" id="activeUserCount">
-                        👥 <span id="userCountValue">0</span> ativos
-                    </div>
-                    <button id="logoutBtn" style="background:none; border:none; color:#888; font-size:12px;">Sair</button>
-                </div>
+                <button id="logoutBtn" style="background:none; border:none; color:#888; font-size:12px;">Sair</button>
             </div>
 
             <!-- Seleção de Jogo -->
@@ -97,42 +63,8 @@
                         <option value="halftime">INTERVALO</option>
                         <option value="second">2ª PARTE</option>
                         <option value="extra">PROLONGAMENTO</option>
-                        <option value="finished">✓ TERMINADO</option>
-                        <option value="finished_extra">✓ TERMINADO + PROL.</option>
+                        <option value="finished">FIM</option>
                     </select>
-                </div>
-
-                <!-- Data e Hora de Início do Jogo -->
-                <div style="margin-bottom: 15px;">
-                    <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Data de Início</label>
-                    <input type="date" id="gameStartDate" style="width:100%; padding:10px; background:#1e1e1e; border:1px solid #333; color:white; border-radius:8px; font-weight:bold;">
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Hora de Início</label>
-                    <input type="time" id="gameStartTime" style="width:100%; padding:10px; background:#1e1e1e; border:1px solid #333; color:white; border-radius:8px; font-weight:bold;">
-                </div>
-
-                <!-- Data e Hora de Fim do Jogo -->
-                <div style="margin-bottom: 15px;">
-                    <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Data de Fim</label>
-                    <input type="date" id="gameEndDate" style="width:100%; padding:10px; background:#1e1e1e; border:1px solid #333; color:white; border-radius:8px; font-weight:bold;">
-                </div>
-
-                <div style="margin-bottom: 15px;">
-                    <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Hora de Fim</label>
-                    <input type="time" id="gameEndTime" style="width:100%; padding:10px; background:#1e1e1e; border:1px solid #333; color:white; border-radius:8px; font-weight:bold;">
-                </div>
-
-                <!-- Botão Terminar Jogo -->
-                <div style="margin-bottom: 15px;">
-                    <button id="btnFinishGame" style="width:100%; padding:10px; background:#ff6b6b; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Terminar o jogo imediatamente">🏁 TERMINAR JOGO</button>
-                </div>
-
-                <!-- Botões de Agendamento e Adiamento -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button id="btnScheduleGame" style="padding:10px; background:#007bff; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Agendar jogo">📅 AGENDAR</button>
-                    <button id="btnPostponeGame" style="padding:10px; background:#ffc107; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Adiar jogo">⏸️ ADIAR</button>
                 </div>
 
                 <!-- Controle de Tempo -->
@@ -211,68 +143,6 @@
         </div>
     </div>
 
-    <!-- Modal Agendamento -->
-    <div id="scheduleModal" class="modal-admin" style="display: none;">
-        <div class="modal-admin-content">
-            <div class="modal-admin-header">Agendar Jogo</div>
-            <div style="margin-bottom: 15px;">
-                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Data</label>
-                <input type="date" id="scheduleGameDate" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Hora</label>
-                <input type="time" id="scheduleGameTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="btnConfirmSchedule" class="btn-primary" style="flex:1;">CONFIRMAR</button>
-                <button id="btnCancelSchedule" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Adiamento -->
-    <div id="postponeModal" class="modal-admin" style="display: none;">
-        <div class="modal-admin-content">
-            <div class="modal-admin-header">Adiar Jogo</div>
-            <div style="margin-bottom: 15px;">
-                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Data</label>
-                <input type="date" id="postponeGameDate" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Nova Hora</label>
-                <input type="time" id="postponeGameTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Motivo do Adiamento</label>
-                <textarea id="postponeReason" placeholder="Ex: Condições climáticas, problemas técnicos..." style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px; resize:vertical; min-height:60px;"></textarea>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="btnConfirmPostpone" class="btn-primary" style="flex:1;">CONFIRMAR ADIAMENTO</button>
-                <button id="btnCancelPostpone" style="flex:1; background:#444; color:white; border:none; border-radius:6px;">CANCELAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Terminar Jogo com Prolongamento -->
-    <div id="finishGameModal" class="modal-admin" style="display: none;">
-        <div class="modal-admin-content">
-            <div class="modal-admin-header">Terminar Jogo</div>
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; font-size:11px; color:#888; margin-bottom:10px;">Selecione uma opção:</label>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button id="btnFinishNormal" style="padding:12px; background:#28A745; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Terminar o jogo agora">✓ TERMINAR JOGO</button>
-                    <button id="btnFinishWithExtra" style="padding:12px; background:#007bff; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Terminar jogo e ativar prolongamento">⏱️ TERMINAR + PROLONGAMENTO</button>
-                </div>
-            </div>
-            <div style="margin-bottom: 15px; padding: 10px; background:#333; border-radius:8px; font-size:11px; color:#aaa;">
-                <p style="margin:0;"><strong>Nota:</strong> Se selecionar "Terminar + Prolongamento", o jogo será marcado como terminado e a fase será alterada para prolongamento.</p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button id="btnCancelFinish" style="flex:1; background:#444; color:white; border:none; border-radius:6px; padding:10px; font-size:12px; font-weight:bold; cursor:pointer;">CANCELAR</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Modal Evento -->
     <div id="eventModal" class="modal-admin" style="display: none;">
         <div class="modal-admin-content">
@@ -311,7 +181,6 @@
     <script src="js/auth.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/events.js"></script>
-    <script src="js/date-utils.js"></script>
     <script src="js/sample-data.js"></script>
     <script src="js/app.js"></script>
     <script src="js/admin.js"></script>
@@ -326,21 +195,6 @@
         function closeEventModal() {
             document.getElementById('eventModal').style.display = 'none';
         }
-        
-        // Listeners para modal de terminar jogo
-        document.addEventListener('DOMContentLoaded', () => {
-            if (document.getElementById('btnFinishNormal')) {
-                document.getElementById('btnFinishNormal').onclick = () => {
-                    if (window.adminPanel) window.adminPanel.finishCurrentGame(false);
-                };
-                document.getElementById('btnFinishWithExtra').onclick = () => {
-                    if (window.adminPanel) window.adminPanel.finishCurrentGame(true);
-                };
-                document.getElementById('btnCancelFinish').onclick = () => {
-                    document.getElementById('finishGameModal').style.display = 'none';
-                };
-            }
-        });
     </script>
 </body>
 </html>

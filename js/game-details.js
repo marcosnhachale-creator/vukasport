@@ -156,8 +156,7 @@ class GameDetailsManager {
             'live': 'Em Direto',
             'halftime': 'Intervalo',
             'extra': 'Prolongamento',
-            'finished': 'Terminado',
-            'postponed': 'Adiado'
+            'finished': 'Terminado'
         };
         return statusMap[status] || status;
     }
