@@ -18,27 +18,14 @@ class GameManager {
         await this.loadGames();
         this.renderGames();
         
-        // Polling para simular tempo real
+        // Atualizar apenas a UI a cada segundo (para o cronómetro visual)
         setInterval(() => this.renderGames(), 1000);
-        setInterval(() => this.syncWithFirebase(), 3000);
-
-        // Sincronizar quando o app volta ao foco
-        window.addEventListener('focus', () => {
-            this.syncWithFirebase();
-        });
+        
+        // O Firestore já trata da sincronização em tempo real via onSnapshot em firebase.js
     }
 
     async loadGames() {
-        try {
-            if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
-                const firebaseGames = await firebaseManager.loadGamesFromFirebase();
-                if (firebaseGames) {
-                    this.games = Object.values(firebaseGames).filter(game => game && game.id);
-                    this.saveGamesLocal();
-                    return;
-                }
-            }
-        } catch (error) { console.error('Erro Firebase:', error); }
+        // Com Firestore, os dados iniciais e atualizações vêm pelo onSnapshot
         this.loadGamesFromLocal();
     }
 
@@ -54,20 +41,7 @@ class GameManager {
         localStorage.setItem('vukasport_games', JSON.stringify(this.games));
     }
 
-    async syncWithFirebase() {
-        if (typeof firebaseManager === 'undefined' || !firebaseManager.isOnline) return;
-        try {
-            const firebaseGames = await firebaseManager.loadGamesFromFirebase();
-            if (firebaseGames) {
-                const gamesArray = Object.values(firebaseGames).filter(game => game && game.id);
-                if (JSON.stringify(gamesArray) !== JSON.stringify(this.games)) {
-                    this.games = gamesArray;
-                    this.saveGamesLocal();
-                    this.renderGames();
-                }
-            }
-        } catch (e) { console.error('Sync Error:', e); }
-    }
+    // syncWithFirebase removido pois o Firestore onSnapshot trata disso automaticamente
 
     getGames() { return this.games; }
     getGameById(gameId) { return this.games.find(g => g.id == gameId); }

@@ -34,11 +34,8 @@ class AdminPanel {
     }
 
     setupGamesListener() {
-        this.gamesListener = setInterval(() => {
-            if (authManager.isAuthenticated()) {
-                this.loadGamesToSelect();
-            }
-        }, 2000);
+        // O Firestore já trata da sincronização em tempo real via onSnapshot em firebase.js
+        // que chama adminPanel.loadGamesToSelect() automaticamente
     }
 
     removeGamesListener() {

@@ -1,5 +1,5 @@
 /**
- * VukaSport - Gerenciador de Eventos (Goleadas e Cartões)
+ * VukaSport - Gerenciador de Eventos (Goleadas e Cartões) com Firestore
  * Controla o registo e notificação de eventos do jogo
  */
 
@@ -11,7 +11,6 @@ class EventManager {
 
     /**
      * Inicializa os eventos de um jogo
-     * @param {number} gameId - ID do jogo
      */
     initializeGameEvents(gameId) {
         if (!this.events[gameId]) {
@@ -24,18 +23,13 @@ class EventManager {
     }
 
     /**
-     * Adiciona um golo
-     * @param {number} gameId - ID do jogo
-     * @param {string} team - 'home' ou 'away'
-     * @param {number} minute - Minuto do golo
-     * @param {string} playerName - Nome do jogador
-     * @returns {object} - Evento adicionado
+     * Adiciona um golo e sincroniza com Firestore
      */
-    addGoal(gameId, team, minute, playerName) {
+    async addGoal(gameId, team, minute, playerName) {
         this.initializeGameEvents(gameId);
         
         const goal = {
-            id: Date.now(),
+            id: Date.now().toString(),
             type: 'goal',
             team: team,
             minute: parseInt(minute),
@@ -46,31 +40,24 @@ class EventManager {
         this.events[gameId].goals.push(goal);
         this.saveEventsLocal(gameId);
         
-        // Sincronizar com Firebase
-        if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
-            firebaseManager.addEventToFirebase(gameId, goal);
+        // Sincronizar com Firestore
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await this.addEventToFirestore(gameId, goal);
         }
 
-        // Notificar utilizadores
         this.notifyGoal(gameId, team, playerName, minute);
-        
         console.log('Golo adicionado:', goal);
         return goal;
     }
 
     /**
-     * Adiciona um cartão amarelo
-     * @param {number} gameId - ID do jogo
-     * @param {string} team - 'home' ou 'away'
-     * @param {number} minute - Minuto do cartão
-     * @param {string} playerName - Nome do jogador
-     * @returns {object} - Evento adicionado
+     * Adiciona um cartão amarelo e sincroniza com Firestore
      */
-    addYellowCard(gameId, team, minute, playerName) {
+    async addYellowCard(gameId, team, minute, playerName) {
         this.initializeGameEvents(gameId);
         
         const card = {
-            id: Date.now(),
+            id: Date.now().toString(),
             type: 'yellow_card',
             team: team,
             minute: parseInt(minute),
@@ -81,31 +68,23 @@ class EventManager {
         this.events[gameId].yellowCards.push(card);
         this.saveEventsLocal(gameId);
         
-        // Sincronizar com Firebase
-        if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
-            firebaseManager.addEventToFirebase(gameId, card);
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await this.addEventToFirestore(gameId, card);
         }
 
-        // Notificar utilizadores
         this.notifyCard(gameId, team, playerName, minute, 'yellow');
-        
         console.log('Cartão amarelo adicionado:', card);
         return card;
     }
 
     /**
-     * Adiciona um cartão vermelho
-     * @param {number} gameId - ID do jogo
-     * @param {string} team - 'home' ou 'away'
-     * @param {number} minute - Minuto do cartão
-     * @param {string} playerName - Nome do jogador
-     * @returns {object} - Evento adicionado
+     * Adiciona um cartão vermelho e sincroniza com Firestore
      */
-    addRedCard(gameId, team, minute, playerName) {
+    async addRedCard(gameId, team, minute, playerName) {
         this.initializeGameEvents(gameId);
         
         const card = {
-            id: Date.now(),
+            id: Date.now().toString(),
             type: 'red_card',
             team: team,
             minute: parseInt(minute),
@@ -116,25 +95,31 @@ class EventManager {
         this.events[gameId].redCards.push(card);
         this.saveEventsLocal(gameId);
         
-        // Sincronizar com Firebase
-        if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
-            firebaseManager.addEventToFirebase(gameId, card);
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await this.addEventToFirestore(gameId, card);
         }
 
-        // Notificar utilizadores
         this.notifyCard(gameId, team, playerName, minute, 'red');
-        
         console.log('Cartão vermelho adicionado:', card);
         return card;
     }
 
     /**
-     * Remove um evento
-     * @param {number} gameId - ID do jogo
-     * @param {string} eventId - ID do evento
-     * @param {string} type - Tipo de evento ('goal', 'yellow_card', 'red_card')
+     * Adiciona evento ao Firestore
      */
-    removeEvent(gameId, eventId, type) {
+    async addEventToFirestore(gameId, eventData) {
+        try {
+            const db = firebaseManager.db;
+            await db.collection("jogos").doc(gameId.toString()).collection("eventos").doc(eventData.id).set(eventData);
+        } catch (error) {
+            console.error('Erro ao adicionar evento ao Firestore:', error);
+        }
+    }
+
+    /**
+     * Remove um evento
+     */
+    async removeEvent(gameId, eventId, type) {
         this.initializeGameEvents(gameId);
         
         let array = [];
@@ -146,14 +131,18 @@ class EventManager {
             array = this.events[gameId].redCards;
         }
 
-        const index = array.findIndex(e => e.id === parseInt(eventId));
+        const index = array.findIndex(e => e.id === eventId.toString());
         if (index !== -1) {
             array.splice(index, 1);
             this.saveEventsLocal(gameId);
             
-            // Sincronizar com Firebase
-            if (typeof firebaseManager !== 'undefined' && firebaseManager.isOnline) {
-                firebaseManager.removeEventFromFirebase(gameId, eventId);
+            // Remover do Firestore
+            if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+                try {
+                    await firebaseManager.db.collection("jogos").doc(gameId.toString()).collection("eventos").doc(eventId).delete();
+                } catch (error) {
+                    console.error('Erro ao remover evento do Firestore:', error);
+                }
             }
             
             console.log('Evento removido:', eventId);
@@ -162,8 +151,6 @@ class EventManager {
 
     /**
      * Obtém todos os eventos de um jogo
-     * @param {number} gameId - ID do jogo
-     * @returns {object} - Eventos do jogo
      */
     getGameEvents(gameId) {
         this.initializeGameEvents(gameId);
@@ -172,8 +159,6 @@ class EventManager {
 
     /**
      * Obtém todos os eventos em ordem cronológica
-     * @param {number} gameId - ID do jogo
-     * @returns {array} - Array de eventos ordenados
      */
     getAllEventsOrdered(gameId) {
         const gameEvents = this.getGameEvents(gameId);
@@ -188,7 +173,6 @@ class EventManager {
 
     /**
      * Guarda os eventos do jogo no localStorage
-     * @param {number} gameId - ID do jogo
      */
     saveEventsLocal(gameId) {
         const key = `vukasport_events_${gameId}`;
@@ -197,7 +181,6 @@ class EventManager {
 
     /**
      * Carrega os eventos do jogo do localStorage
-     * @param {number} gameId - ID do jogo
      */
     loadEventsLocal(gameId) {
         const key = `vukasport_events_${gameId}`;
@@ -218,10 +201,6 @@ class EventManager {
 
     /**
      * Notifica sobre um golo
-     * @param {number} gameId - ID do jogo
-     * @param {string} team - 'home' ou 'away'
-     * @param {string} playerName - Nome do jogador
-     * @param {number} minute - Minuto do golo
      */
     notifyGoal(gameId, team, playerName, minute) {
         const game = gameManager.getGameById(gameId);
@@ -230,10 +209,8 @@ class EventManager {
         const teamName = team === 'home' ? game.homeTeam : game.awayTeam;
         const message = `⚽ GOLO! ${playerName} (${teamName}) - ${minute}'`;
         
-        // Notificação visual
         this.showNotification(message, 'goal');
         
-        // Notificação push
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification('VukaSport - GOLO!', {
                 body: `${playerName} marcou para ${teamName} aos ${minute} minutos!`,
@@ -244,7 +221,6 @@ class EventManager {
             });
         }
 
-        // Enviar para Service Worker
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({
                 type: 'SHOW_GOAL_NOTIFICATION',
@@ -257,11 +233,6 @@ class EventManager {
 
     /**
      * Notifica sobre um cartão
-     * @param {number} gameId - ID do jogo
-     * @param {string} team - 'home' ou 'away'
-     * @param {string} playerName - Nome do jogador
-     * @param {number} minute - Minuto do cartão
-     * @param {string} cardColor - 'yellow' ou 'red'
      */
     notifyCard(gameId, team, playerName, minute, cardColor) {
         const game = gameManager.getGameById(gameId);
@@ -272,10 +243,8 @@ class EventManager {
         const cardText = cardColor === 'yellow' ? 'Cartão Amarelo' : 'Cartão Vermelho';
         const message = `${cardEmoji} ${cardText}! ${playerName} (${teamName}) - ${minute}'`;
         
-        // Notificação visual
         this.showNotification(message, cardColor === 'yellow' ? 'yellow-card' : 'red-card');
         
-        // Notificação push
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(`VukaSport - ${cardText}`, {
                 body: `${playerName} (${teamName}) recebeu ${cardText.toLowerCase()} aos ${minute} minutos!`,
@@ -286,7 +255,6 @@ class EventManager {
             });
         }
 
-        // Enviar para Service Worker
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({
                 type: 'SHOW_CARD_NOTIFICATION',
@@ -300,8 +268,6 @@ class EventManager {
 
     /**
      * Mostra notificação visual no app
-     * @param {string} message - Mensagem da notificação
-     * @param {string} type - Tipo de notificação ('goal', 'yellow-card', 'red-card')
      */
     showNotification(message, type) {
         const notification = document.createElement('div');
@@ -323,10 +289,8 @@ class EventManager {
         
         document.body.appendChild(notification);
         
-        // Animar entrada
         setTimeout(() => notification.classList.add('show'), 10);
         
-        // Remover após 5 segundos
         setTimeout(() => {
             notification.classList.add('hide');
             setTimeout(() => notification.remove(), 300);
@@ -347,10 +311,8 @@ class EventManager {
     }
 }
 
-// Instância global do gerenciador de eventos
 const eventManager = new EventManager();
 
-// Solicitar permissão de notificações ao carregar
 document.addEventListener('DOMContentLoaded', () => {
     eventManager.requestNotificationPermission();
 });
