@@ -251,6 +251,26 @@
         </div>
     </div>
 
+    <!-- Modal Terminar Jogo com Prolongamento -->
+    <div id="finishGameModal" class="modal-admin" style="display: none;">
+        <div class="modal-admin-content">
+            <div class="modal-admin-header">Terminar Jogo</div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:10px;">Selecione uma opção:</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button id="btnFinishNormal" style="padding:12px; background:#28A745; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Terminar o jogo agora">✓ TERMINAR JOGO</button>
+                    <button id="btnFinishWithExtra" style="padding:12px; background:#007bff; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Terminar jogo e ativar prolongamento">⏱️ TERMINAR + PROLONGAMENTO</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 15px; padding: 10px; background:#333; border-radius:8px; font-size:11px; color:#aaa;">
+                <p style="margin:0;"><strong>Nota:</strong> Se selecionar "Terminar + Prolongamento", o jogo será marcado como terminado e a fase será alterada para prolongamento.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="btnCancelFinish" style="flex:1; background:#444; color:white; border:none; border-radius:6px; padding:10px; font-size:12px; font-weight:bold; cursor:pointer;">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Evento -->
     <div id="eventModal" class="modal-admin" style="display: none;">
         <div class="modal-admin-content">
@@ -304,6 +324,21 @@
         function closeEventModal() {
             document.getElementById('eventModal').style.display = 'none';
         }
+        
+        // Listeners para modal de terminar jogo
+        document.addEventListener('DOMContentLoaded', () => {
+            if (document.getElementById('btnFinishNormal')) {
+                document.getElementById('btnFinishNormal').onclick = () => {
+                    if (window.adminPanel) window.adminPanel.finishCurrentGame(false);
+                };
+                document.getElementById('btnFinishWithExtra').onclick = () => {
+                    if (window.adminPanel) window.adminPanel.finishCurrentGame(true);
+                };
+                document.getElementById('btnCancelFinish').onclick = () => {
+                    document.getElementById('finishGameModal').style.display = 'none';
+                };
+            }
+        });
     </script>
 </body>
 </html>

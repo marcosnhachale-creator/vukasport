@@ -158,7 +158,7 @@ class AdminPanel {
 
         // Terminar Jogo
         document.getElementById('btnFinishGame').onclick = () => {
-            this.finishCurrentGame();
+            this.openFinishGameModal();
         };
 
         // Play/Pause Cronómetro
@@ -453,7 +453,26 @@ class AdminPanel {
         }
     }
 
-    async finishCurrentGame() {
+    /**
+     * Abre o modal para terminar o jogo
+     */
+    openFinishGameModal() {
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+
+        if (game.status === 'finished') {
+            alert('Este jogo ja esta terminado.');
+            return;
+        }
+
+        document.getElementById('finishGameModal').style.display = 'flex';
+    }
+
+    /**
+     * Termina o jogo (com ou sem prolongamento)
+     * @param {boolean} withExtra - Se true, ativa o prolongamento; se false, termina normalmente
+     */
+    async finishCurrentGame(withExtra = false) {
         if (!this.currentGameId) return;
         
         const game = gameManager.getGameById(this.currentGameId);
@@ -464,18 +483,32 @@ class AdminPanel {
             return;
         }
 
-        const confirmFinish = confirm(
-            `Terminar o jogo agora?\n\n${game.homeTeam} ${game.homeGoals} - ${game.awayGoals} ${game.awayTeam}\n\nEsta acao e imediata.`
-        );
+        this.stopTimer();
+        this.isPlaying = false;
+        this.updatePlayPauseBtn();
 
-        if (confirmFinish) {
-            this.stopTimer();
-            await gameManager.updateGame(this.currentGameId, { status: 'finished', phase: 'finished' });
-            this.isPlaying = false;
-            this.updatePlayPauseBtn();
-            this.updateDeleteButtonVisibility();
-            alert('Jogo terminado com sucesso!');
-        }
+        // Determinar a fase final
+        const finalPhase = withExtra ? 'extra' : 'finished';
+        const finalStatus = 'finished';
+
+        // Atualizar o jogo
+        await gameManager.updateGame(this.currentGameId, { 
+            status: finalStatus, 
+            phase: finalPhase
+        });
+
+        this.updateDeleteButtonVisibility();
+        
+        const message = withExtra 
+            ? 'Jogo terminado com prolongamento!' 
+            : 'Jogo terminado com sucesso!';
+        alert(message);
+        
+        // Fechar modal
+        document.getElementById('finishGameModal').style.display = 'none';
+        
+        // Recarregar o jogo para atualizar a interface
+        this.loadGameToEdit(this.currentGameId);
     }
 
     async adjustScore(team, delta) {
