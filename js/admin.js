@@ -183,6 +183,62 @@ class AdminPanel {
             };
         }
 
+        // Data de Início do Jogo
+        const startDateInput = document.getElementById('gameStartDate');
+        if (startDateInput) {
+            startDateInput.onchange = (e) => {
+                if (this.currentGameId) {
+                    const startTime = document.getElementById('gameStartTime').value;
+                    if (e.target.value && startTime) {
+                        const dateTimeStr = e.target.value + 'T' + startTime + ':00';
+                        gameManager.updateGame(this.currentGameId, { date: new Date(dateTimeStr).toISOString() });
+                    }
+                }
+            };
+        }
+
+        // Hora de Início do Jogo
+        const startTimeInput = document.getElementById('gameStartTime');
+        if (startTimeInput) {
+            startTimeInput.onchange = (e) => {
+                if (this.currentGameId) {
+                    const startDate = document.getElementById('gameStartDate').value;
+                    if (startDate && e.target.value) {
+                        const dateTimeStr = startDate + 'T' + e.target.value + ':00';
+                        gameManager.updateGame(this.currentGameId, { date: new Date(dateTimeStr).toISOString() });
+                    }
+                }
+            };
+        }
+
+        // Data de Fim do Jogo
+        const endDateInput = document.getElementById('gameEndDate');
+        if (endDateInput) {
+            endDateInput.onchange = (e) => {
+                if (this.currentGameId) {
+                    const endTime = document.getElementById('gameEndTime').value;
+                    if (e.target.value && endTime) {
+                        const dateTimeStr = e.target.value + 'T' + endTime + ':00';
+                        gameManager.updateGame(this.currentGameId, { endTime: new Date(dateTimeStr).toISOString() });
+                    }
+                }
+            };
+        }
+
+        // Hora de Fim do Jogo
+        const endTimeInput = document.getElementById('gameEndTime');
+        if (endTimeInput) {
+            endTimeInput.onchange = (e) => {
+                if (this.currentGameId) {
+                    const endDate = document.getElementById('gameEndDate').value;
+                    if (endDate && e.target.value) {
+                        const dateTimeStr = endDate + 'T' + e.target.value + ':00';
+                        gameManager.updateGame(this.currentGameId, { endTime: new Date(dateTimeStr).toISOString() });
+                    }
+                }
+            };
+        }
+
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
             document.getElementById('eventModal').style.display = 'flex';
@@ -315,6 +371,28 @@ class AdminPanel {
         const phaseSelect = document.getElementById('gamePhase');
         if (phaseSelect) {
             phaseSelect.value = game.phase || 'first';
+        }
+
+        // Carregar data e hora de início
+        const startDateInput = document.getElementById('gameStartDate');
+        const startTimeInput = document.getElementById('gameStartTime');
+        if (game.date) {
+            const gameDate = new Date(game.date);
+            const dateStr = gameDate.toISOString().split('T')[0];
+            const timeStr = gameDate.toTimeString().slice(0, 5);
+            if (startDateInput) startDateInput.value = dateStr;
+            if (startTimeInput) startTimeInput.value = timeStr;
+        }
+
+        // Carregar data e hora de fim
+        const endDateInput = document.getElementById('gameEndDate');
+        const endTimeInput = document.getElementById('gameEndTime');
+        if (game.endTime) {
+            const endDate = new Date(game.endTime);
+            const dateStr = endDate.toISOString().split('T')[0];
+            const timeStr = endDate.toTimeString().slice(0, 5);
+            if (endDateInput) endDateInput.value = dateStr;
+            if (endTimeInput) endTimeInput.value = timeStr;
         }
 
         // Estado do cronómetro
