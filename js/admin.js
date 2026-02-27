@@ -1,16 +1,11 @@
 /**
- * VukaSport - Painel de Administração "Só Edição" (Atualizado v6)
- * Focado em botões rápidos de entrada de dados com agendamento, adiamento e fases de jogo
+ * VukaSport - Painel de Administração (Atualizado v7)
+ * Focado em botões rápidos com automação de cronómetro inteligente
  */
 
 class AdminPanel {
     constructor() {
         this.currentGameId = null;
-        this.isPlaying = false;
-        this.timerInterval = null;
-        this.gamesListener = null;
-        this.activeUsers = new Set();
-        this.userTrackingInterval = null;
         this.initialize();
     }
 
@@ -18,110 +13,24 @@ class AdminPanel {
         this.checkAuth();
         this.setupListeners();
         this.loadGamesToSelect();
-        this.setupGamesListener();
-        this.startUserTracking();
         
         window.adminPanel = this;
 
-        // Retomar cronómetro quando o admin é reaberto
-        window.addEventListener('focus', () => {
+        // Atualizar UI do admin a cada segundo para refletir automações do GameManager
+        setInterval(() => {
             if (this.currentGameId) {
-                this.resumeTimerIfNeeded();
+                this.updateCurrentGameDisplay();
             }
-        });
-
-        // Sincronizar jogos eliminados
-        window.addEventListener('gamesUpdated', () => {
-            this.loadGamesToSelect();
-        });
-    }
-
-    /**
-     * Inicia o rastreamento de utilizadores ativos
-     */
-    startUserTracking() {
-        // Registar este admin como utilizador ativo
-        this.registerAdminAsActive();
-        
-        // Atualizar a cada 10 segundos
-        this.userTrackingInterval = setInterval(() => {
-            this.registerAdminAsActive();
-            this.updateActiveUserCount();
-        }, 10000);
-    }
-
-    /**
-     * Registar admin como utilizador ativo no Firestore
-     */
-    async registerAdminAsActive() {
-        if (!firebaseManager || !firebaseManager.db) return;
-        
-        try {
-            const adminId = 'admin_' + (authManager.currentUser || 'unknown');
-            const now = new Date().toISOString();
-            
-            await firebaseManager.db.collection('admin_activity').doc(adminId).set({
-                timestamp: now,
-                lastSeen: Date.now()
-            }, { merge: true });
-        } catch (error) {
-            console.error('Erro ao registar atividade do admin:', error);
-        }
-    }
-
-    /**
-     * Atualizar contagem de utilizadores ativos
-     */
-    async updateActiveUserCount() {
-        if (!firebaseManager || !firebaseManager.db) return;
-        
-        try {
-            const now = Date.now();
-            const fiveMinutesAgo = now - (5 * 60 * 1000); // 5 minutos
-            
-            const snapshot = await firebaseManager.db.collection('admin_activity')
-                .where('lastSeen', '>', fiveMinutesAgo)
-                .get();
-            
-            const count = snapshot.size;
-            this.displayActiveUserCount(count);
-        } catch (error) {
-            console.error('Erro ao contar utilizadores ativos:', error);
-        }
-    }
-
-    /**
-     * Exibir contagem de utilizadores ativos
-     */
-    displayActiveUserCount(count) {
-        const userCountEl = document.getElementById('activeUserCount');
-        if (userCountEl) {
-            userCountEl.textContent = count;
-            userCountEl.style.display = 'block';
-        }
-    }
-
-    setupGamesListener() {
-        // O Firestore já trata da sincronização em tempo real via onSnapshot em firebase.js
-        // que chama adminPanel.loadGamesToSelect() automaticamente
-    }
-
-    removeGamesListener() {
-        if (this.gamesListener) {
-            clearInterval(this.gamesListener);
-            this.gamesListener = null;
-        }
+        }, 1000);
     }
 
     checkAuth() {
         if (authManager.isAuthenticated()) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
-            this.setupGamesListener();
         } else {
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('adminSection').style.display = 'none';
-            this.removeGamesListener();
         }
     }
 
@@ -131,17 +40,12 @@ class AdminPanel {
             e.preventDefault();
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
-            if (authManager.login(u, p)) {
-                this.checkAuth();
-                this.startUserTracking();
-            }
+            if (authManager.login(u, p)) this.checkAuth();
             else document.getElementById('loginError').style.display = 'block';
         };
 
         // Logout
         document.getElementById('logoutBtn').onclick = () => {
-            this.removeGamesListener();
-            if (this.userTrackingInterval) clearInterval(this.userTrackingInterval);
             authManager.logout();
             this.checkAuth();
         };
@@ -156,112 +60,13 @@ class AdminPanel {
             this.deleteCurrentGame();
         };
 
-        // Terminar Jogo
-        document.getElementById('btnFinishGame').onclick = () => {
-            this.openFinishGameModal();
-        };
-
-        // Play/Pause Cronómetro
-        document.getElementById('btnPlayPause').onclick = () => {
-            this.toggleTimer();
-        };
-
-        // Ajuste manual de minuto
-        document.getElementById('gameMinute').onchange = (e) => {
-            if (this.currentGameId) {
-                gameManager.updateGame(this.currentGameId, { minute: parseInt(e.target.value) });
-            }
-        };
-
-        // Seleção de fase do jogo
-        const phaseSelect = document.getElementById('gamePhase');
-        if (phaseSelect) {
-            phaseSelect.onchange = (e) => {
-                if (this.currentGameId) {
-                    const selectedPhase = e.target.value;
-                    
-                    // Verificar se a opção selecionada é para terminar o jogo
-                    if (selectedPhase === 'finished') {
-                        // Terminar jogo
-                        this.stopTimer();
-                        gameManager.updateGame(this.currentGameId, { 
-                            status: 'finished', 
-                            phase: 'finished'
-                        });
-                        this.isPlaying = false;
-                        this.updatePlayPauseBtn();
-                        alert('Jogo terminado com sucesso!');
-                    } else {
-                        // Atualizar fase normalmente
-                        gameManager.updateGame(this.currentGameId, { phase: selectedPhase });
-                    }
-                }
-            };
-        }
-
-        // Data de Início do Jogo
-        const startDateInput = document.getElementById('gameStartDate');
-        if (startDateInput) {
-            startDateInput.onchange = (e) => {
-                if (this.currentGameId) {
-                    const startTime = document.getElementById('gameStartTime').value;
-                    if (e.target.value && startTime) {
-                        const dateTimeStr = e.target.value + 'T' + startTime + ':00';
-                        gameManager.updateGame(this.currentGameId, { date: new Date(dateTimeStr).toISOString() });
-                    }
-                }
-            };
-        }
-
-        // Hora de Início do Jogo
-        const startTimeInput = document.getElementById('gameStartTime');
-        if (startTimeInput) {
-            startTimeInput.onchange = (e) => {
-                if (this.currentGameId) {
-                    const startDate = document.getElementById('gameStartDate').value;
-                    if (startDate && e.target.value) {
-                        const dateTimeStr = startDate + 'T' + e.target.value + ':00';
-                        gameManager.updateGame(this.currentGameId, { date: new Date(dateTimeStr).toISOString() });
-                    }
-                }
-            };
-        }
-
-        // Data de Fim do Jogo
-        const endDateInput = document.getElementById('gameEndDate');
-        if (endDateInput) {
-            endDateInput.onchange = (e) => {
-                if (this.currentGameId) {
-                    const endTime = document.getElementById('gameEndTime').value;
-                    if (e.target.value && endTime) {
-                        const dateTimeStr = e.target.value + 'T' + endTime + ':00';
-                        gameManager.updateGame(this.currentGameId, { endTime: new Date(dateTimeStr).toISOString() });
-                    }
-                }
-            };
-        }
-
-        // Hora de Fim do Jogo
-        const endTimeInput = document.getElementById('gameEndTime');
-        if (endTimeInput) {
-            endTimeInput.onchange = (e) => {
-                if (this.currentGameId) {
-                    const endDate = document.getElementById('gameEndDate').value;
-                    if (endDate && e.target.value) {
-                        const dateTimeStr = endDate + 'T' + e.target.value + ':00';
-                        gameManager.updateGame(this.currentGameId, { endTime: new Date(dateTimeStr).toISOString() });
-                    }
-                }
-            };
-        }
-
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
             document.getElementById('eventModal').style.display = 'flex';
         };
 
-        // Adicionar Novo Jogo (Com agendamento)
-        document.getElementById('btnNewGame').onclick = async () => {
+        // Adicionar Novo Jogo
+        document.getElementById('btnNewGame').onclick = () => {
             document.getElementById('newGameModal').style.display = 'flex';
         };
 
@@ -283,18 +88,10 @@ class AdminPanel {
                 homeTeam: home,
                 awayTeam: away,
                 competition: comp,
-                date: new Date(dateTimeStr).toISOString(),
-                phase: 'first'
+                date: new Date(dateTimeStr).toISOString()
             });
 
-            // Limpar modal
-            document.getElementById('inputHomeTeam').value = '';
-            document.getElementById('inputAwayTeam').value = '';
-            document.getElementById('inputCompetition').value = '';
-            document.getElementById('inputGameDate').value = '';
-            document.getElementById('inputGameTime').value = '';
             document.getElementById('newGameModal').style.display = 'none';
-
             this.loadGamesToSelect();
             this.loadGameToEdit(game.id);
         };
@@ -304,227 +101,73 @@ class AdminPanel {
             document.getElementById('newGameModal').style.display = 'none';
         };
 
-        // Agendar Jogo
-        document.getElementById('btnScheduleGame').onclick = () => {
-            this.openScheduleModal();
-        };
-
-        // Confirmar agendamento
-        document.getElementById('btnConfirmSchedule').onclick = async () => {
-            await this.confirmScheduleGame();
-        };
-
-        // Cancelar agendamento
-        document.getElementById('btnCancelSchedule').onclick = () => {
-            document.getElementById('scheduleModal').style.display = 'none';
-        };
-
-        // Adiar Jogo
-        document.getElementById('btnPostponeGame').onclick = () => {
-            this.openPostponeModal();
-        };
-
-        // Confirmar adiamento
-        document.getElementById('btnConfirmPostpone').onclick = async () => {
-            await this.confirmPostponeGame();
-        };
-
-        // Cancelar adiamento
-        document.getElementById('btnCancelPostpone').onclick = () => {
-            document.getElementById('postponeModal').style.display = 'none';
-        };
+        // Botão para Ativar Prolongamento Manual
+        const btnExtra = document.getElementById('btnFinishWithExtra');
+        if (btnExtra) {
+            btnExtra.onclick = () => {
+                if (this.currentGameId) {
+                    gameManager.updateGame(this.currentGameId, { phase: 'extra', status: 'live' });
+                    alert('Prolongamento ativado! O jogo continuará até que o administrador o termine manualmente.');
+                    document.getElementById('finishGameModal').style.display = 'none';
+                }
+            };
+        }
     }
 
     loadGamesToSelect() {
         const select = document.getElementById('gameSelect');
-        const games = gameManager.getGames();
-        
+        if (!select) return;
+
         const currentVal = select.value;
-        
         select.innerHTML = '<option value="">SELECIONAR JOGO PARA EDITAR</option>';
-        games.forEach(g => {
+        
+        gameManager.getGames().forEach(g => {
             const opt = document.createElement('option');
             opt.value = g.id;
-            const statusLabel = this.getGameStatusLabel(g);
-            opt.textContent = `${g.homeTeam} vs ${g.awayTeam} (${g.competition}) - ${statusLabel}`;
+            opt.textContent = `${g.homeTeam} vs ${g.awayTeam} (${g.competition})`;
             select.appendChild(opt);
         });
-        
-        if (currentVal) select.value = currentVal;
-    }
 
-    getGameStatusLabel(game) {
-        const statusMap = {
-            'scheduled': 'Agendado',
-            'live': 'Ao Vivo',
-            'halftime': 'Intervalo',
-            'extra': 'Prolongamento',
-            'finished': 'Terminado',
-            'postponed': 'Adiado'
-        };
-        return statusMap[game.status] || game.status;
+        select.value = currentVal;
     }
 
     loadGameToEdit(gameId) {
+        this.currentGameId = gameId;
+        const container = document.getElementById('editorContainer');
+        
         if (!gameId) {
-            document.getElementById('editorContainer').style.display = 'none';
-            this.stopTimer();
+            container.style.display = 'none';
             return;
         }
 
-        this.currentGameId = gameId;
+        container.style.display = 'block';
         const game = gameManager.getGameById(gameId);
         if (!game) return;
 
-        document.getElementById('editorContainer').style.display = 'block';
-        document.getElementById('homeName').textContent = game.homeTeam.toUpperCase();
-        document.getElementById('awayName').textContent = game.awayTeam.toUpperCase();
+        document.getElementById('homeName').textContent = game.homeTeam;
+        document.getElementById('awayName').textContent = game.awayTeam;
         document.getElementById('homeScore').textContent = game.homeGoals;
         document.getElementById('awayScore').textContent = game.awayGoals;
-        document.getElementById('gameMinute').value = game.minute || 0;
-
-        // Atualizar fase do jogo
-        const phaseSelect = document.getElementById('gamePhase');
-        if (phaseSelect) {
-            phaseSelect.value = game.phase || 'first';
-        }
-
-        // Carregar data e hora de início
-        const startDateInput = document.getElementById('gameStartDate');
-        const startTimeInput = document.getElementById('gameStartTime');
-        if (game.date) {
-            const gameDate = new Date(game.date);
-            const dateStr = gameDate.toISOString().split('T')[0];
-            const timeStr = gameDate.toTimeString().slice(0, 5);
-            if (startDateInput) startDateInput.value = dateStr;
-            if (startTimeInput) startTimeInput.value = timeStr;
-        }
-
-        // Carregar data e hora de fim
-        const endDateInput = document.getElementById('gameEndDate');
-        const endTimeInput = document.getElementById('gameEndTime');
-        if (game.endTime) {
-            const endDate = new Date(game.endTime);
-            const dateStr = endDate.toISOString().split('T')[0];
-            const timeStr = endDate.toTimeString().slice(0, 5);
-            if (endDateInput) endDateInput.value = dateStr;
-            if (endTimeInput) endTimeInput.value = timeStr;
-        }
-
-        // Estado do cronómetro
-        this.isPlaying = game.status === 'live';
-        this.updatePlayPauseBtn();
-        if (this.isPlaying) this.startTimer();
-        else this.stopTimer();
+        
+        // Esconder controles de tempo manuais pois agora são automáticos
+        const timeControl = document.querySelector('.time-control');
+        if (timeControl) timeControl.style.display = 'none';
 
         this.renderEvents();
-        this.updateDeleteButtonVisibility();
     }
 
-    updateDeleteButtonVisibility() {
-        const btn = document.getElementById('btnDeleteGame');
-        const finishBtn = document.getElementById('btnFinishGame');
-        const scheduleBtn = document.getElementById('btnScheduleGame');
-        const postponeBtn = document.getElementById('btnPostponeGame');
-        
-        if (btn) {
-            btn.style.display = this.currentGameId ? 'block' : 'none';
-        }
-        if (finishBtn) {
-            const game = this.currentGameId ? gameManager.getGameById(this.currentGameId) : null;
-            finishBtn.style.display = (game && game.status !== 'finished' && game.status !== 'scheduled' && game.status !== 'postponed') ? 'block' : 'none';
-        }
-        
-        // Mostrar botões de agendamento e adiamento
-        if (scheduleBtn && postponeBtn) {
-            const game = this.currentGameId ? gameManager.getGameById(this.currentGameId) : null;
-            if (game) {
-                scheduleBtn.style.display = (game.status === 'scheduled' || game.status === 'postponed') ? 'block' : 'none';
-                postponeBtn.style.display = (game.status === 'live' || game.status === 'halftime' || game.status === 'extra') ? 'block' : 'none';
-            } else {
-                scheduleBtn.style.display = 'none';
-                postponeBtn.style.display = 'none';
-            }
-        }
-    }
-
-    async deleteCurrentGame() {
-        if (!this.currentGameId) return;
-        
+    updateCurrentGameDisplay() {
         const game = gameManager.getGameById(this.currentGameId);
         if (!game) return;
 
-        const confirmDelete = confirm(
-            `Tem a certeza que deseja eliminar o jogo:\n\n${game.homeTeam} vs ${game.awayTeam}?\n\nEsta ação não pode ser desfeita.`
-        );
+        const minuteInput = document.getElementById('gameMinute');
+        if (minuteInput) minuteInput.value = game.minute;
 
-        if (confirmDelete) {
-            this.stopTimer();
-            await gameManager.deleteGame(this.currentGameId);
-            this.currentGameId = null;
-            document.getElementById('editorContainer').style.display = 'none';
-            document.getElementById('gameSelect').value = '';
-            this.loadGamesToSelect();
-            alert('Jogo eliminado com sucesso!');
+        // Mostrar botão de prolongamento se o jogo estiver perto do fim ou terminado
+        const btnFinish = document.getElementById('btnFinishGame');
+        if (btnFinish) {
+            btnFinish.style.display = (game.status === 'live' || game.status === 'halftime') ? 'block' : 'none';
         }
-    }
-
-    /**
-     * Abre o modal para terminar o jogo
-     */
-    openFinishGameModal() {
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        if (game.status === 'finished') {
-            alert('Este jogo ja esta terminado.');
-            return;
-        }
-
-        document.getElementById('finishGameModal').style.display = 'flex';
-    }
-
-    /**
-     * Termina o jogo (com ou sem prolongamento)
-     * @param {boolean} withExtra - Se true, ativa o prolongamento; se false, termina normalmente
-     */
-    async finishCurrentGame(withExtra = false) {
-        if (!this.currentGameId) return;
-        
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        if (game.status === 'finished') {
-            alert('Este jogo ja esta terminado.');
-            return;
-        }
-
-        this.stopTimer();
-        this.isPlaying = false;
-        this.updatePlayPauseBtn();
-
-        // Determinar a fase final
-        const finalPhase = withExtra ? 'extra' : 'finished';
-        const finalStatus = 'finished';
-
-        // Atualizar o jogo
-        await gameManager.updateGame(this.currentGameId, { 
-            status: finalStatus, 
-            phase: finalPhase
-        });
-
-        this.updateDeleteButtonVisibility();
-        
-        const message = withExtra 
-            ? 'Jogo terminado com prolongamento!' 
-            : 'Jogo terminado com sucesso!';
-        alert(message);
-        
-        // Fechar modal
-        document.getElementById('finishGameModal').style.display = 'none';
-        
-        // Recarregar o jogo para atualizar a interface
-        this.loadGameToEdit(this.currentGameId);
     }
 
     async adjustScore(team, delta) {
@@ -542,100 +185,6 @@ class AdminPanel {
         document.getElementById('awayScore').textContent = away;
 
         await gameManager.updateGame(this.currentGameId, { homeGoals: home, awayGoals: away });
-    }
-
-    toggleTimer() {
-        if (!this.currentGameId) return;
-        this.isPlaying = !this.isPlaying;
-        this.updatePlayPauseBtn();
-        
-        const status = this.isPlaying ? 'live' : 'halftime';
-        const updates = { status: status };
-        
-        if (this.isPlaying) {
-            const game = gameManager.getGameById(this.currentGameId);
-            if (!game.startTime) {
-                updates.startTime = Date.now();
-            }
-        }
-        
-        gameManager.updateGame(this.currentGameId, updates);
-
-        if (this.isPlaying) this.startTimer();
-        else this.stopTimer();
-    }
-
-    updatePlayPauseBtn() {
-        const btn = document.getElementById('btnPlayPause');
-        if (this.isPlaying) {
-            btn.textContent = '⏸️';
-            btn.classList.add('paused');
-        } else {
-            btn.textContent = '▶️';
-            btn.classList.remove('paused');
-        }
-    }
-
-    startTimer() {
-        this.stopTimer();
-        
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        if (!game.startTime) {
-            const now = Date.now();
-            gameManager.updateGame(this.currentGameId, { startTime: now, status: 'live' });
-        }
-
-        this.timerInterval = setInterval(() => {
-            const currentGame = gameManager.getGameById(this.currentGameId);
-            if (!currentGame || !currentGame.startTime) {
-                this.stopTimer();
-                return;
-            }
-
-            const elapsedMs = Date.now() - currentGame.startTime;
-            const elapsedMinutes = Math.floor(elapsedMs / 60000);
-            
-            const input = document.getElementById('gameMinute');
-            if (input) {
-                input.value = elapsedMinutes;
-            }
-            
-            if (Math.floor(elapsedMs / 10000) % 1 === 0) {
-                gameManager.updateGame(this.currentGameId, { minute: elapsedMinutes });
-            }
-        }, 1000);
-    }
-
-    stopTimer() {
-        if (this.timerInterval) {
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
-        }
-    }
-
-    resumeTimerIfNeeded() {
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        if (game.status === 'live' && game.startTime) {
-            this.stopTimer();
-            
-            const elapsedMs = Date.now() - game.startTime;
-            const elapsedMinutes = Math.floor(elapsedMs / 60000);
-            
-            const input = document.getElementById('gameMinute');
-            if (input) {
-                input.value = elapsedMinutes;
-            }
-            
-            this.isPlaying = true;
-            this.updatePlayPauseBtn();
-            this.startTimer();
-            
-            console.log('Cronómetro retomado: ' + elapsedMinutes + ' minutos decorridos');
-        }
     }
 
     async saveEvent() {
@@ -663,7 +212,6 @@ class AdminPanel {
                 alert('Por favor, preencha os nomes dos jogadores!');
                 return;
             }
-            
             await eventManager.addSubstitution(this.currentGameId, team, minute, playerOut, playerIn);
         }
 
@@ -719,115 +267,37 @@ class AdminPanel {
         });
     }
 
-    deleteEvent(eventId, type) {
+    async deleteEvent(eventId, type) {
         if (confirm('Eliminar este evento?')) {
-            eventManager.removeEvent(this.currentGameId, eventId, type);
+            await eventManager.removeEvent(this.currentGameId, eventId, type);
             this.renderEvents();
         }
     }
 
-    /**
-     * Abre o modal de agendamento
-     */
-    openScheduleModal() {
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        // Pré-preencher com data/hora atual do jogo
-        if (game.date) {
-            const date = new Date(game.date);
-            const dateStr = date.toISOString().split('T')[0];
-            const timeStr = date.toTimeString().slice(0, 5);
-            
-            document.getElementById('scheduleGameDate').value = dateStr;
-            document.getElementById('scheduleGameTime').value = timeStr;
-        }
-
-        document.getElementById('scheduleModal').style.display = 'flex';
-    }
-
-    /**
-     * Confirma o agendamento do jogo
-     */
-    async confirmScheduleGame() {
+    async deleteCurrentGame() {
         if (!this.currentGameId) return;
-
-        const newDate = document.getElementById('scheduleGameDate').value;
-        const newTime = document.getElementById('scheduleGameTime').value;
-
-        if (!newDate || !newTime) {
-            alert('Por favor, preencha a data e a hora!');
-            return;
+        if (confirm('Tem a certeza que deseja eliminar este jogo permanentemente?')) {
+            await gameManager.deleteGame(this.currentGameId);
+            this.currentGameId = null;
+            document.getElementById('editorContainer').style.display = 'none';
+            this.loadGamesToSelect();
         }
-
-        const dateTimeStr = newDate + 'T' + newTime + ':00';
-        const newDateTime = new Date(dateTimeStr).toISOString();
-
-        await gameManager.updateGame(this.currentGameId, { 
-            date: newDateTime,
-            status: 'scheduled'
-        });
-
-        document.getElementById('scheduleModal').style.display = 'none';
-        this.loadGameToEdit(this.currentGameId);
-        alert('Jogo agendado com sucesso para ' + newDate + ' às ' + newTime);
     }
 
-    /**
-     * Abre o modal de adiamento
-     */
-    openPostponeModal() {
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        // Limpar campos
-        document.getElementById('postponeGameDate').value = '';
-        document.getElementById('postponeGameTime').value = '';
-        document.getElementById('postponeReason').value = '';
-
-        document.getElementById('postponeModal').style.display = 'flex';
+    openFinishGameModal() {
+        document.getElementById('finishGameModal').style.display = 'flex';
     }
 
-    /**
-     * Confirma o adiamento do jogo
-     */
-    async confirmPostponeGame() {
+    async finishCurrentGame(withExtra) {
         if (!this.currentGameId) return;
-
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-
-        const newDate = document.getElementById('postponeGameDate').value;
-        const newTime = document.getElementById('postponeGameTime').value;
-        const reason = document.getElementById('postponeReason').value;
-
-        if (!newDate || !newTime) {
-            alert('Por favor, preencha a data e a hora!');
-            return;
+        if (withExtra) {
+            await gameManager.updateGame(this.currentGameId, { phase: 'extra', status: 'live' });
+            alert('Prolongamento ativado!');
+        } else {
+            await gameManager.updateGame(this.currentGameId, { status: 'finished', phase: 'finished' });
+            alert('Jogo terminado!');
         }
-
-        const dateTimeStr = newDate + 'T' + newTime + ':00';
-        const newDateTime = new Date(dateTimeStr).toISOString();
-
-        // Parar o cronómetro se estiver em andamento
-        this.stopTimer();
-        this.isPlaying = false;
-
-        await gameManager.updateGame(this.currentGameId, { 
-            date: newDateTime,
-            status: 'postponed',
-            postponedReason: reason || 'Adiado pelo administrador',
-            postponedDate: new Date().toISOString(),
-            homeGoals: 0,
-            awayGoals: 0,
-            minute: 0,
-            phase: 'first',
-            startTime: null
-        });
-
-        document.getElementById('postponeModal').style.display = 'none';
-        this.loadGameToEdit(this.currentGameId);
-        alert('Jogo adiado com sucesso para ' + newDate + ' às ' + newTime);
+        document.getElementById('finishGameModal').style.display = 'none';
     }
 }
 

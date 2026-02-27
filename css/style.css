@@ -903,3 +903,9 @@ body {
         font-size: 10px;
     }
 }
+
+/* Substitution Notification */
+.card-notification.substitution {
+    background-color: #007bff;
+    color: white;
+}
