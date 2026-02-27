@@ -64,10 +64,10 @@ class GameManager {
 
     /**
      * Obtém todos os jogos visíveis para o utilizador
-     * Inclui jogos ao vivo, agendados e adiados
+     * Inclui TODOS os jogos: ao vivo, agendados, adiados e terminados
      */
     getVisibleGames() {
-        return this.getScheduledGames();
+        return this.games;
     }
 
     /**

@@ -182,7 +182,7 @@ class AdminPanel {
                     
                     // Verificar se a opção selecionada é para terminar o jogo
                     if (selectedPhase === 'finished') {
-                        // Terminar jogo normalmente
+                        // Terminar jogo
                         this.stopTimer();
                         gameManager.updateGame(this.currentGameId, { 
                             status: 'finished', 
@@ -191,16 +191,6 @@ class AdminPanel {
                         this.isPlaying = false;
                         this.updatePlayPauseBtn();
                         alert('Jogo terminado com sucesso!');
-                    } else if (selectedPhase === 'finished_extra') {
-                        // Terminar jogo com prolongamento
-                        this.stopTimer();
-                        gameManager.updateGame(this.currentGameId, { 
-                            status: 'finished', 
-                            phase: 'extra'
-                        });
-                        this.isPlaying = false;
-                        this.updatePlayPauseBtn();
-                        alert('Jogo terminado com prolongamento!');
                     } else {
                         // Atualizar fase normalmente
                         gameManager.updateGame(this.currentGameId, { phase: selectedPhase });
