@@ -77,21 +77,8 @@ class GameManager {
         const container = document.getElementById('gamesList');
         if (!container) return;
 
-        // Verificar se estamos a mostrar jogos ao vivo
-        const showLiveOnly = window.showLiveOnly || false;
-        let filteredGames = [];
-
-        if (showLiveOnly) {
-            // Mostrar apenas jogos ao vivo
-            filteredGames = this.getLiveGames();
-        } else {
-            // Mostrar jogos da data selecionada
-            const selectedDate = window.selectedDate || new Date().toISOString().split('T')[0];
-            filteredGames = this.games.filter(game => {
-                const gameDate = game.date ? game.date.split('T')[0] : '';
-                return gameDate === selectedDate;
-            });
-        }
+        // Mostrar TODOS os jogos, independentemente do estado
+        let filteredGames = this.getVisibleGames();
 
         if (filteredGames.length === 0) {
             document.getElementById('emptyState').style.display = 'block';
