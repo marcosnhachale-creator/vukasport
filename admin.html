@@ -282,6 +282,7 @@
                     <option value="goal">⚽ GOLO</option>
                     <option value="yellow">🟨 CARTÃO AMARELO</option>
                     <option value="red">🟥 CARTÃO VERMELHO</option>
+                    <option value="substitution">🔄 PERMUTA</option>
                 </select>
             </div>
             <div style="margin-bottom: 15px;">
@@ -291,7 +292,15 @@
                     <option value="away">VISITANTE</option>
                 </select>
             </div>
-            <div style="margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;" id="eventPlayerOutDiv">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Jogador que Sai</label>
+                <input type="text" id="eventPlayerOut" placeholder="Nome ou número" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 20px; display:none;" id="eventPlayerInDiv">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Jogador que Entra</label>
+                <input type="text" id="eventPlayerIn" placeholder="Nome ou número" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 20px;" id="eventPlayerSingleDiv">
                 <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Jogador</label>
                 <input type="text" id="eventPlayer" placeholder="Nome ou número" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
             </div>
@@ -326,7 +335,29 @@
             document.getElementById('eventModal').style.display = 'none';
         }
         
-        // Listeners para modal de terminar jogo
+        // Mostrar/esconder campos de permuta
+        document.addEventListener('DOMContentLoaded', () => {
+            const eventTypeSelect = document.getElementById('eventType');
+            const eventPlayerOutDiv = document.getElementById('eventPlayerOutDiv');
+            const eventPlayerInDiv = document.getElementById('eventPlayerInDiv');
+            const eventPlayerSingleDiv = document.getElementById('eventPlayerSingleDiv');
+            
+            if (eventTypeSelect) {
+                eventTypeSelect.addEventListener('change', () => {
+                    if (eventTypeSelect.value === 'substitution') {
+                        eventPlayerOutDiv.style.display = 'block';
+                        eventPlayerInDiv.style.display = 'block';
+                        eventPlayerSingleDiv.style.display = 'none';
+                    } else {
+                        eventPlayerOutDiv.style.display = 'none';
+                        eventPlayerInDiv.style.display = 'none';
+                        eventPlayerSingleDiv.style.display = 'block';
+                    }
+                });
+            }
+        });
+        
+        // Listeners para modal de terminar jogo (continuação)
         document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('btnFinishNormal')) {
                 document.getElementById('btnFinishNormal').onclick = () => {

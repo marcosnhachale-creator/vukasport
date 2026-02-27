@@ -643,20 +643,34 @@ class AdminPanel {
         
         const type = document.getElementById('eventType').value;
         const team = document.getElementById('eventTeam').value;
-        const player = document.getElementById('eventPlayer').value;
         const minute = document.getElementById('gameMinute').value;
 
         if (type === 'goal') {
+            const player = document.getElementById('eventPlayer').value;
             await eventManager.addGoal(this.currentGameId, team, minute, player);
             await this.adjustScore(team, 1);
         } else if (type === 'yellow') {
+            const player = document.getElementById('eventPlayer').value;
             await eventManager.addYellowCard(this.currentGameId, team, minute, player);
         } else if (type === 'red') {
+            const player = document.getElementById('eventPlayer').value;
             await eventManager.addRedCard(this.currentGameId, team, minute, player);
+        } else if (type === 'substitution') {
+            const playerOut = document.getElementById('eventPlayerOut').value;
+            const playerIn = document.getElementById('eventPlayerIn').value;
+            
+            if (!playerOut || !playerIn) {
+                alert('Por favor, preencha os nomes dos jogadores!');
+                return;
+            }
+            
+            await eventManager.addSubstitution(this.currentGameId, team, minute, playerOut, playerIn);
         }
 
         document.getElementById('eventModal').style.display = 'none';
         document.getElementById('eventPlayer').value = '';
+        document.getElementById('eventPlayerOut').value = '';
+        document.getElementById('eventPlayerIn').value = '';
         this.renderEvents();
     }
 
@@ -677,13 +691,25 @@ class AdminPanel {
             div.className = 'event-item';
             
             let icon = '⚽';
-            if (e.type === 'yellow_card') icon = '🟨';
-            if (e.type === 'red_card') icon = '🟥';
+            let description = '';
+            
+            if (e.type === 'yellow_card') {
+                icon = '🟨';
+                description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
+            } else if (e.type === 'red_card') {
+                icon = '🟥';
+                description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
+            } else if (e.type === 'substitution') {
+                icon = '🔄';
+                description = e.playerOut + ' sai, ' + e.playerIn + ' entra (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
+            } else {
+                description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
+            }
 
             div.innerHTML = `
                 <div class="event-info">
                     <span class="event-time">${e.minute}'</span>
-                    <span>${icon} ${e.playerName} (${e.team === 'home' ? 'Casa' : 'Visitante'})</span>
+                    <span>${icon} ${description}</span>
                 </div>
                 <div class="event-actions">
                     <button onclick="adminPanel.deleteEvent('${e.id}', '${e.type}')" class="btn-delete-event">🗑️</button>

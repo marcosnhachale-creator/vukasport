@@ -190,12 +190,19 @@ class GameDetailsManager {
             const eventIcon = this.getEventIcon(event.type);
             const eventLabel = this.getEventLabel(event.type);
             const teamName = event.team === 'home' ? this.game.homeTeam : this.game.awayTeam;
+            
+            let playerInfo = '';
+            if (event.type === 'substitution') {
+                playerInfo = event.playerOut + ' → ' + event.playerIn;
+            } else {
+                playerInfo = event.playerName;
+            }
 
             eventEl.innerHTML = `
                 <div class="timeline-content">
                     <div class="event-minute">${eventIcon} ${event.minute}'</div>
                     <div class="event-description">${eventLabel}</div>
-                    <div class="event-player">${event.playerName} (${teamName})</div>
+                    <div class="event-player">${playerInfo} (${teamName})</div>
                 </div>
             `;
 
@@ -237,7 +244,7 @@ class GameDetailsManager {
             'goal': 'Golo',
             'yellow_card': 'Cartão Amarelo',
             'red_card': 'Cartão Vermelho',
-            'substitution': 'Substituição'
+            'substitution': 'Permuta'
         };
         return labelMap[type] || 'Evento';
     }

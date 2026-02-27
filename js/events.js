@@ -1,5 +1,5 @@
 /**
- * VukaSport - Gerenciador de Eventos (Goleadas e Cartões) com Firestore
+ * VukaSport - Gerenciador de Eventos (Goleadas, Cartões e Permutas) com Firestore
  * Controla o registo e notificação de eventos do jogo
  */
 
@@ -17,8 +17,11 @@ class EventManager {
             this.events[gameId] = {
                 goals: [],
                 yellowCards: [],
-                redCards: []
+                redCards: [],
+                substitutions: []
             };
+        } else if (!this.events[gameId].substitutions) {
+            this.events[gameId].substitutions = [];
         }
     }
 
@@ -105,6 +108,35 @@ class EventManager {
     }
 
     /**
+     * Adiciona uma permuta (substituição) e sincroniza com Firestore
+     */
+    async addSubstitution(gameId, team, minute, playerOut, playerIn) {
+        this.initializeGameEvents(gameId);
+        
+        const substitution = {
+            id: Date.now().toString(),
+            type: 'substitution',
+            team: team,
+            minute: parseInt(minute),
+            playerOut: playerOut || 'Desconhecido',
+            playerIn: playerIn || 'Desconhecido',
+            timestamp: new Date().toISOString()
+        };
+
+        this.events[gameId].substitutions.push(substitution);
+        this.saveEventsLocal(gameId);
+        
+        // Sincronizar com Firestore
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await firebaseManager.addEventToFirebase(gameId, substitution);
+        }
+
+        this.notifySubstitution(gameId, team, playerOut, playerIn, minute);
+        console.log('Permuta adicionada:', substitution);
+        return substitution;
+    }
+
+    /**
      * Adiciona evento ao Firestore
      */
     async addEventToFirestore(gameId, eventData) {
@@ -129,6 +161,8 @@ class EventManager {
             array = this.events[gameId].yellowCards;
         } else if (type === 'red_card') {
             array = this.events[gameId].redCards;
+        } else if (type === 'substitution') {
+            array = this.events[gameId].substitutions;
         }
 
         const index = array.findIndex(e => e.id === eventId.toString());
@@ -161,7 +195,8 @@ class EventManager {
         const allEvents = [
             ...gameEvents.goals,
             ...gameEvents.yellowCards,
-            ...gameEvents.redCards
+            ...gameEvents.redCards,
+            ...(gameEvents.substitutions || [])
         ];
 
         return allEvents.sort((a, b) => a.minute - b.minute);
@@ -185,6 +220,10 @@ class EventManager {
         if (eventsStr) {
             try {
                 this.events[gameId] = JSON.parse(eventsStr);
+                // Garantir que substitutions existe
+                if (!this.events[gameId].substitutions) {
+                    this.events[gameId].substitutions = [];
+                }
                 console.log('Eventos carregados do localStorage:', gameId);
             } catch (error) {
                 console.error('Erro ao carregar eventos:', error);
@@ -263,6 +302,39 @@ class EventManager {
     }
 
     /**
+     * Notifica sobre uma permuta
+     */
+    notifySubstitution(gameId, team, playerOut, playerIn, minute) {
+        const game = gameManager.getGameById(gameId);
+        if (!game) return;
+
+        const teamName = team === 'home' ? game.homeTeam : game.awayTeam;
+        const message = `🔄 Permuta! ${playerOut} sai, ${playerIn} entra (${teamName}) - ${minute}'`;
+        
+        this.showNotification(message, 'substitution');
+        
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('VukaSport - Permuta', {
+                body: `${playerOut} sai e ${playerIn} entra em ${teamName} aos ${minute} minutos!`,
+                icon: 'icons/icon-192.png',
+                badge: 'icons/icon-192.png',
+                tag: `sub-${gameId}-${Date.now()}`,
+                requireInteraction: false
+            });
+        }
+
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'SHOW_SUBSTITUTION_NOTIFICATION',
+                teamName: teamName,
+                playerOut: playerOut,
+                playerIn: playerIn,
+                minute: minute
+            });
+        }
+    }
+
+    /**
      * Mostra notificação visual no app
      */
     showNotification(message, type) {
@@ -276,6 +348,8 @@ class EventManager {
             title = '🟨 Cartão Amarelo';
         } else if (type === 'red-card') {
             title = '🟥 Cartão Vermelho';
+        } else if (type === 'substitution') {
+            title = '🔄 Permuta';
         }
 
         notification.innerHTML = `
