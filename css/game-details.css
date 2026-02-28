@@ -600,13 +600,47 @@ html[data-theme="dark"] .event-minute {
 }
 
 /* ========================================
-   Google AdSense Styling
+   Google AdSense Styling (Redesigned)
    ======================================== */
 
-.adsbygoogle {
-    margin: 10px 0;
+/* Modern Ad Container */
+.ad-container-modern {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 12px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
-[data-theme="dark"] .adsbygoogle {
-    background-color: #1e1e1e;
+.ad-container-modern:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .ad-container-modern {
+    background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .ad-container-modern:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.adsbygoogle {
+    margin: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Responsive Ad Container */
+@media (max-width: 600px) {
+    .ad-container-modern {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 10px;
+    }
+    
+    .adsbygoogle {
+        border-radius: 6px;
+    }
 }
