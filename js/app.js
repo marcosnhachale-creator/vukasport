@@ -1,7 +1,8 @@
 /**
- * VukaSport - Aplicação Principal (Atualizada v8)
+ * VukaSport - Aplicação Principal (Atualizada v10)
  * Renderização compacta otimizada para dispositivos móveis
  * Com suporte para automação de cronómetro e fases do jogo
+ * Lógica de temporização: 1ª parte (45min) + intervalo (5-20min) + 2ª parte (45min) + prolongamento (0-20min)
  */
 
 class GameManager {
@@ -58,6 +59,12 @@ class GameManager {
 
     /**
      * Processa automações de tempo e fases para todos os jogos
+     * Lógica de fases:
+     * - 0-45 min: 1ª Parte
+     * - 45 a (45 + intervalTime): Intervalo
+     * - (45 + intervalTime) a (90 + intervalTime): 2ª Parte (minutos exibidos: 46-90)
+     * - (90 + intervalTime) a (90 + intervalTime + extraTime): Prolongamento
+     * - Após: Terminado
      */
     processAutomations() {
         const now = Date.now();
@@ -87,57 +94,73 @@ class GameManager {
             }
 
             // 2. Gestão de Fases para Jogos em Direto
-            if (game.status === 'live' || game.status === 'halftime') {
+            if (game.status === 'live' || game.status === 'halftime' || game.status === 'extra') {
                 if (!game.startTime) return;
+
+                // Valores padrão para intervalo e prolongamento
+                const intervalTime = game.intervalTime || 5;
+                const extraTime = game.extraTime || 0;
 
                 const elapsedMs = now - game.startTime;
                 const elapsedMinutes = Math.floor(elapsedMs / 60000);
                 
-                // Atualizar minuto atual do jogo (considerando pausas do intervalo se necessário)
-                // Para simplificar, usamos o tempo decorrido total
+                // Calcular os limites de tempo
+                const firstPartEnd = 45;
+                const halftimeEnd = firstPartEnd + intervalTime;
+                const secondPartEnd = halftimeEnd + 45;
+                const extraPartEnd = secondPartEnd + extraTime;
+
                 let gameMinute = elapsedMinutes;
+                let newPhase = game.phase;
+                let newStatus = game.status;
 
                 // Lógica de Fases:
-                // 0-45: 1ª Parte
-                // 45-50: Intervalo (5 min)
-                // 50-95: 2ª Parte (45 min)
-                // 95+: Terminado
-
-                if (elapsedMinutes < 45) {
-                    if (game.phase !== 'first' || game.status !== 'live') {
-                        game.phase = 'first';
-                        game.status = 'live';
-                        needsSave = true;
-                    }
-                } else if (elapsedMinutes >= 45 && elapsedMinutes < 50) {
-                    if (game.status !== 'halftime') {
-                        console.log(`Jogo ${game.id} em intervalo.`);
-                        game.status = 'halftime';
-                        game.phase = 'halftime';
-                        needsSave = true;
-                        if (firebaseManager) firebaseManager.updateGameInFirebase(game.id, { status: 'halftime', phase: 'halftime' });
-                    }
-                } else if (elapsedMinutes >= 50 && elapsedMinutes < 95) {
-                    if (game.phase !== 'second' || game.status !== 'live') {
-                        console.log(`Jogo ${game.id} iniciou 2ª parte.`);
-                        game.status = 'live';
-                        game.phase = 'second';
-                        needsSave = true;
-                        if (firebaseManager) firebaseManager.updateGameInFirebase(game.id, { status: 'live', phase: 'second' });
-                    }
-                    // Ajustar minuto exibido para subtrair o intervalo (ex: aos 51 min reais, mostrar 46 min de jogo)
-                    gameMinute = elapsedMinutes - 5;
-                } else if (elapsedMinutes >= 95) {
-                    // Só termina se não for prolongamento (extra)
-                    if (game.status !== 'finished' && game.phase !== 'extra') {
-                        console.log(`Jogo ${game.id} terminado automaticamente.`);
-                        game.status = 'finished';
-                        game.phase = 'finished';
-                        needsSave = true;
-                        if (firebaseManager) firebaseManager.updateGameInFirebase(game.id, { status: 'finished', phase: 'finished' });
-                    }
+                if (elapsedMinutes < firstPartEnd) {
+                    // 1ª Parte (0-45 minutos)
+                    newPhase = 'first';
+                    newStatus = 'live';
+                    gameMinute = elapsedMinutes;
+                } else if (elapsedMinutes >= firstPartEnd && elapsedMinutes < halftimeEnd) {
+                    // Intervalo (45 a 45+intervalTime)
+                    newPhase = 'halftime';
+                    newStatus = 'halftime';
+                    gameMinute = elapsedMinutes; // Mostrar tempo de intervalo
+                } else if (elapsedMinutes >= halftimeEnd && elapsedMinutes < secondPartEnd) {
+                    // 2ª Parte (45+intervalTime a 90+intervalTime)
+                    newPhase = 'second';
+                    newStatus = 'live';
+                    // Ajustar minuto exibido para mostrar 46-90 (subtraindo intervalo)
+                    gameMinute = elapsedMinutes - intervalTime;
+                } else if (extraTime > 0 && elapsedMinutes >= secondPartEnd && elapsedMinutes < extraPartEnd) {
+                    // Prolongamento (se configurado)
+                    newPhase = 'extra';
+                    newStatus = 'extra';
+                    // Ajustar minuto exibido para mostrar 90+ (subtraindo intervalo)
+                    gameMinute = elapsedMinutes - intervalTime;
+                } else if (elapsedMinutes >= extraPartEnd || (extraTime === 0 && elapsedMinutes >= secondPartEnd)) {
+                    // Jogo Terminado
+                    newPhase = 'finished';
+                    newStatus = 'finished';
+                    gameMinute = 90 + extraTime;
                 }
 
+                // Atualizar se houve mudança de fase ou status
+                if (newPhase !== game.phase || newStatus !== game.status) {
+                    game.phase = newPhase;
+                    game.status = newStatus;
+                    needsSave = true;
+                    
+                    if (firebaseManager) {
+                        firebaseManager.updateGameInFirebase(game.id, { 
+                            status: newStatus, 
+                            phase: newPhase 
+                        });
+                    }
+                    
+                    console.log(`Jogo ${game.id} - Nova fase: ${newPhase}, Status: ${newStatus}`);
+                }
+
+                // Atualizar minuto
                 if (game.minute !== gameMinute) {
                     game.minute = gameMinute;
                     needsSave = true;
@@ -158,7 +181,7 @@ class GameManager {
         const container = document.getElementById('gamesList');
         if (!container) return;
 
-        let filteredGames = this.getVisibleGames();
+        let filteredGames = window.showLiveOnly ? this.getLiveGames() : this.getVisibleGames();
         if (filteredGames.length === 0) {
             document.getElementById('emptyState').style.display = 'block';
             container.innerHTML = '';
@@ -233,9 +256,12 @@ class GameManager {
             return `<span class="status-live-text"><span class="status-live-dot"></span>AO VIVO ${game.minute}' (${phaseText})</span>`;
         }
         if (game.status === 'halftime') {
-            return `<span class="status-halftime-text">INTERVALO (5 min)</span>`;
+            const intervalTime = game.intervalTime || 5;
+            return `<span class="status-halftime-text">INTERVALO (${intervalTime} min)</span>`;
         }
-        if (game.status === 'extra') return `PROLONGAMENTO ${game.minute}'`;
+        if (game.status === 'extra') {
+            return `<span class="status-extra-text"><span class="status-live-dot"></span>PROLONGAMENTO ${game.minute}'</span>`;
+        }
         if (game.status === 'finished') return 'FIM';
         if (game.status === 'postponed') return '⏸️ ADIADO';
         
@@ -278,7 +304,9 @@ class GameManager {
             homeGoals: 0,
             awayGoals: 0,
             minute: 0,
-            startTime: null
+            startTime: null,
+            intervalTime: gameData.intervalTime || 5,
+            extraTime: gameData.extraTime || 0
         };
 
         this.games.push(game);
@@ -300,6 +328,11 @@ class GameManager {
         this.games = this.games.filter(g => g.id !== gameId);
         this.saveGamesLocal();
         if (firebaseManager) await firebaseManager.deleteGameFromFirebase(gameId);
+        this.renderGames();
+    }
+
+    renderGamesBySmartPeriod() {
+        // Alias para renderGames quando em modo "Todos os jogos"
         this.renderGames();
     }
 }

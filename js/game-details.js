@@ -77,7 +77,7 @@ class GameDetailsManager {
         // Atualizar estado com fase
         const statusText = this.getStatusText(this.game.status);
         const phaseText = this.getPhaseText(this.game.phase);
-        const displayText = (this.game.status === 'live' || this.game.status === 'halftime') 
+        const displayText = (this.game.status === 'live' || this.game.status === 'halftime' || this.game.status === 'extra') 
             ? `${statusText} (${phaseText})` 
             : statusText;
         document.getElementById('gameStatus').textContent = displayText;
@@ -105,8 +105,21 @@ class GameDetailsManager {
      */
     getGameMinute(game) {
         if (!game.startTime) return game.minute || 0;
+        
+        const intervalTime = game.intervalTime || 5;
+        const extraTime = game.extraTime || 0;
         const elapsedMs = Date.now() - game.startTime;
         const elapsedMinutes = Math.floor(elapsedMs / 60000);
+        
+        const firstPartEnd = 45;
+        const halftimeEnd = firstPartEnd + intervalTime;
+        const secondPartEnd = halftimeEnd + 45;
+        
+        // Se estamos na 2ª parte ou prolongamento, subtrair o tempo de intervalo
+        if (elapsedMinutes >= halftimeEnd) {
+            return elapsedMinutes - intervalTime;
+        }
+        
         return elapsedMinutes;
     }
 
@@ -116,6 +129,7 @@ class GameDetailsManager {
     getPhaseText(phase) {
         const phaseMap = {
             'first': '1ª PARTE',
+            'halftime': 'INTERVALO',
             'second': '2ª PARTE',
             'extra': 'PROL.',
             'finished': 'FIM'

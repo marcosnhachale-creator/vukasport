@@ -77,6 +77,8 @@ class AdminPanel {
             const comp = document.getElementById('inputCompetition').value.trim();
             const gameDate = document.getElementById('inputGameDate').value;
             const gameTime = document.getElementById('inputGameTime').value;
+            const intervalTime = parseInt(document.getElementById('inputIntervalTime').value);
+            const extraTime = parseInt(document.getElementById('inputExtraTime').value);
 
             if (!home || !away || !comp || !gameDate || !gameTime) {
                 alert('Preencha todos os campos!');
@@ -88,7 +90,9 @@ class AdminPanel {
                 homeTeam: home,
                 awayTeam: away,
                 competition: comp,
-                date: new Date(dateTimeStr).toISOString()
+                date: new Date(dateTimeStr).toISOString(),
+                intervalTime: intervalTime,
+                extraTime: extraTime
             });
 
             document.getElementById('newGameModal').style.display = 'none';

@@ -565,6 +565,12 @@ body {
     font-weight: 700;
 }
 
+/* Status Extra (Prolongamento) */
+.status-extra-text {
+    color: #007bff;
+    font-weight: 700;
+}
+
 /* Status Postponed (Adiado) */
 .status-postponed-text {
     color: #ff9800;

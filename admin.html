@@ -86,7 +86,7 @@
             <div id="editorContainer" style="display: none;">
                 <!-- Botão de Eliminar Jogo -->
                 <div style="margin-bottom: 15px;">
-                    <button id="btnDeleteGame" style="width:100%; padding:10px; background:#dc3545; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer; display:none;" title="Eliminar este jogo">🗑️ ELIMINAR JOGO</button>
+                    <button id="btnDeleteGame" style="width:100%; padding:10px; background:#dc3545; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Eliminar este jogo">🗑️ ELIMINAR JOGO</button>
                 </div>
 
                 <!-- Seleção de Fase do Jogo -->
@@ -202,6 +202,41 @@
             <div style="margin-bottom: 20px;">
                 <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Hora do Jogo</label>
                 <input type="time" id="inputGameTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Tempo de Intervalo (minutos)</label>
+                <select id="inputIntervalTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+                    <option value="5">5 minutos</option>
+                    <option value="10">10 minutos</option>
+                    <option value="15">15 minutos</option>
+                    <option value="20">20 minutos</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Tempo de Prolongamento (minutos)</label>
+                <select id="inputExtraTime" style="width:100%; padding:10px; background:#333; border:1px solid #444; color:white; border-radius:8px;">
+                    <option value="0">0 minutos (sem prolongamento)</option>
+                    <option value="1">1 minuto</option>
+                    <option value="2">2 minutos</option>
+                    <option value="3">3 minutos</option>
+                    <option value="4">4 minutos</option>
+                    <option value="5">5 minutos</option>
+                    <option value="6">6 minutos</option>
+                    <option value="7">7 minutos</option>
+                    <option value="8">8 minutos</option>
+                    <option value="9">9 minutos</option>
+                    <option value="10">10 minutos</option>
+                    <option value="11">11 minutos</option>
+                    <option value="12">12 minutos</option>
+                    <option value="13">13 minutos</option>
+                    <option value="14">14 minutos</option>
+                    <option value="15">15 minutos</option>
+                    <option value="16">16 minutos</option>
+                    <option value="17">17 minutos</option>
+                    <option value="18">18 minutos</option>
+                    <option value="19">19 minutos</option>
+                    <option value="20">20 minutos</option>
+                </select>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button id="btnConfirmNewGame" class="btn-primary" style="flex:1;">CRIAR JOGO</button>
