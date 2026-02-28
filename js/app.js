@@ -190,6 +190,22 @@ class GameManager {
 
         document.getElementById('emptyState').style.display = 'none';
 
+        // Se não está em modo "Ao Vivo", separar jogos ao vivo dos outros
+        let liveGames = [];
+        let otherGames = [];
+        
+        if (!window.showLiveOnly) {
+            filteredGames.forEach(game => {
+                if (game.status === 'live' || game.status === 'halftime' || game.status === 'extra') {
+                    liveGames.push(game);
+                } else {
+                    otherGames.push(game);
+                }
+            });
+            // Reordenar: jogos ao vivo primeiro
+            filteredGames = [...liveGames, ...otherGames];
+        }
+
         const grouped = {};
         filteredGames.forEach(game => {
             const comp = game.competition || 'OUTRAS COMPETIÇÕES';
