@@ -296,6 +296,8 @@
                     <option value="yellow">🟨 CARTÃO AMARELO</option>
                     <option value="red">🟥 CARTÃO VERMELHO</option>
                     <option value="substitution">🔄 PERMUTA</option>
+                    <option value="foul">⚠️ FALTA</option>
+                    <option value="corner">🚩 CANTO</option>
                 </select>
             </div>
             <div style="margin-bottom: 15px;">
@@ -360,6 +362,10 @@
                     if (eventTypeSelect.value === 'substitution') {
                         eventPlayerOutDiv.style.display = 'block';
                         eventPlayerInDiv.style.display = 'block';
+                        eventPlayerSingleDiv.style.display = 'none';
+                    } else if (eventTypeSelect.value === 'corner') {
+                        eventPlayerOutDiv.style.display = 'none';
+                        eventPlayerInDiv.style.display = 'none';
                         eventPlayerSingleDiv.style.display = 'none';
                     } else {
                         eventPlayerOutDiv.style.display = 'none';

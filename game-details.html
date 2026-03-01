@@ -165,6 +165,17 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Cantos</div>
+                        <div class="stat-comparison">
+                            <div class="stat-values-simple">
+                                <span id="cornersHome">0</span>
+                                <span class="vs-text">vs</span>
+                                <span id="cornersAway">0</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
@@ -197,5 +208,25 @@
     <script src="js/date-utils.js"></script>
     <script src="js/app.js"></script>
     <script src="js/game-details.js"></script>
+    <script>
+        // Triplo clique no logo para acesso ao admin
+        let logoClicks = 0;
+        let logoClickTimeout;
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.addEventListener('click', () => {
+                logoClicks++;
+                clearTimeout(logoClickTimeout);
+                if (logoClicks >= 3) {
+                    window.location.href = 'admin.html';
+                    logoClicks = 0;
+                } else {
+                    logoClickTimeout = setTimeout(() => {
+                        logoClicks = 0;
+                    }, 500);
+                }
+            });
+        }
+    </script>
 </body>
 </html>

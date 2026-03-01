@@ -217,6 +217,11 @@ class AdminPanel {
                 return;
             }
             await eventManager.addSubstitution(this.currentGameId, team, minute, playerOut, playerIn);
+        } else if (type === 'foul') {
+            const player = document.getElementById('eventPlayer').value;
+            await eventManager.addFoul(this.currentGameId, team, minute, player);
+        } else if (type === 'corner') {
+            await eventManager.addCorner(this.currentGameId, team, minute);
         }
 
         document.getElementById('eventModal').style.display = 'none';
@@ -254,6 +259,12 @@ class AdminPanel {
             } else if (e.type === 'substitution') {
                 icon = '🔄';
                 description = e.playerOut + ' sai, ' + e.playerIn + ' entra (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
+            } else if (e.type === 'foul') {
+                icon = '⚠️';
+                description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
+            } else if (e.type === 'corner') {
+                icon = '🚩';
+                description = (e.team === 'home' ? 'Casa' : 'Visitante');
             } else {
                 description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
             }

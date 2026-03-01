@@ -208,6 +208,8 @@ class GameDetailsManager {
             let playerInfo = '';
             if (event.type === 'substitution') {
                 playerInfo = event.playerOut + ' → ' + event.playerIn;
+            } else if (event.type === 'corner') {
+                playerInfo = '';
             } else {
                 playerInfo = event.playerName;
             }
@@ -232,7 +234,9 @@ class GameDetailsManager {
             'goal': 'goal',
             'yellow_card': 'yellow-card',
             'red_card': 'red-card',
-            'substitution': 'substitution'
+            'substitution': 'substitution',
+            'foul': 'foul',
+            'corner': 'corner'
         };
         return typeMap[type] || 'event';
     }
@@ -245,7 +249,9 @@ class GameDetailsManager {
             'goal': '⚽',
             'yellow_card': '🟨',
             'red_card': '🟥',
-            'substitution': '🔄'
+            'substitution': '🔄',
+            'foul': '⚠️',
+            'corner': '🚩'
         };
         return iconMap[type] || '•';
     }
@@ -258,7 +264,9 @@ class GameDetailsManager {
             'goal': 'Golo',
             'yellow_card': 'Cartão Amarelo',
             'red_card': 'Cartão Vermelho',
-            'substitution': 'Permuta'
+            'substitution': 'Permuta',
+            'foul': 'Falta',
+            'corner': 'Canto'
         };
         return labelMap[type] || 'Evento';
     }
@@ -272,11 +280,15 @@ class GameDetailsManager {
         eventManager.loadEventsLocal(this.gameId);
         const events = eventManager.getGameEvents(this.gameId);
 
-        // Calcular estatísticas
+        // Calcular estatu00edsticas
         const homeYellowCards = events.yellowCards.filter(c => c.team === 'home').length;
         const awayYellowCards = events.yellowCards.filter(c => c.team === 'away').length;
         const homeRedCards = events.redCards.filter(c => c.team === 'home').length;
         const awayRedCards = events.redCards.filter(c => c.team === 'away').length;
+        const homeFouls = (events.fouls || []).filter(f => f.team === 'home').length;
+        const awayFouls = (events.fouls || []).filter(f => f.team === 'away').length;
+        const homeCorners = (events.corners || []).filter(c => c.team === 'home').length;
+        const awayCorners = (events.corners || []).filter(c => c.team === 'away').length;
 
         // Atualizar UI
         document.getElementById('yellowCardsHome').textContent = homeYellowCards;
@@ -300,11 +312,17 @@ class GameDetailsManager {
         document.getElementById('shotsHome').textContent = shotsHome;
         document.getElementById('shotsAway').textContent = shotsAway;
 
-        // Faltas (simulado)
-        const foulsHome = homeYellowCards + homeRedCards;
-        const foulsAway = awayYellowCards + awayRedCards;
-        document.getElementById('foulsHome').textContent = foulsHome;
-        document.getElementById('foulsAway').textContent = foulsAway;
+        // Faltas cometidas (cartu00f5es + faltas)
+        const totalFoulsHome = homeYellowCards + homeRedCards + homeFouls;
+        const totalFoulsAway = awayYellowCards + awayRedCards + awayFouls;
+        document.getElementById('foulsHome').textContent = totalFoulsHome;
+        document.getElementById('foulsAway').textContent = totalFoulsAway;
+
+        // Cantos
+        if (document.getElementById('cornersHome')) {
+            document.getElementById('cornersHome').textContent = homeCorners;
+            document.getElementById('cornersAway').textContent = awayCorners;
+        }
 
         // Passes (simulado)
         const passesHome = Math.floor(Math.random() * 300) + 200;

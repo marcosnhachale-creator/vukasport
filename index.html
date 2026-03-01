@@ -155,6 +155,25 @@
             alert('Número copiado!');
         }
 
+        // Triplo clique no logo para acesso ao admin
+        let logoClicks = 0;
+        let logoClickTimeout;
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.addEventListener('click', () => {
+                logoClicks++;
+                clearTimeout(logoClickTimeout);
+                if (logoClicks >= 3) {
+                    window.location.href = 'admin.html';
+                    logoClicks = 0;
+                } else {
+                    logoClickTimeout = setTimeout(() => {
+                        logoClicks = 0;
+                    }, 500);
+                }
+            });
+        }
+
         let devClicks = 0;
         document.getElementById('developerName').onclick = () => {
             devClicks++;
