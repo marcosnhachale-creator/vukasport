@@ -113,7 +113,7 @@ class FirebaseManager {
 
         const unsubscribe = this.db.collection("jogos").doc(gameId.toString())
             .collection("eventos").onSnapshot((querySnapshot) => {
-                const events = { goals: [], yellowCards: [], redCards: [] };
+                const events = { goals: [], yellowCards: [], redCards: [], substitutions: [], fouls: [], corners: [] };
                 
                 querySnapshot.forEach((doc) => {
                     const eventData = doc.data();
@@ -123,6 +123,12 @@ class FirebaseManager {
                         events.yellowCards.push(eventData);
                     } else if (eventData.type === 'red_card') {
                         events.redCards.push(eventData);
+                    } else if (eventData.type === 'substitution') {
+                        events.substitutions.push(eventData);
+                    } else if (eventData.type === 'foul') {
+                        events.fouls.push(eventData);
+                    } else if (eventData.type === 'corner') {
+                        events.corners.push(eventData);
                     }
                 });
 

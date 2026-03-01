@@ -62,7 +62,15 @@ class AdminPanel {
 
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
+            // Resetar o tipo de evento para 'goal' por padrão
+            document.getElementById('eventType').value = 'goal';
+            this.updateEventFieldsVisibility();
             document.getElementById('eventModal').style.display = 'flex';
+        };
+
+        // Listener para mudança de tipo de evento
+        document.getElementById('eventType').onchange = () => {
+            this.updateEventFieldsVisibility();
         };
 
         // Adicionar Novo Jogo
@@ -115,6 +123,27 @@ class AdminPanel {
                     document.getElementById('finishGameModal').style.display = 'none';
                 }
             };
+        }
+    }
+
+    updateEventFieldsVisibility() {
+        const eventType = document.getElementById('eventType').value;
+        const eventPlayerOutDiv = document.getElementById('eventPlayerOutDiv');
+        const eventPlayerInDiv = document.getElementById('eventPlayerInDiv');
+        const eventPlayerSingleDiv = document.getElementById('eventPlayerSingleDiv');
+        
+        if (eventType === 'substitution') {
+            eventPlayerOutDiv.style.display = 'block';
+            eventPlayerInDiv.style.display = 'block';
+            eventPlayerSingleDiv.style.display = 'none';
+        } else if (eventType === 'corner') {
+            eventPlayerOutDiv.style.display = 'none';
+            eventPlayerInDiv.style.display = 'none';
+            eventPlayerSingleDiv.style.display = 'none';
+        } else {
+            eventPlayerOutDiv.style.display = 'none';
+            eventPlayerInDiv.style.display = 'none';
+            eventPlayerSingleDiv.style.display = 'block';
         }
     }
 
