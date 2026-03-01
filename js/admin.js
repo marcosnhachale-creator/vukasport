@@ -88,6 +88,38 @@ class AdminPanel {
             };
         }
 
+        // Falta Casa
+        const btnFoulHome = document.getElementById('btnFoulHome');
+        if (btnFoulHome) {
+            btnFoulHome.onclick = () => {
+                this.addFoulQuick('home');
+            };
+        }
+
+        // Falta Visitante
+        const btnFoulAway = document.getElementById('btnFoulAway');
+        if (btnFoulAway) {
+            btnFoulAway.onclick = () => {
+                this.addFoulQuick('away');
+            };
+        }
+
+        // Canto Casa
+        const btnCornerHome = document.getElementById('btnCornerHome');
+        if (btnCornerHome) {
+            btnCornerHome.onclick = () => {
+                this.addCornerQuick('home');
+            };
+        }
+
+        // Canto Visitante
+        const btnCornerAway = document.getElementById('btnCornerAway');
+        if (btnCornerAway) {
+            btnCornerAway.onclick = () => {
+                this.addCornerQuick('away');
+            };
+        }
+
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
             // Resetar o tipo de evento para 'goal' por padrão
@@ -386,6 +418,34 @@ class AdminPanel {
         
         const minute = game.minute || 0;
         await eventManager.addPenalty(this.currentGameId, team, minute);
+        this.renderEvents();
+    }
+
+    async addFoulQuick(team) {
+        if (!this.currentGameId) {
+            alert('Selecione um jogo primeiro!');
+            return;
+        }
+        
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+        
+        const minute = game.minute || 0;
+        await eventManager.addFoul(this.currentGameId, team, minute, 'Falta');
+        this.renderEvents();
+    }
+
+    async addCornerQuick(team) {
+        if (!this.currentGameId) {
+            alert('Selecione um jogo primeiro!');
+            return;
+        }
+        
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+        
+        const minute = game.minute || 0;
+        await eventManager.addCorner(this.currentGameId, team, minute);
         this.renderEvents();
     }
 }

@@ -329,6 +329,12 @@ class GameDetailsManager {
             document.getElementById('cornersAway').textContent = awayCorners;
         }
 
+        // Pênaltis
+        if (document.getElementById('penaltiesHome')) {
+            document.getElementById('penaltiesHome').textContent = homePenalties;
+            document.getElementById('penaltiesAway').textContent = awayPenalties;
+        }
+
         // Passes (simulado)
         const passesHome = Math.floor(Math.random() * 300) + 200;
         const passesAway = Math.floor(Math.random() * 300) + 200;
