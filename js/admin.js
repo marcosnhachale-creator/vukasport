@@ -36,39 +36,57 @@ class AdminPanel {
 
     setupListeners() {
         // Login
-        document.getElementById('loginForm').onsubmit = (e) => {
-            e.preventDefault();
-            const u = document.getElementById('username').value;
-            const p = document.getElementById('password').value;
-            if (authManager.login(u, p)) this.checkAuth();
-            else document.getElementById('loginError').style.display = 'block';
-        };
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.onsubmit = (e) => {
+                e.preventDefault();
+                const u = document.getElementById('username').value;
+                const p = document.getElementById('password').value;
+                if (authManager.login(u, p)) this.checkAuth();
+                else document.getElementById('loginError').style.display = 'block';
+            };
+        }
 
         // Logout
-        document.getElementById('logoutBtn').onclick = () => {
-            authManager.logout();
-            this.checkAuth();
-        };
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = () => {
+                authManager.logout();
+                this.checkAuth();
+            };
+        }
 
         // Seleção de Jogo
-        document.getElementById('gameSelect').onchange = (e) => {
-            this.loadGameToEdit(e.target.value);
-        };
+        const gameSelect = document.getElementById('gameSelect');
+        if (gameSelect) {
+            gameSelect.onchange = (e) => {
+                this.loadGameToEdit(e.target.value);
+            };
+        }
 
         // Eliminar Jogo
-        document.getElementById('btnDeleteGame').onclick = () => {
-            this.deleteCurrentGame();
-        };
+        const btnDeleteGame = document.getElementById('btnDeleteGame');
+        if (btnDeleteGame) {
+            btnDeleteGame.onclick = () => {
+                this.deleteCurrentGame();
+            };
+        }
 
         // Pênalti Casa
-        document.getElementById('btnPenaltyHome').onclick = () => {
-            this.addPenaltyQuick('home');
-        };
+        const btnPenaltyHome = document.getElementById('btnPenaltyHome');
+        if (btnPenaltyHome) {
+            btnPenaltyHome.onclick = () => {
+                this.addPenaltyQuick('home');
+            };
+        }
 
         // Pênalti Visitante
-        document.getElementById('btnPenaltyAway').onclick = () => {
-            this.addPenaltyQuick('away');
-        };
+        const btnPenaltyAway = document.getElementById('btnPenaltyAway');
+        if (btnPenaltyAway) {
+            btnPenaltyAway.onclick = () => {
+                this.addPenaltyQuick('away');
+            };
+        }
 
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
@@ -356,11 +374,6 @@ class AdminPanel {
         }
         document.getElementById('finishGameModal').style.display = 'none';
     }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    window.adminPanel = new AdminPanel();
-});
 
     async addPenaltyQuick(team) {
         if (!this.currentGameId) {
@@ -375,3 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
         await eventManager.addPenalty(this.currentGameId, team, minute);
         this.renderEvents();
     }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    window.adminPanel = new AdminPanel();
+});
