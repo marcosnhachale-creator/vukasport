@@ -196,7 +196,7 @@ class AdminPanel {
             eventPlayerOutDiv.style.display = 'block';
             eventPlayerInDiv.style.display = 'block';
             eventPlayerSingleDiv.style.display = 'none';
-        } else if (eventType === 'corner') {
+        } else if (eventType === 'corner' || eventType === 'penalty') {
             eventPlayerOutDiv.style.display = 'none';
             eventPlayerInDiv.style.display = 'none';
             eventPlayerSingleDiv.style.display = 'none';
@@ -311,6 +311,8 @@ class AdminPanel {
             await eventManager.addFoul(this.currentGameId, team, minute, player);
         } else if (type === 'corner') {
             await eventManager.addCorner(this.currentGameId, team, minute);
+        } else if (type === 'penalty') {
+            await eventManager.addPenalty(this.currentGameId, team, minute);
         }
 
         document.getElementById('eventModal').style.display = 'none';

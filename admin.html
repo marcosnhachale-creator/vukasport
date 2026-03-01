@@ -316,6 +316,7 @@
                     <option value="substitution">🔄 PERMUTA</option>
                     <option value="foul">⚠️ FALTA</option>
                     <option value="corner">🚩 CANTO</option>
+                    <option value="penalty">🅿️ PÊNALTI</option>
                 </select>
             </div>
             <div style="margin-bottom: 15px;">
@@ -381,7 +382,7 @@
                         eventPlayerOutDiv.style.display = 'block';
                         eventPlayerInDiv.style.display = 'block';
                         eventPlayerSingleDiv.style.display = 'none';
-                    } else if (eventTypeSelect.value === 'corner') {
+                    } else if (eventTypeSelect.value === 'corner' || eventTypeSelect.value === 'penalty') {
                         eventPlayerOutDiv.style.display = 'none';
                         eventPlayerInDiv.style.display = 'none';
                         eventPlayerSingleDiv.style.display = 'none';
