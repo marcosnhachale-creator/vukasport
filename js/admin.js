@@ -60,6 +60,16 @@ class AdminPanel {
             this.deleteCurrentGame();
         };
 
+        // Pênalti Casa
+        document.getElementById('btnPenaltyHome').onclick = () => {
+            this.addPenaltyQuick('home');
+        };
+
+        // Pênalti Visitante
+        document.getElementById('btnPenaltyAway').onclick = () => {
+            this.addPenaltyQuick('away');
+        };
+
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
             // Resetar o tipo de evento para 'goal' por padrão
@@ -294,6 +304,9 @@ class AdminPanel {
             } else if (e.type === 'corner') {
                 icon = '🚩';
                 description = (e.team === 'home' ? 'Casa' : 'Visitante');
+            } else if (e.type === 'penalty') {
+                icon = '🅿️';
+                description = (e.team === 'home' ? 'Casa' : 'Visitante');
             } else {
                 description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
             }
@@ -348,3 +361,17 @@ class AdminPanel {
 document.addEventListener('DOMContentLoaded', () => {
     window.adminPanel = new AdminPanel();
 });
+
+    async addPenaltyQuick(team) {
+        if (!this.currentGameId) {
+            alert('Selecione um jogo primeiro!');
+            return;
+        }
+        
+        const game = gameManager.getGameById(this.currentGameId);
+        if (!game) return;
+        
+        const minute = game.minute || 0;
+        await eventManager.addPenalty(this.currentGameId, team, minute);
+        this.renderEvents();
+    }

@@ -236,7 +236,8 @@ class GameDetailsManager {
             'red_card': 'red-card',
             'substitution': 'substitution',
             'foul': 'foul',
-            'corner': 'corner'
+            'corner': 'corner',
+            'penalty': 'penalty'
         };
         return typeMap[type] || 'event';
     }
@@ -251,7 +252,8 @@ class GameDetailsManager {
             'red_card': '🟥',
             'substitution': '🔄',
             'foul': '⚠️',
-            'corner': '🚩'
+            'corner': '🚩',
+            'penalty': '🅿️'
         };
         return iconMap[type] || '•';
     }
@@ -266,7 +268,8 @@ class GameDetailsManager {
             'red_card': 'Cartão Vermelho',
             'substitution': 'Permuta',
             'foul': 'Falta',
-            'corner': 'Canto'
+            'corner': 'Canto',
+            'penalty': 'Pênalti'
         };
         return labelMap[type] || 'Evento';
     }
@@ -289,6 +292,8 @@ class GameDetailsManager {
         const awayFouls = (events.fouls || []).filter(f => f.team === 'away').length;
         const homeCorners = (events.corners || []).filter(c => c.team === 'home').length;
         const awayCorners = (events.corners || []).filter(c => c.team === 'away').length;
+        const homePenalties = (events.penalties || []).filter(p => p.team === 'home').length;
+        const awayPenalties = (events.penalties || []).filter(p => p.team === 'away').length;
 
         // Atualizar UI
         document.getElementById('yellowCardsHome').textContent = homeYellowCards;
@@ -312,9 +317,9 @@ class GameDetailsManager {
         document.getElementById('shotsHome').textContent = shotsHome;
         document.getElementById('shotsAway').textContent = shotsAway;
 
-        // Faltas cometidas (cartu00f5es + faltas)
-        const totalFoulsHome = homeYellowCards + homeRedCards + homeFouls;
-        const totalFoulsAway = awayYellowCards + awayRedCards + awayFouls;
+        // Faltas cometidas (cartu00f5es + faltas + pênaltis)
+        const totalFoulsHome = homeYellowCards + homeRedCards + homeFouls + homePenalties;
+        const totalFoulsAway = awayYellowCards + awayRedCards + awayFouls + awayPenalties;
         document.getElementById('foulsHome').textContent = totalFoulsHome;
         document.getElementById('foulsAway').textContent = totalFoulsAway;
 

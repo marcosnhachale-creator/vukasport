@@ -20,7 +20,8 @@ class EventManager {
                 redCards: [],
                 substitutions: [],
                 fouls: [],
-                corners: []
+                corners: [],
+                penalties: []
             };
         } else if (!this.events[gameId].substitutions) {
             this.events[gameId].substitutions = [];
@@ -30,6 +31,9 @@ class EventManager {
         }
         if (!this.events[gameId].corners) {
             this.events[gameId].corners = [];
+        }
+        if (!this.events[gameId].penalties) {
+            this.events[gameId].penalties = [];
         }
     }
 
@@ -143,6 +147,32 @@ class EventManager {
     }
 
     /**
+     * Adiciona um pênalti e sincroniza com Firestore
+     */
+    async addPenalty(gameId, team, minute) {
+        this.initializeGameEvents(gameId);
+        
+        const penalty = {
+            id: Date.now().toString(),
+            type: 'penalty',
+            team: team,
+            minute: parseInt(minute),
+            timestamp: new Date().toISOString()
+        };
+
+        this.events[gameId].penalties.push(penalty);
+        this.saveEventsLocal(gameId);
+        
+        if (typeof firebaseManager !== 'undefined' && firebaseManager.db) {
+            await firebaseManager.addEventToFirebase(gameId, penalty);
+        }
+
+        this.notifyPenalty(gameId, team, minute);
+        console.log('Pênalti adicionado:', penalty);
+        return penalty;
+    }
+
+    /**
      * Adiciona um canto e sincroniza com Firestore
      */
     async addCorner(gameId, team, minute) {
@@ -228,6 +258,8 @@ class EventManager {
             array = this.events[gameId].fouls;
         } else if (type === 'corner') {
             array = this.events[gameId].corners;
+        } else if (type === 'penalty') {
+            array = this.events[gameId].penalties;
         }
 
         const index = array.findIndex(e => e.id === eventId.toString());
@@ -263,7 +295,8 @@ class EventManager {
             ...gameEvents.redCards,
             ...(gameEvents.substitutions || []),
             ...(gameEvents.fouls || []),
-            ...(gameEvents.corners || [])
+            ...(gameEvents.corners || []),
+            ...(gameEvents.penalties || [])
         ];
 
         return allEvents.sort((a, b) => a.minute - b.minute);
@@ -296,6 +329,9 @@ class EventManager {
                 }
                 if (!this.events[gameId].corners) {
                     this.events[gameId].corners = [];
+                }
+                if (!this.events[gameId].penalties) {
+                    this.events[gameId].penalties = [];
                 }
                 console.log('Eventos carregados do localStorage:', gameId);
             } catch (error) {
@@ -421,6 +457,29 @@ class EventManager {
     }
 
     /**
+     * Notifica sobre um pênalti
+     */
+    notifyPenalty(gameId, team, minute) {
+        const game = gameManager.getGameById(gameId);
+        if (!game) return;
+
+        const teamName = team === 'home' ? game.homeTeam : game.awayTeam;
+        const message = `🅿️ Pênalti! ${teamName} - ${minute}'`;
+        
+        this.showNotification(message, 'penalty');
+        
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('VukaSport - Pênalti', {
+                body: `Pênalti a favor de ${teamName} aos ${minute} minutos!`,
+                icon: 'icons/icon-192.png',
+                badge: 'icons/icon-192.png',
+                tag: `penalty-${gameId}-${Date.now()}`,
+                requireInteraction: false
+            });
+        }
+    }
+
+    /**
      * Notifica sobre uma permuta
      */
     notifySubstitution(gameId, team, playerOut, playerIn, minute) {
@@ -473,6 +532,8 @@ class EventManager {
             title = '⚠️ Falta';
         } else if (type === 'corner') {
             title = '🚩 Canto';
+        } else if (type === 'penalty') {
+            title = '🅿️ Pênalti';
         }
 
         notification.innerHTML = `
