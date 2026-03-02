@@ -153,6 +153,11 @@ class NotificationManager {
             ]
         };
 
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playGoalSound();
+        }
+
         this.showNotification(title, options);
     }
 
@@ -171,6 +176,11 @@ class NotificationManager {
                 url: window.location.href
             }
         };
+
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playGoalSound();
+        }
 
         this.showNotification(title, options);
     }

@@ -40,6 +40,30 @@ class SettingsPage {
             });
         }
 
+        // Sons de notificações
+        const soundToggle = document.getElementById('soundsEnabled');
+        if (soundToggle) {
+            soundToggle.addEventListener('change', (e) => {
+                notificationSoundManager.toggleSounds(e.target.checked);
+            });
+        }
+
+        const volumeSlider = document.getElementById('soundVolume');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                notificationSoundManager.setVolume(volume);
+                document.getElementById('volumeValue').textContent = e.target.value + '%';
+            });
+        }
+
+        const testSoundBtn = document.getElementById('testGoalSound');
+        if (testSoundBtn) {
+            testSoundBtn.addEventListener('click', () => {
+                notificationSoundManager.playGoalSound();
+            });
+        }
+
         // Botões de ação
         const clearCacheBtn = document.getElementById('clearCacheBtn');
         if (clearCacheBtn) {
@@ -75,6 +99,19 @@ class SettingsPage {
         if (autoRefreshToggle) {
             const autoRefresh = localStorage.getItem('vukasport_auto_refresh') !== 'false';
             autoRefreshToggle.checked = autoRefresh;
+        }
+
+        // Carregar configurações de som
+        const soundToggle = document.getElementById('soundsEnabled');
+        if (soundToggle) {
+            soundToggle.checked = notificationSoundManager.areSoundsEnabled();
+        }
+
+        const volumeSlider = document.getElementById('soundVolume');
+        if (volumeSlider) {
+            const volume = Math.round(notificationSoundManager.getVolume() * 100);
+            volumeSlider.value = volume;
+            document.getElementById('volumeValue').textContent = volume + '%';
         }
     }
 
@@ -173,9 +210,24 @@ class SettingsPage {
                 // Restaurar atualização automática
                 localStorage.setItem('vukasport_auto_refresh', 'true');
 
-                // Recarregar página
+                // Restaurar sons
+                notificationSoundManager.soundSettings = {
+                    goalSound: 'default',
+                    redCardSound: 'default',
+                    yellowCardSound: 'default',
+                    matchStartSound: 'default',
+                    halftimeSound: 'default',
+                    finalResultSound: 'default',
+                    substitutionSound: 'default',
+                    soundVolume: 0.7,
+                    soundEnabled: true
+                };
+                notificationSoundManager.saveSettings();
+                notificationSoundManager.initializeSounds();
+
+                // Recarregar pagina
                 this.loadSettings();
-                alert('Configurações restauradas com sucesso!');
+                alert('Configuracoes restauradas com sucesso!');
             } catch (error) {
                 console.error('Erro ao restaurar configurações:', error);
                 alert('Erro ao restaurar configurações.');

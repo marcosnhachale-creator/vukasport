@@ -81,6 +81,11 @@ class NotificationsSettings {
         const playerInfo = this.getSetting('goalPlayerName') ? playerName : 'Golo';
         const message = `⚽ GOLO! ${playerInfo} (${teamName}) - ${minute}'`;
         
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playGoalSound();
+        }
+        
         this.showNotification(message, 'goal');
         this.sendPushNotification('VukaSport - GOLO!', {
             body: `${playerInfo} marcou para ${teamName} aos ${minute} minutos!`,
@@ -96,6 +101,12 @@ class NotificationsSettings {
         if (!this.getSetting('halftimeResult')) return;
 
         const message = `🔔 Intervalo: ${game.homeTeam} ${game.homeGoals} - ${game.awayGoals} ${game.awayTeam}`;
+        
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playHalftimeSound();
+        }
+        
         this.showNotification(message, 'halftime');
         this.sendPushNotification('VukaSport - Intervalo', {
             body: `${game.homeTeam} ${game.homeGoals} - ${game.awayGoals} ${game.awayTeam}`,
@@ -110,6 +121,12 @@ class NotificationsSettings {
         if (!this.getSetting('finalResult')) return;
 
         const message = `🏁 Resultado Final: ${game.homeTeam} ${game.homeGoals} - ${game.awayGoals} ${game.awayTeam}`;
+        
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playFinalResultSound();
+        }
+        
         this.showNotification(message, 'final');
         this.sendPushNotification('VukaSport - Resultado Final', {
             body: `${game.homeTeam} ${game.homeGoals} - ${game.awayGoals} ${game.awayTeam}`,
@@ -127,6 +144,11 @@ class NotificationsSettings {
         const teamName = team === 'home' ? game.homeTeam : game.awayTeam;
         const message = `🟥 Cartão Vermelho! ${playerName} (${teamName}) - ${minute}'`;
         
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playRedCardSound();
+        }
+        
         this.showNotification(message, 'red-card');
         this.sendPushNotification('VukaSport - Cartão Vermelho', {
             body: `${playerName} (${teamName}) foi expulso aos ${minute} minutos!`,
@@ -143,6 +165,11 @@ class NotificationsSettings {
         const teamName = team === 'home' ? game.homeTeam : game.awayTeam;
         const message = `🟨 Cartão Amarelo: ${playerName} (${teamName}) - ${minute}'`;
         
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playYellowCardSound();
+        }
+        
         this.showNotification(message, 'yellow-card');
         this.sendPushNotification('VukaSport - Cartão Amarelo', {
             body: `${playerName} (${teamName}) recebeu cartão amarelo aos ${minute} minutos!`,
@@ -158,6 +185,11 @@ class NotificationsSettings {
 
         const teamName = team === 'home' ? game.homeTeam : game.awayTeam;
         const message = `🔄 Substituição (${teamName}): ${playerOut} sai, ${playerIn} entra - ${minute}'`;
+        
+        // Tocar som de notificação
+        if (typeof notificationSoundManager !== 'undefined') {
+            notificationSoundManager.playSubstitutionSound();
+        }
         
         this.showNotification(message, 'substitution');
     }
