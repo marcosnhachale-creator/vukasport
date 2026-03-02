@@ -113,6 +113,30 @@
                 </div>
             </section>
 
+            <!-- Notification Sounds Settings -->
+            <section class="settings-section">
+                <div class="settings-card">
+                    <h3>🔊 Som de Notificações</h3>
+                    <p class="section-description">Escolha o som que deseja para as notificações</p>
+
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notificationSoundSelect">Tipo de Som</label>
+                                <p class="setting-description">Selecione o som que será reproduzido nas notificações</p>
+                            </div>
+                            <select id="notificationSoundSelect" class="sound-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; color: #333; font-size: 13px; cursor: pointer; width: 100%; max-width: 250px;">
+                                <!-- Opcoes serao preenchidas dinamicamente -->
+                            </select>
+                        </div>
+
+                        <div class="setting-item" style="margin-top: 15px;">
+                            <button id="previewSoundBtn" class="btn btn-secondary" style="width: 100%;">🔊 Ouvir Som</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Display Settings -->
             <section class="settings-section">
                 <div class="settings-card">
@@ -194,6 +218,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="js/notification-sounds.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/notifications-settings.js"></script>
     <script src="js/settings.js"></script>

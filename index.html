@@ -155,31 +155,21 @@
             alert('Número copiado!');
         }
 
-        // Triplo clique no logo para acesso ao admin
-        let logoClicks = 0;
-        let logoClickTimeout;
+        // Duplo clique no logo para acesso ao admin
         const logo = document.querySelector('.logo');
         if (logo) {
-            logo.addEventListener('click', () => {
-                logoClicks++;
-                clearTimeout(logoClickTimeout);
-                if (logoClicks >= 3) {
-                    window.location.href = 'admin.html';
-                    logoClicks = 0;
-                } else {
-                    logoClickTimeout = setTimeout(() => {
-                        logoClicks = 0;
-                    }, 500);
-                }
+            logo.addEventListener('dblclick', () => {
+                window.location.href = 'admin.html';
             });
         }
 
-        let devClicks = 0;
-        document.getElementById('developerName').onclick = () => {
-            devClicks++;
-            if (devClicks >= 6) window.location.href = 'admin.html';
-            setTimeout(() => devClicks = 0, 2000);
-        };
+        // Duplo clique no nome do desenvolvedor para acesso ao admin
+        const developerName = document.getElementById('developerName');
+        if (developerName) {
+            developerName.addEventListener('dblclick', () => {
+                window.location.href = 'admin.html';
+            });
+        }
 
         const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.onclick = () => {
