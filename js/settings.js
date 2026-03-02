@@ -50,24 +50,6 @@ class SettingsPage {
         if (resetSettingsBtn) {
             resetSettingsBtn.addEventListener('click', () => this.resetSettings());
         }
-
-        // Botão de teste de som de notificação
-        const testNotificationSoundBtn = document.getElementById('testNotificationSoundBtn');
-        if (testNotificationSoundBtn) {
-            testNotificationSoundBtn.addEventListener('click', () => this.testNotificationSound());
-        }
-    }
-
-    /**
-     * Testa o som de notificação
-     */
-    testNotificationSound() {
-        if (typeof notificationManager !== 'undefined') {
-            notificationManager.testNotificationSound();
-            alert('Som de notificação reproduzido!');
-        } else {
-            alert('Gestor de notificações não disponível.');
-        }
     }
 
     /**
@@ -204,9 +186,5 @@ class SettingsPage {
 
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
-    // Garantir que o gestor de notificações está carregado
-    if (typeof notificationManager === 'undefined') {
-        console.warn('Gestor de notificações não carregado ainda.');
-    }
     new SettingsPage();
 });

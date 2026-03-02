@@ -174,13 +174,15 @@ body {
 /* Match Card */
 .match-card {
     background-color: var(--white);
-    padding: 12px;
+    padding: 16px 12px;
     display: grid;
-    grid-template-columns: 1fr 80px 1fr;
+    grid-template-columns: 1fr 100px 1fr;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background-color 0.2s;
+    min-height: 85px; /* Altura mínima padronizada */
+    position: relative; /* Necessário para o badge de tempo */
 }
 
 .match-card:active {
@@ -237,9 +239,11 @@ body {
 }
 
 .match-score {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 4px;
 }
 
 .match-score.flashing {
@@ -254,10 +258,13 @@ body {
 }
 
 .match-status {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     margin-top: 2px;
     color: var(--text-muted);
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .status-live-text {
@@ -580,19 +587,6 @@ body {
 /* Main Container */
 .main {
     padding-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 200px);
-}
-
-#gamesContainer {
-    flex: 0 0 auto;
-    padding-bottom: 0;
-}
-
-#gamesList {
-    display: flex;
-    flex-direction: column;
 }
 
 /* Empty State */
@@ -600,10 +594,6 @@ body {
     padding: 40px 20px;
     text-align: center;
     color: var(--text-muted);
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* Card Notifications */
@@ -860,14 +850,14 @@ body {
 
 .match-time-badge {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--primary-color);
-    color: white;
+    top: 10px;
+    right: 10px;
+    background-color: #f0f0f0;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
+    color: var(--text-muted);
     z-index: 10;
 }
 

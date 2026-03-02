@@ -36,101 +36,33 @@ class AdminPanel {
 
     setupListeners() {
         // Login
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
-            loginForm.onsubmit = (e) => {
-                e.preventDefault();
-                const u = document.getElementById('username').value;
-                const p = document.getElementById('password').value;
-                if (authManager.login(u, p)) this.checkAuth();
-                else document.getElementById('loginError').style.display = 'block';
-            };
-        }
+        document.getElementById('loginForm').onsubmit = (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if (authManager.login(u, p)) this.checkAuth();
+            else document.getElementById('loginError').style.display = 'block';
+        };
 
         // Logout
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.onclick = () => {
-                authManager.logout();
-                this.checkAuth();
-            };
-        }
+        document.getElementById('logoutBtn').onclick = () => {
+            authManager.logout();
+            this.checkAuth();
+        };
 
         // Seleção de Jogo
-        const gameSelect = document.getElementById('gameSelect');
-        if (gameSelect) {
-            gameSelect.onchange = (e) => {
-                this.loadGameToEdit(e.target.value);
-            };
-        }
+        document.getElementById('gameSelect').onchange = (e) => {
+            this.loadGameToEdit(e.target.value);
+        };
 
         // Eliminar Jogo
-        const btnDeleteGame = document.getElementById('btnDeleteGame');
-        if (btnDeleteGame) {
-            btnDeleteGame.onclick = () => {
-                this.deleteCurrentGame();
-            };
-        }
-
-        // Pênalti Casa
-        const btnPenaltyHome = document.getElementById('btnPenaltyHome');
-        if (btnPenaltyHome) {
-            btnPenaltyHome.onclick = () => {
-                this.addPenaltyQuick('home');
-            };
-        }
-
-        // Pênalti Visitante
-        const btnPenaltyAway = document.getElementById('btnPenaltyAway');
-        if (btnPenaltyAway) {
-            btnPenaltyAway.onclick = () => {
-                this.addPenaltyQuick('away');
-            };
-        }
-
-        // Falta Casa
-        const btnFoulHome = document.getElementById('btnFoulHome');
-        if (btnFoulHome) {
-            btnFoulHome.onclick = () => {
-                this.addFoulQuick('home');
-            };
-        }
-
-        // Falta Visitante
-        const btnFoulAway = document.getElementById('btnFoulAway');
-        if (btnFoulAway) {
-            btnFoulAway.onclick = () => {
-                this.addFoulQuick('away');
-            };
-        }
-
-        // Canto Casa
-        const btnCornerHome = document.getElementById('btnCornerHome');
-        if (btnCornerHome) {
-            btnCornerHome.onclick = () => {
-                this.addCornerQuick('home');
-            };
-        }
-
-        // Canto Visitante
-        const btnCornerAway = document.getElementById('btnCornerAway');
-        if (btnCornerAway) {
-            btnCornerAway.onclick = () => {
-                this.addCornerQuick('away');
-            };
-        }
+        document.getElementById('btnDeleteGame').onclick = () => {
+            this.deleteCurrentGame();
+        };
 
         // Abrir Modal de Evento
         document.getElementById('btnRegisterEvent').onclick = () => {
-            // Resetar o tipo de evento para 'goal' por padrão
-            document.getElementById('eventType').value = 'goal';
-            this.updateEventFieldsVisibility();
             document.getElementById('eventModal').style.display = 'flex';
-        };
-
-        // Listener para mudança de tipo de evento
-        document.getElementById('eventType').onchange = () => {
-            this.updateEventFieldsVisibility();
         };
 
         // Adicionar Novo Jogo
@@ -183,27 +115,6 @@ class AdminPanel {
                     document.getElementById('finishGameModal').style.display = 'none';
                 }
             };
-        }
-    }
-
-    updateEventFieldsVisibility() {
-        const eventType = document.getElementById('eventType').value;
-        const eventPlayerOutDiv = document.getElementById('eventPlayerOutDiv');
-        const eventPlayerInDiv = document.getElementById('eventPlayerInDiv');
-        const eventPlayerSingleDiv = document.getElementById('eventPlayerSingleDiv');
-        
-        if (eventType === 'substitution') {
-            eventPlayerOutDiv.style.display = 'block';
-            eventPlayerInDiv.style.display = 'block';
-            eventPlayerSingleDiv.style.display = 'none';
-        } else if (eventType === 'corner' || eventType === 'penalty') {
-            eventPlayerOutDiv.style.display = 'none';
-            eventPlayerInDiv.style.display = 'none';
-            eventPlayerSingleDiv.style.display = 'none';
-        } else {
-            eventPlayerOutDiv.style.display = 'none';
-            eventPlayerInDiv.style.display = 'none';
-            eventPlayerSingleDiv.style.display = 'block';
         }
     }
 
@@ -306,13 +217,6 @@ class AdminPanel {
                 return;
             }
             await eventManager.addSubstitution(this.currentGameId, team, minute, playerOut, playerIn);
-        } else if (type === 'foul') {
-            const player = document.getElementById('eventPlayer').value;
-            await eventManager.addFoul(this.currentGameId, team, minute, player);
-        } else if (type === 'corner') {
-            await eventManager.addCorner(this.currentGameId, team, minute);
-        } else if (type === 'penalty') {
-            await eventManager.addPenalty(this.currentGameId, team, minute);
         }
 
         document.getElementById('eventModal').style.display = 'none';
@@ -350,15 +254,6 @@ class AdminPanel {
             } else if (e.type === 'substitution') {
                 icon = '🔄';
                 description = e.playerOut + ' sai, ' + e.playerIn + ' entra (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
-            } else if (e.type === 'foul') {
-                icon = '⚠️';
-                description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
-            } else if (e.type === 'corner') {
-                icon = '🚩';
-                description = (e.team === 'home' ? 'Casa' : 'Visitante');
-            } else if (e.type === 'penalty') {
-                icon = '🅿️';
-                description = (e.team === 'home' ? 'Casa' : 'Visitante');
             } else {
                 description = e.playerName + ' (' + (e.team === 'home' ? 'Casa' : 'Visitante') + ')';
             }
@@ -407,48 +302,6 @@ class AdminPanel {
             alert('Jogo terminado!');
         }
         document.getElementById('finishGameModal').style.display = 'none';
-    }
-
-    async addPenaltyQuick(team) {
-        if (!this.currentGameId) {
-            alert('Selecione um jogo primeiro!');
-            return;
-        }
-        
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-        
-        const minute = game.minute || 0;
-        await eventManager.addPenalty(this.currentGameId, team, minute);
-        this.renderEvents();
-    }
-
-    async addFoulQuick(team) {
-        if (!this.currentGameId) {
-            alert('Selecione um jogo primeiro!');
-            return;
-        }
-        
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-        
-        const minute = game.minute || 0;
-        await eventManager.addFoul(this.currentGameId, team, minute, 'Falta');
-        this.renderEvents();
-    }
-
-    async addCornerQuick(team) {
-        if (!this.currentGameId) {
-            alert('Selecione um jogo primeiro!');
-            return;
-        }
-        
-        const game = gameManager.getGameById(this.currentGameId);
-        if (!game) return;
-        
-        const minute = game.minute || 0;
-        await eventManager.addCorner(this.currentGameId, team, minute);
-        this.renderEvents();
     }
 }
 

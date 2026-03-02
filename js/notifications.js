@@ -181,9 +181,6 @@ class NotificationManager {
     showNotification(title, options) {
         if (!this.notificationsEnabled) return;
 
-        // Reproduzir som de notificação
-        this.playNotificationSound();
-
         // Usar service worker se disponível
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.ready.then(registration => {
@@ -192,38 +189,6 @@ class NotificationManager {
         } else {
             // Fallback para notificações normais
             new Notification(title, options);
-        }
-    }
-
-    /**
-     * Reproduz som de notificação
-     */
-    playNotificationSound() {
-        try {
-            // Criar contexto de áudio
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Criar oscilador para gerar som
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            // Conectar nós
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            // Configurar som (frequência e duração)
-            oscillator.frequency.value = 800; // Frequência em Hz
-            oscillator.type = 'sine';
-            
-            // Envelope de volume (fade in e fade out)
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
-            // Reproduzir som
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
-        } catch (error) {
-            console.warn('Erro ao reproduzir som de notificação:', error);
         }
     }
 
@@ -281,13 +246,6 @@ class NotificationManager {
         } else {
             this.requestPermission();
         }
-    }
-
-    /**
-     * Testa som de notificação
-     */
-    testNotificationSound() {
-        this.playNotificationSound();
     }
 
     /**

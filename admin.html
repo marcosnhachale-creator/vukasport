@@ -89,24 +89,6 @@
                     <button id="btnDeleteGame" style="width:100%; padding:10px; background:#dc3545; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Eliminar este jogo">🗑️ ELIMINAR JOGO</button>
                 </div>
 
-                <!-- Botões de Falta -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button id="btnFoulHome" style="padding:10px; background:#e67e22; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Registar falta para a equipa da casa">⚠️ FALTA CASA</button>
-                    <button id="btnFoulAway" style="padding:10px; background:#d68910; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Registar falta para a equipa visitante">⚠️ FALTA VISIT.</button>
-                </div>
-
-                <!-- Botões de Canto -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button id="btnCornerHome" style="padding:10px; background:#16a085; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Registar canto para a equipa da casa">🚩 CANTO CASA</button>
-                    <button id="btnCornerAway" style="padding:10px; background:#138d75; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Registar canto para a equipa visitante">🚩 CANTO VISIT.</button>
-                </div>
-
-                <!-- Botões de Pênalti -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button id="btnPenaltyHome" style="padding:10px; background:#9b59b6; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Registar pênalti para a equipa da casa">🅿️ PÉNALTI CASA</button>
-                    <button id="btnPenaltyAway" style="padding:10px; background:#8e44ad; color:white; border:none; border-radius:8px; font-size:12px; font-weight:bold; cursor:pointer;" title="Registar pênalti para a equipa visitante">🅿️ PÉNALTI VISIT.</button>
-                </div>
-
                 <!-- Seleção de Fase do Jogo -->
                 <div style="margin-bottom: 15px;">
                     <label style="display:block; font-size:11px; color:#888; margin-bottom:5px;">Fase do Jogo</label>
@@ -314,9 +296,6 @@
                     <option value="yellow">🟨 CARTÃO AMARELO</option>
                     <option value="red">🟥 CARTÃO VERMELHO</option>
                     <option value="substitution">🔄 PERMUTA</option>
-                    <option value="foul">⚠️ FALTA</option>
-                    <option value="corner">🚩 CANTO</option>
-                    <option value="penalty">🅿️ PÊNALTI</option>
                 </select>
             </div>
             <div style="margin-bottom: 15px;">
@@ -381,10 +360,6 @@
                     if (eventTypeSelect.value === 'substitution') {
                         eventPlayerOutDiv.style.display = 'block';
                         eventPlayerInDiv.style.display = 'block';
-                        eventPlayerSingleDiv.style.display = 'none';
-                    } else if (eventTypeSelect.value === 'corner' || eventTypeSelect.value === 'penalty') {
-                        eventPlayerOutDiv.style.display = 'none';
-                        eventPlayerInDiv.style.display = 'none';
                         eventPlayerSingleDiv.style.display = 'none';
                     } else {
                         eventPlayerOutDiv.style.display = 'none';
