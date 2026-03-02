@@ -153,11 +153,6 @@ class NotificationManager {
             ]
         };
 
-        // Tocar som de notificação
-        if (typeof notificationSoundManager !== 'undefined') {
-            notificationSoundManager.playGoalSound();
-        }
-
         this.showNotification(title, options);
     }
 
@@ -177,11 +172,6 @@ class NotificationManager {
             }
         };
 
-        // Tocar som de notificação
-        if (typeof notificationSoundManager !== 'undefined') {
-            notificationSoundManager.playGoalSound();
-        }
-
         this.showNotification(title, options);
     }
 
@@ -191,6 +181,9 @@ class NotificationManager {
     showNotification(title, options) {
         if (!this.notificationsEnabled) return;
 
+        // Reproduzir som de notificação
+        this.playNotificationSound();
+
         // Usar service worker se disponível
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.ready.then(registration => {
@@ -199,6 +192,37 @@ class NotificationManager {
         } else {
             // Fallback para notificações normais
             new Notification(title, options);
+        }
+    }
+
+    /**
+     * Reproduz som de notificacao
+     */
+    playNotificationSound() {
+        try {
+            // Usar o gestor de sons personalizaveis se disponivel
+            if (typeof notificationSoundManager !== 'undefined') {
+                notificationSoundManager.playNotificationSound();
+            } else {
+                // Fallback para som padrao
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+        } catch (error) {
+            console.warn('Erro ao reproduzir som de notificacao:', error);
         }
     }
 
@@ -256,6 +280,13 @@ class NotificationManager {
         } else {
             this.requestPermission();
         }
+    }
+
+    /**
+     * Testa som de notificação
+     */
+    testNotificationSound() {
+        this.playNotificationSound();
     }
 
     /**

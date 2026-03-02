@@ -116,50 +116,22 @@
             <!-- Notification Sounds Settings -->
             <section class="settings-section">
                 <div class="settings-card">
-                    <h3>🔊 Sons de Notificações</h3>
-                    <p class="section-description">Configure os sons para as notificações</p>
+                    <h3>🔊 Som de Notificações</h3>
+                    <p class="section-description">Escolha o som que deseja para as notificações</p>
 
                     <div class="settings-group">
                         <div class="setting-item">
                             <div class="setting-info">
-                                <label for="soundsEnabled">Ativar Sons</label>
-                                <p class="setting-description">Ativar/desativar sons de notificações</p>
+                                <label for="notificationSoundSelect">Tipo de Som</label>
+                                <p class="setting-description">Selecione o som que será reproduzido nas notificações</p>
                             </div>
-                            <input type="checkbox" id="soundsEnabled" class="sound-toggle" checked>
+                            <select id="notificationSoundSelect" class="sound-select" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; background: #fff; color: #333; font-size: 13px; cursor: pointer; width: 100%; max-width: 250px;">
+                                <!-- Opcoes serao preenchidas dinamicamente -->
+                            </select>
                         </div>
 
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <label for="soundVolume">Volume</label>
-                                <p class="setting-description">Ajuste o volume dos sons de notificações</p>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="range" id="soundVolume" class="sound-volume" min="0" max="100" value="70" style="flex: 1;">
-                                <span id="volumeValue" style="min-width: 30px; text-align: right;">70%</span>
-                            </div>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <label for="testGoalSound">Testar Som</label>
-                                <p class="setting-description">Toque um som de teste para verificar o volume</p>
-                            </div>
-                            <button id="testGoalSound" class="btn btn-secondary" style="padding: 8px 16px;">Tocar Som de Teste</button>
-                        </div>
-
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <label>Sons Disponíveis</label>
-                                <p class="setting-description">Tipos de eventos com som personalizado</p>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                                <button class="btn btn-secondary" onclick="notificationSoundManager.testSound('goal')" style="padding: 8px 12px; font-size: 12px;">Golo</button>
-                                <button class="btn btn-secondary" onclick="notificationSoundManager.testSound('redCard')" style="padding: 8px 12px; font-size: 12px;">Cartão Vermelho</button>
-                                <button class="btn btn-secondary" onclick="notificationSoundManager.testSound('yellowCard')" style="padding: 8px 12px; font-size: 12px;">Cartão Amarelo</button>
-                                <button class="btn btn-secondary" onclick="notificationSoundManager.testSound('matchStart')" style="padding: 8px 12px; font-size: 12px;">Início Jogo</button>
-                                <button class="btn btn-secondary" onclick="notificationSoundManager.testSound('halftime')" style="padding: 8px 12px; font-size: 12px;">Intervalo</button>
-                                <button class="btn btn-secondary" onclick="notificationSoundManager.testSound('finalResult')" style="padding: 8px 12px; font-size: 12px;">Resultado Final</button>
-                            </div>
+                        <div class="setting-item" style="margin-top: 15px;">
+                            <button id="previewSoundBtn" class="btn btn-secondary" style="width: 100%;">🔊 Ouvir Som</button>
                         </div>
                     </div>
                 </div>
@@ -187,6 +159,23 @@
                             </div>
                             <input type="checkbox" id="autoRefresh" class="auto-refresh-toggle" checked>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Support Section -->
+            <section class="settings-section">
+                <div class="settings-card">
+                    <h3>📧 Suporte</h3>
+                    <p class="section-description">Contacte-nos para suporte ou sugestões</p>
+
+                    <div class="support-info">
+                        <p style="margin-bottom: 15px; color: var(--text-muted); font-size: 13px;">Tem dúvidas, sugestões ou encontrou um problema? Entre em contacto connosco!</p>
+                        <div class="support-contact">
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">📧 E-mail:</p>
+                            <a href="mailto:visinovatech@gmail.com" style="display: inline-block; padding: 10px 15px; background: #28A745; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px; margin-bottom: 10px;">visinovatech@gmail.com</a>
+                        </div>
+                        <button id="testNotificationSoundBtn" class="btn btn-secondary" style="width: 100%; margin-top: 10px;">🔊 Testar Som de Notificação</button>
                     </div>
                 </div>
             </section>
@@ -230,6 +219,7 @@
 
     <!-- Scripts -->
     <script src="js/notification-sounds.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/notifications-settings.js"></script>
     <script src="js/settings.js"></script>
 </body>

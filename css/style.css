@@ -53,6 +53,8 @@ body {
     max-width: 600px;
     margin: 0 auto;
     padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header */
@@ -174,15 +176,15 @@ body {
 /* Match Card */
 .match-card {
     background-color: var(--white);
-    padding: 16px 12px;
+    padding: 12px;
     display: grid;
-    grid-template-columns: 1fr 100px 1fr;
+    grid-template-columns: 1fr 80px 1fr;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background-color 0.2s;
-    min-height: 85px; /* Altura mínima padronizada */
-    position: relative; /* Necessário para o badge de tempo */
+    position: relative;
+    min-height: 60px;
 }
 
 .match-card:active {
@@ -239,11 +241,9 @@ body {
 }
 
 .match-score {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     letter-spacing: 1px;
-    line-height: 1;
-    margin-bottom: 4px;
 }
 
 .match-score.flashing {
@@ -258,13 +258,10 @@ body {
 }
 
 .match-status {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     margin-top: 2px;
     color: var(--text-muted);
-    text-transform: uppercase;
-    text-align: center;
-    white-space: nowrap;
 }
 
 .status-live-text {
@@ -587,6 +584,20 @@ body {
 /* Main Container */
 .main {
     padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 200px);
+}
+
+#gamesContainer {
+    flex: 0 0 auto;
+    padding-bottom: 0;
+    width: 100%;
+}
+
+#gamesList {
+    display: flex;
+    flex-direction: column;
 }
 
 /* Empty State */
@@ -594,6 +605,10 @@ body {
     padding: 40px 20px;
     text-align: center;
     color: var(--text-muted);
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Card Notifications */
@@ -654,7 +669,7 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
     border-radius: 12px;
     padding: 12px;
-    margin: 12px 0;
+    margin: 12px 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
@@ -682,7 +697,7 @@ body {
 @media (max-width: 600px) {
     .ad-container-modern {
         padding: 10px;
-        margin: 10px 0;
+        margin: 10px 12px;
         border-radius: 10px;
     }
     
@@ -850,14 +865,14 @@ body {
 
 .match-time-badge {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #f0f0f0;
+    top: 8px;
+    right: 8px;
+    background: var(--primary-color);
+    color: white;
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 11px;
-    font-weight: 700;
-    color: var(--text-muted);
+    font-weight: 600;
     z-index: 10;
 }
 

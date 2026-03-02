@@ -24,7 +24,7 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <h1 class="logo" id="adminAccessTitle" style="cursor: pointer; user-select: none;">⚽ VukaSport</h1>
+                <h1 class="logo">⚽ VukaSport</h1>
                 <div class="header-controls">
                     <button id="darkModeToggle" class="btn-icon">🌙</button>
                     <a href="settings.html" class="btn-icon">⚙️</a>
@@ -50,7 +50,6 @@
         <button class="btn-primary" onclick="openSupportModal()" style="margin-left: 10px; padding: 4px 10px; font-size: 11px;">Apoiar</button>
     </div>
 
-
     <!-- Main Content -->
     <main class="main">
         <div id="gamesContainer" class="container">
@@ -66,8 +65,8 @@
             <p id="emptyStateText">Nenhum jogo ao vivo neste momento.</p>
         </div>
 
-        <!-- Google AdSense Banner Ad (Moved to Bottom) -->
-        <div class="ad-container-modern" style="margin-top: 20px;">
+        <!-- Google AdSense Banner Ad (Redesigned) -->
+        <div class="ad-container-modern">
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="pub-5545529393172719"
@@ -98,7 +97,7 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2026 VukaSport • <span id="developerName" style="cursor:pointer; user-select: none;">Marcos Nhachale</span></p>
+        <p>&copy; 2026 VukaSport • <span id="developerName" style="cursor:pointer">Marcos Nhachale</span></p>
         <p id="offlineIndicator" style="display: none; color: #dc3545; margin-top: 5px;">⚠️ Modo Offline</p>
     </footer>
 
@@ -107,7 +106,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     
-    <script src="js/notification-sounds.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/firebase.js"></script>
     <script src="js/events.js"></script>
@@ -157,17 +155,22 @@
             alert('Número copiado!');
         }
 
-        // Duplo clique no título para acesso ao admin
-        document.getElementById('adminAccessTitle').ondblclick = () => {
-            window.location.href = 'admin.html';
-        };
+        // Duplo clique no logo para acesso ao admin
+        const logo = document.querySelector('.logo');
+        if (logo) {
+            logo.addEventListener('dblclick', () => {
+                window.location.href = 'admin.html';
+            });
+        }
 
         // Duplo clique no nome do desenvolvedor para acesso ao admin
-        document.getElementById('developerName').ondblclick = () => {
-            window.location.href = 'admin.html';
-        };
+        const developerName = document.getElementById('developerName');
+        if (developerName) {
+            developerName.addEventListener('dblclick', () => {
+                window.location.href = 'admin.html';
+            });
+        }
 
-        // Tema escuro
         const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.onclick = () => {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
