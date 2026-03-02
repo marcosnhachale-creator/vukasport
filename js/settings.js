@@ -14,7 +14,7 @@ class SettingsPage {
      * Inicializa os event listeners
      */
     initializeEventListeners() {
-        // Notificacoes
+        // Notificações
         const notificationToggles = document.querySelectorAll('.notification-toggle');
         notificationToggles.forEach(toggle => {
             toggle.addEventListener('change', (e) => {
@@ -24,23 +24,6 @@ class SettingsPage {
             });
         });
 
-        // Som de notificacoes
-        const soundSelect = document.getElementById('notificationSoundSelect');
-        if (soundSelect && typeof notificationSoundManager !== 'undefined') {
-            this.populateSoundOptions(soundSelect);
-            soundSelect.addEventListener('change', (e) => {
-                notificationSoundManager.setSoundType(e.target.value);
-            });
-        }
-
-        // Botao de preview de som
-        const previewSoundBtn = document.getElementById('previewSoundBtn');
-        if (previewSoundBtn && typeof notificationSoundManager !== 'undefined') {
-            previewSoundBtn.addEventListener('click', () => {
-                notificationSoundManager.testSound();
-            });
-        }
-
         // Tema escuro
         const themeToggle = document.getElementById('darkMode');
         if (themeToggle) {
@@ -49,7 +32,7 @@ class SettingsPage {
             });
         }
 
-        // Atualizacao automatica
+        // Atualização automática
         const autoRefreshToggle = document.getElementById('autoRefresh');
         if (autoRefreshToggle) {
             autoRefreshToggle.addEventListener('change', (e) => {
@@ -57,7 +40,7 @@ class SettingsPage {
             });
         }
 
-        // Botoes de acao
+        // Botões de ação
         const clearCacheBtn = document.getElementById('clearCacheBtn');
         if (clearCacheBtn) {
             clearCacheBtn.addEventListener('click', () => this.clearCache());
@@ -68,7 +51,7 @@ class SettingsPage {
             resetSettingsBtn.addEventListener('click', () => this.resetSettings());
         }
 
-        // Botao de teste de som de notificacao
+        // Botão de teste de som de notificação
         const testNotificationSoundBtn = document.getElementById('testNotificationSoundBtn');
         if (testNotificationSoundBtn) {
             testNotificationSoundBtn.addEventListener('click', () => this.testNotificationSound());
@@ -76,42 +59,22 @@ class SettingsPage {
     }
 
     /**
-     * Popula as opcoes de som no select
-     */
-    populateSoundOptions(selectElement) {
-        if (typeof notificationSoundManager === 'undefined') return;
-
-        const sounds = notificationSoundManager.getAvailableSounds();
-        const currentSound = notificationSoundManager.getSoundType();
-
-        sounds.forEach(sound => {
-            const option = document.createElement('option');
-            option.value = sound.id;
-            option.textContent = sound.name;
-            if (sound.id === currentSound) {
-                option.selected = true;
-            }
-            selectElement.appendChild(option);
-        });
-    }
-
-    /**
-     * Testa o som de notificacao
+     * Testa o som de notificação
      */
     testNotificationSound() {
         if (typeof notificationManager !== 'undefined') {
             notificationManager.testNotificationSound();
-            alert('Som de notificacao reproduzido!');
+            alert('Som de notificação reproduzido!');
         } else {
-            alert('Gestor de notificacoes nao disponivel.');
+            alert('Gestor de notificações não disponível.');
         }
     }
 
     /**
-     * Carrega as configuracoes
+     * Carrega as configurações
      */
     loadSettings() {
-        // Carregar notificacoes
+        // Carregar notificações
         const notificationToggles = document.querySelectorAll('.notification-toggle');
         notificationToggles.forEach(toggle => {
             const setting = toggle.getAttribute('data-setting');
@@ -125,7 +88,7 @@ class SettingsPage {
             themeToggle.checked = isDarkMode;
         }
 
-        // Carregar atualizacao automatica
+        // Carregar atualização automática
         const autoRefreshToggle = document.getElementById('autoRefresh');
         if (autoRefreshToggle) {
             const autoRefresh = localStorage.getItem('vukasport_auto_refresh') !== 'false';
@@ -162,14 +125,13 @@ class SettingsPage {
      * Limpa o cache
      */
     clearCache() {
-        if (confirm('Tem a certeza que deseja limpar o cache? Isto removera todos os dados armazenados localmente.')) {
+        if (confirm('Tem a certeza que deseja limpar o cache? Isto removerá todos os dados armazenados localmente.')) {
             try {
-                // Limpar localStorage (exceto configuracoes)
+                // Limpar localStorage (exceto configurações)
                 const keysToKeep = [
                     'vukasport_dark_mode',
                     'vukasport_notification_settings',
-                    'vukasport_auto_refresh',
-                    'vukasport_notification_sound'
+                    'vukasport_auto_refresh'
                 ];
 
                 const keysToRemove = [];
@@ -204,12 +166,12 @@ class SettingsPage {
     }
 
     /**
-     * Restaura as configuracoes padrao
+     * Restaura as configurações padrão
      */
     resetSettings() {
-        if (confirm('Tem a certeza que deseja restaurar as configuracoes padrao? Esta acao nao pode ser desfeita.')) {
+        if (confirm('Tem a certeza que deseja restaurar as configurações padrão? Esta ação não pode ser desfeita.')) {
             try {
-                // Restaurar notificacoes
+                // Restaurar notificações
                 notificationsSettings.settings = {
                     matchStart: true,
                     goals: true,
@@ -222,24 +184,19 @@ class SettingsPage {
                 };
                 notificationsSettings.saveSettings();
 
-                // Restaurar som
-                if (typeof notificationSoundManager !== 'undefined') {
-                    notificationSoundManager.setSoundType('default');
-                }
-
                 // Restaurar tema
                 localStorage.setItem('vukasport_dark_mode', 'false');
                 document.documentElement.removeAttribute('data-theme');
 
-                // Restaurar atualizacao automatica
+                // Restaurar atualização automática
                 localStorage.setItem('vukasport_auto_refresh', 'true');
 
-                // Recarregar pagina
+                // Recarregar página
                 this.loadSettings();
-                alert('Configuracoes restauradas com sucesso!');
+                alert('Configurações restauradas com sucesso!');
             } catch (error) {
-                console.error('Erro ao restaurar configuracoes:', error);
-                alert('Erro ao restaurar configuracoes.');
+                console.error('Erro ao restaurar configurações:', error);
+                alert('Erro ao restaurar configurações.');
             }
         }
     }
@@ -247,9 +204,9 @@ class SettingsPage {
 
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
-    // Garantir que o gestor de notificacoes esta carregado
+    // Garantir que o gestor de notificações está carregado
     if (typeof notificationManager === 'undefined') {
-        console.warn('Gestor de notificacoes nao carregado ainda.');
+        console.warn('Gestor de notificações não carregado ainda.');
     }
     new SettingsPage();
 });

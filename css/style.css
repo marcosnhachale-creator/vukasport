@@ -181,6 +181,8 @@ body {
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background-color 0.2s;
+    min-height: 60px;
+    height: auto;
 }
 
 .match-card:active {
@@ -514,6 +516,7 @@ body {
     padding: 12px;
     text-align: center;
     font-size: 13px;
+    margin-top: 20px;
 }
 
 .footer {
@@ -831,8 +834,13 @@ body {
     padding: 0;
 }
 
+.period-content.competition-group {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 .period-content .competition-group {
-    margin: 0;
     border-radius: 0;
     box-shadow: none;
     border-left: none;
@@ -862,12 +870,12 @@ body {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: var(--primary-color);
-    color: white;
+    background-color: #e8e8e8;
+    color: #333;
     padding: 4px 8px;
     border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 700;
     z-index: 10;
 }
 

@@ -44,25 +44,6 @@
         <strong>📋 Todos os Jogos:</strong> Todos os jogos agrupados por competição. Clique em qualquer jogo para ver detalhes completos.
     </div>
 
-    <!-- Support Banner -->
-    <div class="support-banner">
-        <span>Gosta da aplicação? <strong>Apoie o projeto!</strong></span>
-        <button class="btn-primary" onclick="openSupportModal()" style="margin-left: 10px; padding: 4px 10px; font-size: 11px;">Apoiar</button>
-    </div>
-
-    <!-- Google AdSense Banner Ad (Redesigned) -->
-    <div class="ad-container-modern">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="pub-5545529393172719"
-             data-ad-slot="5163475844"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
-
     <!-- Main Content -->
     <main class="main">
         <div id="gamesContainer" class="container">
@@ -93,6 +74,25 @@
             </div>
             <button class="btn-primary btn-large" onclick="copyNumber()">Copiar Número</button>
         </div>
+    </div>
+
+    <!-- Support Banner -->
+    <div class="support-banner">
+        <span>Gosta da aplicação? <strong>Apoie o projeto!</strong></span>
+        <button class="btn-primary" onclick="openSupportModal()" style="margin-left: 10px; padding: 4px 10px; font-size: 11px;">Apoiar</button>
+    </div>
+
+    <!-- Google AdSense Banner Ad (Redesigned) -->
+    <div class="ad-container-modern">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="pub-5545529393172719"
+             data-ad-slot="5163475844"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
 
     <!-- Footer -->
@@ -155,21 +155,31 @@
             alert('Número copiado!');
         }
 
-        // Duplo clique no logo para acesso ao admin
+        // Triplo clique no logo para acesso ao admin
+        let logoClicks = 0;
+        let logoClickTimeout;
         const logo = document.querySelector('.logo');
         if (logo) {
-            logo.addEventListener('dblclick', () => {
-                window.location.href = 'admin.html';
+            logo.addEventListener('click', () => {
+                logoClicks++;
+                clearTimeout(logoClickTimeout);
+                if (logoClicks >= 3) {
+                    window.location.href = 'admin.html';
+                    logoClicks = 0;
+                } else {
+                    logoClickTimeout = setTimeout(() => {
+                        logoClicks = 0;
+                    }, 500);
+                }
             });
         }
 
-        // Duplo clique no nome do desenvolvedor para acesso ao admin
-        const developerName = document.getElementById('developerName');
-        if (developerName) {
-            developerName.addEventListener('dblclick', () => {
-                window.location.href = 'admin.html';
-            });
-        }
+        let devClicks = 0;
+        document.getElementById('developerName').onclick = () => {
+            devClicks++;
+            if (devClicks >= 6) window.location.href = 'admin.html';
+            setTimeout(() => devClicks = 0, 2000);
+        };
 
         const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.onclick = () => {
