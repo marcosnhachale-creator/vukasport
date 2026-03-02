@@ -53,8 +53,6 @@ body {
     max-width: 600px;
     margin: 0 auto;
     padding: 0;
-    display: flex;
-    flex-direction: column;
 }
 
 /* Header */
@@ -183,8 +181,6 @@ body {
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background-color 0.2s;
-    position: relative;
-    min-height: 60px;
 }
 
 .match-card:active {
@@ -592,7 +588,6 @@ body {
 #gamesContainer {
     flex: 0 0 auto;
     padding-bottom: 0;
-    width: 100%;
 }
 
 #gamesList {
@@ -669,7 +664,7 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
     border-radius: 12px;
     padding: 12px;
-    margin: 12px 12px;
+    margin: 12px 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
@@ -697,7 +692,7 @@ body {
 @media (max-width: 600px) {
     .ad-container-modern {
         padding: 10px;
-        margin: 10px 12px;
+        margin: 10px 0;
         border-radius: 10px;
     }
     

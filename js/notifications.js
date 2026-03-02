@@ -196,33 +196,34 @@ class NotificationManager {
     }
 
     /**
-     * Reproduz som de notificacao
+     * Reproduz som de notificação
      */
     playNotificationSound() {
         try {
-            // Usar o gestor de sons personalizaveis se disponivel
-            if (typeof notificationSoundManager !== 'undefined') {
-                notificationSoundManager.playNotificationSound();
-            } else {
-                // Fallback para som padrao
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.5);
-            }
+            // Criar contexto de áudio
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Criar oscilador para gerar som
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            // Conectar nós
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Configurar som (frequência e duração)
+            oscillator.frequency.value = 800; // Frequência em Hz
+            oscillator.type = 'sine';
+            
+            // Envelope de volume (fade in e fade out)
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            // Reproduzir som
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
         } catch (error) {
-            console.warn('Erro ao reproduzir som de notificacao:', error);
+            console.warn('Erro ao reproduzir som de notificação:', error);
         }
     }
 
