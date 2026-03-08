@@ -117,8 +117,7 @@ Podemos atualizar esta Política de Cookies periodicamente. As alterações entr
 
 Para questões sobre cookies ou para revogar o consentimento, contacte-nos:
 
-- **Email:** cookies@vukasport.com
-- **Formulário de Contacto:** [Link para formulário]
+- **Email:** vukasport@gmail.com
 
 ---
 
