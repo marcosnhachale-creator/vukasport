@@ -77,7 +77,7 @@ Estes documentos foram elaborados para estar em conformidade com:
 
 - **Regulamento Geral sobre a Proteção de Dados (RGPD)**
 - **Diretiva de Privacidade Eletrônica**
-- **Lei de Proteção de Dados Pessoais (Portugal)**
+- **Lei de Proteção de Dados Pessoais (Mocambique)**
 - **Regulamentos Internacionais de Proteção de Dados**
 
 ## Atualizações e Manutenção
@@ -93,8 +93,7 @@ Recomenda-se revisar e atualizar estes documentos:
 
 Para questões sobre estas políticas:
 
-- **Email:** legal@vukasport.com
-- **Email de Privacidade:** privacy@vukasport.com
+- **Email de Privacidade:** vukasport@gmail.com
 
 ---
 
