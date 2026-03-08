@@ -70,8 +70,8 @@ Estes Termos de Uso são regidos pelas leis aplicáveis da jurisdição onde a V
 
 Para questões sobre estes Termos de Uso, contacte-nos através de:
 
-- **Email:** support@vukasport.com
-- **Endereço:** [Endereço da Empresa]
+- **Email:** vukasport@gmail.com
+- **Endereço:** [Mabote]
 
 ## 12. Alterações aos Termos
 
